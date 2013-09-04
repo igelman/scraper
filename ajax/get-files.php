@@ -1,4 +1,4 @@
-<?php
+<?php 
 /**
 Input:
 	array of file urls
