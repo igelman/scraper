@@ -1,5 +1,7 @@
 <?php 
 /**
+Curl a list of URLs
+
 Input:
 	array of file urls
 	local target directory
@@ -8,58 +10,53 @@ Side effect:
 Output:
 	path to file
 	size of file
+
+Documentation:
+	http://www.phpied.com/simultaneuos-http-requests-in-php-with-curl/
+	http://net.tutsplus.com/tutorials/php/techniques-and-resources-for-mastering-curl/
 **/
 
 $debug = "";
 
-// Get urls
+// Get urls ////////////////////////////
 include_once("../config/scraper-pages.config"); // $urls is initialized in the config
 $urls = cleanUrlArray($urls); // de-dupe and die if no valid urls
 $debug .= "urls:<pre>" . print_r($urls, TRUE) . "</pre>";
+////////////////////////////////////////
 
-// Create curl opts
+// Create curl opts ////////////////////
 $defaultOptions = createCurlOptionsArray(); // create the default curl options.
 $debug .= "defaultOptions:<pre>" . print_r($defaultOptions, TRUE) . "</pre>";
+////////////////////////////////////////
 
-// Set up a curl multi handle
-$mh = createCurlMultiHandler($urls, $defaultOptions);
+// Set up a curl multi handle //////////
+$handlers = createCurlMultiHandler($urls, $defaultOptions);
+$mh = $handlers['mh'];
+$chs = $handlers['chs'];
 $debug .= "<div>mh:<pre>" . print_r($mh,TRUE) . "</pre></div>";
+////////////////////////////////////////
 
-
-// Execute curl & write files
-// Initial execution
-/*
-$active = null;
+// Execute curl & write files //////////
+$running = null;
 do {
-	$debug .= "<div>entering do";
-	$mrc = curl_multi_exec($mh, $active)
-	$debug .= "finishing do</div>";
-} while ($mrc == CURLM_CALL_MULTI_PERFORM );
+	curl_multi_exec($mh, $running);
+} while($running > 0);
+////////////////////////////////////////
 
-
-
-// Main loop
-while ($active && $mrc == CURLM_OK) {
-	if (curl_multi_select($mh) != -1) {
-		do {
-			$mrc = curl_multi_exec($mh, $active)
-		} while ($mrc == CURLM_CALL_MULTI_PERFORM );		
+// get content and remove handles //////
+foreach($chs as $id => $ch) {
+	$result[$id] = curl_multi_getcontent($ch);
+	if ($result[$id] === FALSE){ // check for empty output
+		$error = curl_error($ch);
 	}
-	if ($mhinfo = curl_multi_info_read($mh)) { // If one of the requests finished
-		$chinfo = curl_getinfo($mhinfo['handle']);
-		// Do some stuff with the result
-		// Clean up
-		curl_multi_remove_handle($mh, $mhinfo['handle']);
-		curl_close($mhinfo['handle']);
-		
-	}
+	$debug .= "<div>id $id length:" . strlen( $result[$id] ) . "</div>";
+	curl_multi_remove_handle($mh, $ch);
 }
-*/
+////////////////////////////////////////
 
-
-// Finish
+// Finish //////////////////////////////
 curl_multi_close($mh);
-
+////////////////////////////////////////
 
 
 /*
@@ -122,7 +119,9 @@ Input:
 	$defaultOptions default set of curl options
 Output:
 	$mh curl multi-handler
+	$ch[] array of curl handlers
 **/
+	$i = 0;
 	$mh = curl_multi_init();
 	foreach ($urls as $url) {
 		$options = $defaultOptions;
@@ -131,14 +130,29 @@ Output:
 	
 		// set the handler for ths url
 		
-		$ch = curl_init();
-		curl_setopt_array($ch, $options);
-		$GLOBALS['debug'] .= "<div>ch:<pre>" . print_r($ch,TRUE) . "</pre></div>";
+		$ch[$i] = curl_init();
+		curl_setopt_array($ch[$i], $options);
+		$GLOBALS['debug'] .= "<div>ch[$i]:<pre>" . print_r($ch[$i],TRUE) . "</pre></div>";
 		
 		// add the handle to the multi-handler
-		curl_multi_add_handle($mh, $ch); 
+		curl_multi_add_handle($mh, $ch[$i]);
+		$i++;
 	}
-	return $mh;
+	return array("mh" => $mh, "chs" => $ch);
 } // createCurlMultiHandler
+
+function handleCurlOutput($mh, $ch) {
+/**
+Input:
+	$mh curl multi-handler
+	$ch current curl handler
+Side effect:
+	Write curl output to local file
+	Handle error if no output
+Output:
+	$result of current curl handler
+**/
+	return;
+}
 
 ?>
