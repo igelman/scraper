@@ -45,11 +45,14 @@ do {
 
 // get content and remove handles //////
 foreach($chs as $id => $ch) {
+/*
 	$result[$id] = curl_multi_getcontent($ch);
 	if ($result[$id] === FALSE){ // check for empty output
 		$error = curl_error($ch);
 	}
 	$debug .= "<div>id $id length:" . strlen( $result[$id] ) . "</div>";
+*/
+	$debug .= "<div>id $id length:" . handleCurlOutput($ch) . "</div>";
 	curl_multi_remove_handle($mh, $ch);
 }
 ////////////////////////////////////////
@@ -141,10 +144,9 @@ Output:
 	return array("mh" => $mh, "chs" => $ch);
 } // createCurlMultiHandler
 
-function handleCurlOutput($mh, $ch) {
+function handleCurlOutput($ch) {
 /**
 Input:
-	$mh curl multi-handler
 	$ch current curl handler
 Side effect:
 	Write curl output to local file
@@ -152,7 +154,33 @@ Side effect:
 Output:
 	$result of current curl handler
 **/
-	return;
+
+	$webRootPath = "/Volumes/Sulhee iMac HD/Library/Server/Web/Data/Sites/Default/";
+	$appRootPath = "development/scraper/"	// path relative web root
+	$fileStorePath = "data/html/";		// path relative to app root
+
+
+	$url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+	$url_basename = pathinfo( parse_url( $url, PHP_URL_PATH ), PATHINFO_BASENAME );
+	$fileStore = $webRootPath . $appRootPath . $fileStorePath . $url_basename ;
+	
+	return file_put_contents($fileStore, curl_multi_getcontent($ch) ); // returns the number of bytes that were written to the file, or FALSE on failure
+
 }
+
+function storeFile($html, $fileStorePath) {
+/**
+Store html file
+Input:
+	$html string of html
+Side effect:
+	Write string to local file
+	Handle error if no output
+Output:
+	$file path to local file
+**/
+
+	return;
+} // storeFile
 
 ?>
