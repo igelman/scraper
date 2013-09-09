@@ -156,7 +156,7 @@ Output:
 **/
 
 	$webRootPath = "/Volumes/Sulhee iMac HD/Library/Server/Web/Data/Sites/Default/";
-	$appRootPath = "development/scraper/"	// path relative web root
+	$appRootPath = "development/scraper/";	// path relative web root
 	$fileStorePath = "data/html/";		// path relative to app root
 
 
@@ -164,7 +164,17 @@ Output:
 	$url_basename = pathinfo( parse_url( $url, PHP_URL_PATH ), PATHINFO_BASENAME );
 	$fileStore = $webRootPath . $appRootPath . $fileStorePath . $url_basename ;
 	
-	return file_put_contents($fileStore, curl_multi_getcontent($ch) ); // returns the number of bytes that were written to the file, or FALSE on failure
+	$GLOBALS['debug'] .= "<div><li>url: $url</li><li>url_basename: $url_basename</li><li>fileStore: $fileStore</li></div>";
+	
+	
+	if ( ($html = curl_multi_getcontent($ch) ) === FALSE){ // check for empty output
+		$error = curl_error($ch);
+	}
+	
+	if ( ($length = file_put_contents($fileStore, $html) ) === FALSE) {
+		return "crap";
+	}
+	return $length; // returns the number of bytes that were written to the file, or FALSE on failure
 
 }
 
