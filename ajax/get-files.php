@@ -17,6 +17,7 @@ Documentation:
 **/
 
 $debug = "";
+include_once("../config/scraper.config");
 
 // Get urls ////////////////////////////
 include_once("../config/scraper-pages.config"); // $urls is initialized in the config
@@ -45,13 +46,6 @@ do {
 
 // get content and remove handles //////
 foreach($chs as $id => $ch) {
-/*
-	$result[$id] = curl_multi_getcontent($ch);
-	if ($result[$id] === FALSE){ // check for empty output
-		$error = curl_error($ch);
-	}
-	$debug .= "<div>id $id length:" . strlen( $result[$id] ) . "</div>";
-*/
 	$debug .= "<div>id $id length:" . handleCurlOutput($ch) . "</div>";
 	curl_multi_remove_handle($mh, $ch);
 }
@@ -155,14 +149,10 @@ Output:
 	$result of current curl handler
 **/
 
-	$webRootPath = "/Volumes/Sulhee iMac HD/Library/Server/Web/Data/Sites/Default/";
-	$appRootPath = "development/scraper/";	// path relative web root
-	$fileStorePath = "data/html/";		// path relative to app root
-
-
 	$url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
-	$url_basename = pathinfo( parse_url( $url, PHP_URL_PATH ), PATHINFO_BASENAME );
-	$fileStore = $webRootPath . $appRootPath . $fileStorePath . $url_basename ;
+	$urlBasename = pathinfo( parse_url( $url, PHP_URL_PATH ), PATHINFO_BASENAME );
+	
+	$fileStore = $GLOBALS['appRootPath'] . $GLOBALS['fileStorePath'] . time() . "-" . $urlBasename ;
 	
 	$GLOBALS['debug'] .= "<div><li>url: $url</li><li>url_basename: $url_basename</li><li>fileStore: $fileStore</li></div>";
 	
