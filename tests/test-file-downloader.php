@@ -32,11 +32,27 @@ class testFileDownloader extends PHPUnit_Framework_TestCase {
 		$this->assertEquals($this->uniqueUrls, count($this->fd->curlHandlers));
 	}
 	
+	public function testWriteFile(){
+		$string = "this is a string";
+		$fileStore = $GLOBALS['appRootPath'] . $GLOBALS['fileStorePath'] . time() . "-" . "testWriteFile.txt" ;
+		$lengthOfWrite = $this->fd->writeFile($fileStore, $string);
+		$this->assertEquals(strlen($string), $lengthOfWrite);
+		
+		$writtenFileContents = file_get_contents($fileStore);
+		$this->assertEquals($writtenFileContents, $string);
+		
+	}
+	
 	public function testStoreFiles() {
 		$this->fd->createCurlMultiHandler();
 		$this->fd->storeFiles();
 		$this->assertEquals("curl_multi", get_resource_type($this->fd->mh) );
+		$this->assertEquals($this->uniqueUrls, count($this->fd->getFileStores() ) );
+		
+		//echo json_encode ( $this->fd->getFileStores(), TRUE );
 	}
+	
+	
 }
 
 ?>

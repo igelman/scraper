@@ -1,7 +1,10 @@
 <?php
+include_once("../config/scraper.config");
+include_once("../config/scraper-pages.config"); // $urls is initialized in the config
 
 class FileDownloader {
 	private $urls;
+	private $fileStores;
 	public $mh;
 	public $curlHandlers;
 	
@@ -59,7 +62,7 @@ class FileDownloader {
 	public function storeFiles() {
 		$this->executeMultiHandler();
 		foreach($this->curlHandlers as $ch) {
-			//handleCurlOutput($ch);
+			$this->handleCurlOutput($ch);
 			curl_multi_remove_handle($this->mh, $ch);
 		}
 	}
@@ -68,18 +71,23 @@ class FileDownloader {
 		$url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
 		$urlBasename = pathinfo( parse_url( $url, PHP_URL_PATH ), PATHINFO_BASENAME );
 		
-		$fileStore = $GLOBALS['appRootPath'] . $GLOBALS['fileStorePath'] . time() . "-" . $urlBasename ;			
+		$fileStore = $GLOBALS['appRootPath'] . $GLOBALS['fileStorePath'] . time() . "-" . $urlBasename ;
 		if ( ($html = curl_multi_getcontent($ch) ) === FALSE){ // check for empty output
 		// test length of retrieved file
 			$error = curl_error($ch);
 		}
-		if ( ($length = writeFile($fileStore, $html) ) === FALSE) {
+		if ( ($length = $this->writeFile($fileStore, $html) ) === FALSE) {
 		// test length of written file
 			return "crap";
-		}	
+		}
+		
+		$this->fileStores[] = array(
+			'url'		=>	$url,
+			'fileStore'	=>	$fileStore,
+		);
 	}
 	
-	private function writeFile($fileStore, $html) {
+	public function writeFile($fileStore, $html) {
 	/**
 	This method might be replaced by a DB insert.
 	Input:
@@ -90,7 +98,11 @@ class FileDownloader {
 	Output:
 		Length of written file
 	**/
-		return file_put_contents($fileStore, $html)
+		return file_put_contents($fileStore, $html);
+	}
+	
+	public function getFileStores() {
+		return $this->fileStores;
 	}
 	
 	
