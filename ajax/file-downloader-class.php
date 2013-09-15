@@ -61,12 +61,9 @@ class FileDownloader {
 	
 	private function executeMultiHandler(){
 		$running = null;
-		//echo "****" . get_resource_type($this->mh) . "****";
-/*
 		do {
 			curl_multi_exec($this->mh, $running);
 		} while($running > 0);
-*/
 	}
 	
 	public function storeFiles() {

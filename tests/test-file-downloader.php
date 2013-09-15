@@ -34,11 +34,18 @@ class testFileDownloader extends PHPUnit_Framework_TestCase {
 			$name = pathinfo($file, PATHINFO_BASENAME);
 			$this->testFilesInfo[$name] = filesize($file);
 		}
-		print_r($this->testFilesInfo);
+		//print_r($this->testFilesInfo);
 		
 		$this->fd = new FileDownloader($this->urls);
 		$this->fd->setAppRootPath($appRootPath);
 		$this->fd->setFileStorePath($fileStorePath);
+		
+		// delete all files in fileStorePath
+		$files = glob($appRootPath . $fileStorePath . "*"); // get all file names
+		foreach($files as $file){ // iterate files
+			if(is_file($file))
+				unlink($file); // delete file
+		}
 	}
 
 	public function testConstruct() {
@@ -76,8 +83,8 @@ class testFileDownloader extends PHPUnit_Framework_TestCase {
 			$name = pathinfo($file['url'], PATHINFO_BASENAME);
 			$size = filesize($file['fileStore']);
 			$expectedSize = $this->testFilesInfo[$name];
-			echo $name . " " . $expectedSize . $size . PHP_EOL . PHP_EOL;
-//			$this->assertEquals();
+			//echo $name . " " . $expectedSize . $size . PHP_EOL . PHP_EOL;
+			$this->assertEquals($expectedSize, $size );
 
 //			print_r($file);
 /*
