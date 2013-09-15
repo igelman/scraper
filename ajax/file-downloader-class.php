@@ -1,12 +1,14 @@
 <?php
-include_once("../config/scraper.config");
-include_once("../config/scraper-pages.config"); // $urls is initialized in the config
+//include_once("../config/scraper.config");
+//include_once("../config/scraper-pages.config"); // $urls is initialized in the config
 
 class FileDownloader {
 	private $urls;
 	private $fileStores;
 	public $mh;
 	public $curlHandlers;
+	private $appRootPath;
+	private $fileStorePath;
 	
 	
 	public function __construct($urls) {
@@ -15,6 +17,14 @@ class FileDownloader {
 	
 	public function getUrls(){
 		return $this->urls;
+	}
+	
+	public function setAppRootPath($appRootPath) {
+		$this->appRootPath = $appRootPath;
+	}
+
+	public function setFileStorePath($fileStorePath) {
+		$this->fileStorePath = $fileStorePath;
 	}
 	
 	private function cleanUrlArray($urlArray) {
@@ -51,7 +61,7 @@ class FileDownloader {
 	
 	private function executeMultiHandler(){
 		$running = null;
-		echo "****" . get_resource_type($this->mh) . "****";
+		//echo "****" . get_resource_type($this->mh) . "****";
 /*
 		do {
 			curl_multi_exec($this->mh, $running);
@@ -71,14 +81,17 @@ class FileDownloader {
 		$url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
 		$urlBasename = pathinfo( parse_url( $url, PHP_URL_PATH ), PATHINFO_BASENAME );
 		
-		$fileStore = $GLOBALS['appRootPath'] . $GLOBALS['fileStorePath'] . time() . "-" . $urlBasename ;
+		$fileStore = $this->appRootPath . $this->fileStorePath . time() . "-" . $urlBasename ;
+//		echo "handleCurlOutput" . PHP_EOL;
+//		echo "fileStore: " . $fileStore . PHP_EOL;
 		if ( ($html = curl_multi_getcontent($ch) ) === FALSE){ // check for empty output
 		// test length of retrieved file
 			$error = curl_error($ch);
 		}
-		if ( ($length = $this->writeFile($fileStore, $html) ) === FALSE) {
+		$length = $this->writeFile($fileStore, $html);
+		if ( ($length) === FALSE) {
 		// test length of written file
-			return "crap";
+			echo "crap" . PHP_EOL;
 		}
 		
 		$this->fileStores[] = array(

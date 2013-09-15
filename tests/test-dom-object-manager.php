@@ -9,7 +9,7 @@ class testDomObjectManager extends PHPUnit_Framework_TestCase {
 	private $file;
 	
 	public function setUp() {
-		$this->file = "../data/sample-files/gamefly-20130904-1140.html";
+		$this->file = "../data/sample-files/dealnews-20130913.html"; // "../data/sample-files/gamefly-20130904-1140.html";
 		$this->html = "<html><head><body><h1>string of html</h1><div class='ItemClass'>Item 1 Div</div><div class='ItemClass'>Item 2 div</div><div class='ItemClass'>Item 3 div</div></body></html>";
 		$this->fileDomgr = new FileDomObjectManager($this->file);
 		$this->htmlDomgr = new HtmlDomObjectManager($this->html);
