@@ -11,6 +11,7 @@ class testFileDownloader extends PHPUnit_Framework_TestCase {
 	
 	protected function setUp(){
 		$this->urls = array(
+			//"http://www.retailmenot.com/view/gamefly.com",
 			"http://localhost/development/scraper/tests/sample-files/gamefly-20130904-1140.html",
 			"http://localhost/development/scraper/tests/sample-files/gamestop-20130904-1140.html",
 			"http://localhost/development/scraper/tests/sample-files/gap-20130904-1140.html",
@@ -86,14 +87,13 @@ class testFileDownloader extends PHPUnit_Framework_TestCase {
 			//echo $name . " " . $expectedSize . $size . PHP_EOL . PHP_EOL;
 			$this->assertEquals($expectedSize, $size );
 
-//			print_r($file);
+
 /*
+			print_r($file);
 			$testFilesInfo['name'] = pathinfo($file, PATHINFO_BASENAME);
 			$testFilesInfo['size'] = filesize($file);
 */
-		}
-
-		
+		}		
 		//echo json_encode ( $this->fd->getFileStores(), TRUE );
 	}
 	

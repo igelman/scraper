@@ -79,8 +79,6 @@ class FileDownloader {
 		$urlBasename = pathinfo( parse_url( $url, PHP_URL_PATH ), PATHINFO_BASENAME );
 		
 		$fileStore = $this->appRootPath . $this->fileStorePath . time() . "-" . $urlBasename ;
-//		echo "handleCurlOutput" . PHP_EOL;
-//		echo "fileStore: " . $fileStore . PHP_EOL;
 		if ( ($html = curl_multi_getcontent($ch) ) === FALSE){ // check for empty output
 		// test length of retrieved file
 			$error = curl_error($ch);
