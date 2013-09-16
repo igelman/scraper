@@ -1,6 +1,5 @@
 <?php
-//include_once("../config/scraper.config");
-//include_once("../config/scraper-pages.config"); // $urls is initialized in the config
+
 
 class FileDownloader {
 	private $urls;
@@ -10,6 +9,14 @@ class FileDownloader {
 	private $appRootPath;
 	private $fileStorePath;
 	
+	//private $userAgent = "Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)";
+	public $curlOptsArray = array(
+			CURLOPT_RETURNTRANSFER => TRUE, // return content
+			CURLOPT_USERAGENT      => "Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)", // set user-agent
+			CURLOPT_AUTOREFERER    => TRUE,
+			CURLOPT_FOLLOWLOCATION => TRUE, // follow redirects
+			//CURLOPT_URL            => $url, // this is where we'll put the target url
+	);
 	
 	public function __construct($urls) {
 		$this->urls = $this->cleanUrlArray($urls);
@@ -27,6 +34,10 @@ class FileDownloader {
 		$this->fileStorePath = $fileStorePath;
 	}
 	
+	public function setExtraCurlOptions($extraOptions) {
+		$this->curlOptsArray += $extraOptions;
+	}
+	
 	private function cleanUrlArray($urlArray) {
 		return array_values(array_unique($urlArray)); // de-dupe the array
 		// nned to add a check to make sure these are all proper urls, too
@@ -40,14 +51,8 @@ class FileDownloader {
 	Output:
 		Array of curl options
 	**/
-		$userAgent = "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.1.6) Gecko/20091201 Firefox/3.5.6 (.NET CLR 3.5.30729)";
-		return array(
-			CURLOPT_RETURNTRANSFER => TRUE, // return content
-			CURLOPT_USERAGENT      => $userAgent, // set user-agent
-			CURLOPT_AUTOREFERER    => TRUE,
-			CURLOPT_FOLLOWLOCATION => TRUE, // follow redirects
-			CURLOPT_URL            => $url, // this is where we'll put the target url
-		);
+		return $this->curlOptsArray + array(CURLOPT_URL=>$url);
+	
 	} // createCurlOptionsArray
 	
 	public function createCurlMultiHandler() {
@@ -114,6 +119,18 @@ class FileDownloader {
 	}
 	
 	
+}
+
+class ProxyFileDownloader extends FileDownloader {
+	
+	public function __construct($urls, $proxyIp) {
+		$extraOptions = array(
+			CURLOPT_PROXY => $proxyIp,
+			CURLOPT_HTTPPROXYTUNNEL => TRUE,
+		);
+		$this->setExtraCurlOptions($extraOptions);
+		parent::__construct($urls);
+	}
 }
 
 ?>

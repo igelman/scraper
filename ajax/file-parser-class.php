@@ -55,7 +55,7 @@ class FileParser {
 	/*
 	* Find the innermost content for the nested elements 
 	*/
-	protected function checkNestedElements($node, $elementsArray) {
+	protected function checkNestedElements($node, $elementsArray, $attribute="innertext") {
 		foreach($elementsArray as $element) {
 			if ( !is_object( $node->find($element, 0) ) ) {
 				return "";
@@ -63,7 +63,7 @@ class FileParser {
 			$node = $node->find($element, 0);
 		}
 		//echo "checkNestedElements: " . implode(":", $elementsArray) . " -- " . $node->innertext . PHP_EOL;
-		return $node->innertext;
+		return $node->$attribute;
 	}
 
 
@@ -121,6 +121,10 @@ class RetailmenotParser extends FileParser {
 		preg_match($num_clicks_today_pattern, $article_outer, $num_clicks_today_matches);
 		$item['num_clicks_today'] = $num_clicks_today_matches[1];
 
+		$item['vote_count'] = $this->checkNestedElements($node, array('div.vote_count'));
+		$item['comment_count'] = $this->checkNestedElements($node, array('span.commentBubble'));
+
+
 		return $item;
 	}
 		
@@ -129,13 +133,30 @@ class RetailmenotParser extends FileParser {
 class DealnewsParser extends FileParser {
 
 	public function assignElementClass() {
-		return "div.DnItemClass";
+		return ".article-wide"; // "div.DnItemClass";
 	}
 
 	public function parseItem(simple_html_dom_node $node) {
 		$item = array();
-		$item['content'] = $node->innertext;
 		
+		$article_outer = $node->outertext;
+
+		$item['title'] = $this->checkNestedElements($node, array('.std-headline'));
+		$item['details'] = $this->checkNestedElements($node, array('.art'));
+
+		$tags = "";
+		$category_path = $this->checkNestedElements($node, array('a[data-iref=fp-category]'), "href");
+		if ($category_path) {
+			$temp =  explode ( "/" , $category_path );
+			foreach ($temp as $tag) {
+				if (strlen($tag) > 0) {
+					$tags[] = $tag;
+				}
+			}
+		}
+		
+		$item['tags'] = $tags;
+	
 		return $item;
 	}	
 }

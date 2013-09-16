@@ -8,8 +8,11 @@ class testFileDownloader extends PHPUnit_Framework_TestCase {
 	private $urls;
 	private $uniqueUrls;
 	private $testFilesInfo;
+	private $proxyIp;
 	
 	protected function setUp(){
+	
+		$this->proxyIp = "127.0.0.1";
 		$this->urls = array(
 			//"http://www.retailmenot.com/view/gamefly.com",
 			"http://localhost/development/scraper/tests/sample-files/gamefly-20130904-1140.html",
@@ -41,6 +44,8 @@ class testFileDownloader extends PHPUnit_Framework_TestCase {
 		$this->fd->setAppRootPath($appRootPath);
 		$this->fd->setFileStorePath($fileStorePath);
 		
+		$this->pfd = new ProxyFileDownloader($this->urls, $this->proxyIp);
+		
 		// delete all files in fileStorePath
 		$files = glob($appRootPath . $fileStorePath . "*"); // get all file names
 		foreach($files as $file){ // iterate files
@@ -53,7 +58,24 @@ class testFileDownloader extends PHPUnit_Framework_TestCase {
 		$this->assertInstanceOf('FileDownloader',$this->fd);
 		$this->assertEquals($this->uniqueUrls, count($this->fd->getUrls())); // constructor de-dupes array, so 3 unique items in the 6 item array
 	}
+
+	public function testProxyConstruct() {
+		$this->assertInstanceOf('ProxyFileDownloader',$this->pfd);
+		$this->assertEquals($this->uniqueUrls, count($this->pfd->getUrls())); // constructor de-dupes array, so 3 unique items in the 6 item array
+		$this->assertArrayHasKey(CURLOPT_PROXY, $this->pfd->curlOptsArray);
+		$this->assertEquals($this->pfd->curlOptsArray[CURLOPT_PROXY], $this->proxyIp);
+
+	}
+
 	
+	public function testSetExtraCurlOptions(){
+		$this->fd->setExtraCurlOptions(array(CURLOPT_DNS_USE_GLOBAL_CACHE=>TRUE,CURLOPT_HTTPGET=>TRUE));
+/*  Commenting out these assertions, since there's no need to make this variable public (or to provide a getter)
+		$this->assertArrayHasKey(CURLOPT_DNS_USE_GLOBAL_CACHE, $this->fd->curlOptsArray);
+		$this->assertArrayHasKey(CURLOPT_HTTPGET, $this->fd->curlOptsArray);
+*/
+		return;
+	}
 	
 	public function testCreateCurlMultiHandler() {
 		$this->fd->createCurlMultiHandler();
@@ -76,8 +98,8 @@ class testFileDownloader extends PHPUnit_Framework_TestCase {
 		$this->fd->createCurlMultiHandler();
 		$this->fd->storeFiles();
 		$this->assertEquals("curl_multi", get_resource_type($this->fd->mh) );
-		$this->assertEquals($this->uniqueUrls, count($this->fd->getFileStores() ) );
-		
+		$this->assertEquals($this->uniqueUrls, count($this->fd->getFileStores() ));
+				
 		foreach($this->fd->getFileStores() as $file) {
 //$testFilesInfo['name'] = pathinfo($file, PATHINFO_BASENAME);
 //$testFilesInfo['size'] = filesize($file);
@@ -88,11 +110,9 @@ class testFileDownloader extends PHPUnit_Framework_TestCase {
 			$this->assertEquals($expectedSize, $size );
 
 
-/*
-			print_r($file);
-			$testFilesInfo['name'] = pathinfo($file, PATHINFO_BASENAME);
-			$testFilesInfo['size'] = filesize($file);
-*/
+			//print_r($file);
+			//$testFilesInfo['name'] = pathinfo($file, PATHINFO_BASENAME);
+			//$testFilesInfo['size'] = filesize($file);
 		}		
 		//echo json_encode ( $this->fd->getFileStores(), TRUE );
 	}
