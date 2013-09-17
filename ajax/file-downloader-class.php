@@ -84,6 +84,7 @@ class FileDownloader {
 		$urlBasename = pathinfo( parse_url( $url, PHP_URL_PATH ), PATHINFO_BASENAME );
 		
 		$fileStore = $this->appRootPath . $this->fileStorePath . time() . "-" . $urlBasename ;
+		
 		if ( ($html = curl_multi_getcontent($ch) ) === FALSE){ // check for empty output
 		// test length of retrieved file
 			$error = curl_error($ch);
@@ -127,6 +128,7 @@ class ProxyFileDownloader extends FileDownloader {
 		$extraOptions = array(
 			CURLOPT_PROXY => $proxyIp,
 			CURLOPT_HTTPPROXYTUNNEL => TRUE,
+			CURLOPT_PROXYTYPE => CURLPROXY_SOCKS5,
 		);
 		$this->setExtraCurlOptions($extraOptions);
 		parent::__construct($urls);

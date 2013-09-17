@@ -12,7 +12,7 @@ class testFileDownloader extends PHPUnit_Framework_TestCase {
 	
 	protected function setUp(){
 	
-		$this->proxyIp = "127.0.0.1";
+		$this->proxyIp = "127.0.0.1:9150";
 		$this->urls = array(
 			//"http://www.retailmenot.com/view/gamefly.com",
 			"http://localhost/development/scraper/tests/sample-files/gamefly-20130904-1140.html",
@@ -22,6 +22,7 @@ class testFileDownloader extends PHPUnit_Framework_TestCase {
 			"http://localhost/development/scraper/tests/sample-files/gamestop-20130904-1140.html",
 			"http://localhost/development/scraper/tests/sample-files/gap-20130904-1140.html",
 		);
+		$this->proxyUrls = array("http://www.retailmenot.com/view/kohls.com");
 		$this->files = array(
 			"sample-files/gamefly-20130904-1140.html",
 			"sample-files/gamestop-20130904-1140.html",
@@ -31,6 +32,8 @@ class testFileDownloader extends PHPUnit_Framework_TestCase {
 			"sample-files/gap-20130904-1140.html",
 		);
 		$this->uniqueUrls = count(array_unique($this->urls)); // 3, i.e., number of unique urls in $urls
+		$this->uniqueProxyUrls = count(array_unique($this->proxyUrls));
+		
 		$appRootPath = $GLOBALS['appRootPath'];
 		$fileStorePath = $GLOBALS['fileStorePath'];		
 
@@ -44,7 +47,9 @@ class testFileDownloader extends PHPUnit_Framework_TestCase {
 		$this->fd->setAppRootPath($appRootPath);
 		$this->fd->setFileStorePath($fileStorePath);
 		
-		$this->pfd = new ProxyFileDownloader($this->urls, $this->proxyIp);
+		$this->pfd = new ProxyFileDownloader($this->proxyUrls, $this->proxyIp);
+		$this->pfd->setAppRootPath($appRootPath);
+		$this->pfd->setFileStorePath($fileStorePath);
 		
 		// delete all files in fileStorePath
 		$files = glob($appRootPath . $fileStorePath . "*"); // get all file names
@@ -61,7 +66,7 @@ class testFileDownloader extends PHPUnit_Framework_TestCase {
 
 	public function testProxyConstruct() {
 		$this->assertInstanceOf('ProxyFileDownloader',$this->pfd);
-		$this->assertEquals($this->uniqueUrls, count($this->pfd->getUrls())); // constructor de-dupes array, so 3 unique items in the 6 item array
+		$this->assertEquals($this->uniqueProxyUrls, count($this->pfd->getUrls())); // constructor de-dupes array, so 3 unique items in the 6 item array
 		$this->assertArrayHasKey(CURLOPT_PROXY, $this->pfd->curlOptsArray);
 		$this->assertEquals($this->pfd->curlOptsArray[CURLOPT_PROXY], $this->proxyIp);
 
@@ -81,6 +86,11 @@ class testFileDownloader extends PHPUnit_Framework_TestCase {
 		$this->fd->createCurlMultiHandler();
 		$this->assertEquals("curl_multi", get_resource_type($this->fd->mh) );
 		$this->assertEquals($this->uniqueUrls, count($this->fd->curlHandlers));
+		
+		$this->pfd->createCurlMultiHandler();
+		$this->assertEquals("curl_multi", get_resource_type($this->pfd->mh) );
+		$this->assertEquals($this->uniqueProxyUrls, count($this->pfd->curlHandlers));
+
 	}
 	
 	public function testWriteFile(){
@@ -115,6 +125,10 @@ class testFileDownloader extends PHPUnit_Framework_TestCase {
 			//$testFilesInfo['size'] = filesize($file);
 		}		
 		//echo json_encode ( $this->fd->getFileStores(), TRUE );
+		
+		$this->pfd->createCurlMultiHandler();
+		$this->pfd->storeFiles();
+
 	}
 	
 	
