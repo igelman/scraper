@@ -1,0 +1,7 @@
+.DS_Store
+
+# ignore third party libraries
+assets/php/simplehtmldom/
+
+# ignore config file with authentication info
+config/local.config
