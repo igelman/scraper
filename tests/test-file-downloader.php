@@ -128,6 +128,9 @@ class testFileDownloader extends PHPUnit_Framework_TestCase {
 		
 		$this->pfd->createCurlMultiHandler();
 		$this->pfd->storeFiles();
+		$fileStores = $this->pfd->getFileStores();
+		$this->assertTrue( filesize( $fileStores[0]['fileStore'] ) > 0);
+		echo print_r ( $this->pfd->getFileStores() );
 
 	}
 	

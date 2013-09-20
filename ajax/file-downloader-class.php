@@ -76,6 +76,7 @@ class FileDownloader {
 		foreach($this->curlHandlers as $ch) {
 			$this->handleCurlOutput($ch);
 			curl_multi_remove_handle($this->mh, $ch);
+			sleep(1);
 		}
 	}
 	
@@ -97,6 +98,7 @@ class FileDownloader {
 		
 		$this->fileStores[] = array(
 			'url'		=>	$url,
+			'curlInfo'	=>	curl_getinfo($ch),
 			'fileStore'	=>	$fileStore,
 		);
 	}

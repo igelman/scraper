@@ -4,4 +4,7 @@
 assets/php/simplehtmldom/
 
 # ignore config file with authentication info
-config/local.config
+config/*local.config
+
+# ignore data directory
+data/
