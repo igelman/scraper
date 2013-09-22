@@ -25,13 +25,17 @@ class PdoManager {
 	*/
 	public static function getInstance() {
 	
-		$dbHost = DBHOST;
+		$dbHost = DB_HOST;
 		$db = DB;
 		$dbUser = DB_USER;
 		$dbPass = DB_PASS;
 		if (!self::$instance) {
-			self::$instance = new PDO("mysql:host=$dbHost;dbname=$db", $dbUser, $dbPass);
-			self::$instance-> setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			try {
+				self::$instance = new PDO("mysql:host=$dbHost;dbname=$db", $dbUser, $dbPass, array(PDO::ATTR_PERSISTENT => true) );
+				self::$instance-> setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);				
+			} catch(PDOException $e) {
+				echo $e->getMessage();
+			}
 		}
 		return self::$instance;
 	}

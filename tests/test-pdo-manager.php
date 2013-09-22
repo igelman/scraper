@@ -16,7 +16,12 @@ try {
 
 	
 	$aq = new ArrayQueuer(selectUrlsFromFilesTable($dbh), 10);
-	print_r($aq->getSets());
+	$sets = $aq->getSets();
+	$i = 0;
+	foreach( $sets as $set ) {
+		setUrlSetNumber($i, $set, $dbh);
+		$i++;
+	}
 	
 }
 catch(PDOException $e){
@@ -45,7 +50,26 @@ function selectUrlsFromFilesTable($dbh){
 		$result[] = $r;
 	}
 	return $result;
+}
 
+function setUrlSetNumber($setNumber, $urls, $dbh) {
+	$stmt = $dbh->prepare("UPDATE files SET set_number=:setNumber WHERE url=:url");
+	$stmt->bindParam(':setNumber', $setNumber);
+	$stmt->bindParam(':url', $url);
+	
+	foreach ($urls as $url) {
+		if($stmt->execute()) {
+			echo "Update $url with set number $setNumber" . PHP_EOL;
+		} else {
+			echo "Didn't update $url with set number $setNumber" . PHP_EOL;
+			echo "UPDATE files SET set=$setNumber WHERE url=$url" . PHP_EOL . PHP_EOL;
+		}
+	}
+/*
+	UPDATE table_name
+SET column1=value, column2=value2,...
+WHERE some_column=some_value
+*/
 }
 
 ?>
