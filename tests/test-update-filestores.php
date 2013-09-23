@@ -5,7 +5,7 @@ class TestUpdateFilestores extends PHPUnit_Framework_TestCase {
 
 	protected function setUp() {
 		$this->uf = new UpdateFilestores();
-		$this->setNumber = 2; // (0 - 2 complete)
+		$this->setNumber = 7; // (0 - 6 complete)
 	}
 	
 	public function testConstruct() {
@@ -20,21 +20,9 @@ class TestUpdateFilestores extends PHPUnit_Framework_TestCase {
 	public function testDownloadSet() {
 		$this->uf->chooseSet($this->setNumber);
 		$this->uf->downloadSet();
-		echo $this->uf->checkResults();
-/*
-		$this->pm = PdoManager::getInstance();
+		$statusMessage = $this->uf->checkResults();
+		$this->assertTrue(substr($statusMessage, 0, 1) >= 1);
+		echo $statusMessage;
 		
-		$stmt = $this->pm->prepare("SELECT OCTET_LENGTH(content) FROM files WHERE url = :url");
-		$stmt->bindParam(':url', $url);
-		$stmt->setFetchMode(PDO::FETCH_ASSOC);
-				
-		$urls = $this->uf->getUrlSet();
-		foreach ($urls as $url) {
-			$stmt->execute();
-			$result = $stmt->fetchColumn();
-			echo "testDownloadSet $url content length: " . print_r($result) . PHP_EOL;
-			$this->assertTrue($result > 0);
-		}
-*/
 	}
 }
