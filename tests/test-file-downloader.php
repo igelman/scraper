@@ -22,7 +22,7 @@ class testFileDownloader extends PHPUnit_Framework_TestCase {
 			"http://localhost/development/scraper/tests/sample-files/gamestop-20130904-1140.html",
 			"http://localhost/development/scraper/tests/sample-files/gap-20130904-1140.html",
 		);
-		$this->proxyUrls = array("http://www.retailmenot.com/view/kohls.com");
+		$this->proxyUrls = array("http://localhost/development/scraper/tests/sample-files/gap-20130904-1140.html",);
 		$this->files = array(
 			"sample-files/gamefly-20130904-1140.html",
 			"sample-files/gamestop-20130904-1140.html",
@@ -131,6 +131,17 @@ class testFileDownloader extends PHPUnit_Framework_TestCase {
 		$fileStores = $this->pfd->getFileStores();
 		$this->assertTrue( filesize( $fileStores[0]['fileStore'] ) > 0);
 		echo print_r ( $this->pfd->getFileStores() );
+
+	}
+	
+	public function testStoreFilesToDb() {
+		echo "*** testStoreFilesToDb ***" . PHP_EOL;
+		$urls = array("http://www.retailmenot.com/view/adidas.com");
+		$fd2db = new FiletoBlobDownloader($urls);
+		$this->assertInstanceOf('FileToBlobDownloader',$fd2db);
+		$fd2db->createCurlMultiHandler();
+		$this->assertEquals("curl_multi", get_resource_type($fd2db->mh) );
+		$fd2db->storeFiles();
 
 	}
 	

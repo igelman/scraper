@@ -1,5 +1,6 @@
 <?php
 
+require_once("pdo-manager-class.php");
 
 class FileDownloader {
 	private $urls;
@@ -8,6 +9,7 @@ class FileDownloader {
 	public $curlHandlers;
 	private $appRootPath;
 	private $fileStorePath;
+	private $sleep = 10;
 	
 	//private $userAgent = "Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)";
 	public $curlOptsArray = array(
@@ -76,11 +78,11 @@ class FileDownloader {
 		foreach($this->curlHandlers as $ch) {
 			$this->handleCurlOutput($ch);
 			curl_multi_remove_handle($this->mh, $ch);
-			sleep(1);
+			sleep($this->sleep);
 		}
 	}
-	
-	private function handleCurlOutput($ch) {
+		
+	protected function handleCurlOutput($ch) {
 		$url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
 		$urlBasename = pathinfo( parse_url( $url, PHP_URL_PATH ), PATHINFO_BASENAME );
 		
@@ -134,6 +136,52 @@ class ProxyFileDownloader extends FileDownloader {
 		);
 		$this->setExtraCurlOptions($extraOptions);
 		parent::__construct($urls);
+	}
+}
+
+class FileToBlobDownloader extends FileDownloader {
+
+	protected function handleCurlOutput($ch) {
+		$url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+		
+		if ( ($html = curl_multi_getcontent($ch) ) === FALSE){ // check for empty output
+		// test length of retrieved file
+			$error = curl_error($ch);
+		}
+		$length = $this->writeFile($url, $html);
+		if ( ($length) === FALSE) {
+		// test length of written file
+			echo "crap" . PHP_EOL;
+		}
+		
+/*
+		$this->fileStores[] = array(
+			'url'		=>	$url,
+			'curlInfo'	=>	curl_getinfo($ch),
+			'fileStore'	=>	$fileStore,
+		);
+*/
+	}
+	
+	public function writeFile($url, $html) {
+		echo "F2BD writeFile($url, html)" . PHP_EOL;
+		$dbh = PdoManager::getInstance();
+		try {
+			$stmt = $dbh->prepare("UPDATE files SET content=:html WHERE url=:url");
+			$stmt->bindParam(':html', $html);
+			$stmt->bindParam(':url', $url);
+			
+			if($stmt->execute()) {
+				echo "Update $url with blob" . PHP_EOL;
+			} else {
+				echo "Didn't update $url with blob" . PHP_EOL;
+				echo "UPDATE files SET content=html WHERE url=$url" . PHP_EOL . PHP_EOL;
+			}
+		}
+		catch(PDOException $e){
+			echo $e->getMessage();
+		}		
+
 	}
 }
 

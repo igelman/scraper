@@ -72,4 +72,8 @@ WHERE some_column=some_value
 */
 }
 
+function setBlob($blob, $url, $dbh) {
+	
+}
+
 ?>
