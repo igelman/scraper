@@ -57,6 +57,7 @@ class UpdateFilestores {
 
 		$this->statusMessage = "";
 		$count = 0;
+		$successCount = 0;
 		foreach($this->urlSet as $url) {
 			$stmt->execute();
 			$result = $stmt->fetchColumn();
@@ -65,7 +66,7 @@ class UpdateFilestores {
 			$this->statusMessage .= "$url blob size: $result" . PHP_EOL;
 		}
 		
-		$this->statusMessage = "Downloaded $successCount of " . $count . PHP_EOL . $this->statusMessage;
+		$this->statusMessage = "$successCount of " . $count . " downloaded." . PHP_EOL . $this->statusMessage;
 		return $this->statusMessage;
 	}
 }
