@@ -1,40 +1,26 @@
 <?php
 ini_set("display_errors", "1");
 error_reporting(E_ALL);
-//echo __FILE__; // returns absolute path to this file
-//echo ""<br>"" . dirname(__FILE__); // returns parent directory of this file
-//echo ""<br>"" . time();
-//phpinfo();
 
-include("ajax/file-downloader-class.php");
-include_once("config/scraper.config");
+require_once("../config/local.config");
+require_once("pdo-manager-class.php");
+require_once("file-parser-class.php");
 
-$appRootPath = $GLOBALS['appRootPath'];
-$fileStorePath = $GLOBALS['fileStorePath'];
+$pm = PdoManager::getInstance();
 
+$url = "http://www.retailmenot.com/view/apple.com";
 
-$urls = array(
-			"http://localhost/development/scraper/tests/sample-files/gamefly-20130904-1140.html",
-			"http://localhost/development/scraper/tests/sample-files/gamestop-20130904-1140.html",
-			"http://localhost/development/scraper/tests/sample-files/gap-20130904-1140.html",
-			"http://localhost/development/scraper/tests/sample-files/gamefly-20130904-1140.html",
-			"http://localhost/development/scraper/tests/sample-files/gamestop-20130904-1140.html",
-			"http://localhost/development/scraper/tests/sample-files/gap-20130904-1140.html",
-		);
+try {
+	$stmt = $pm->prepare("SELECT content FROM files WHERE url = :url");
+	$stmt->bindParam(':url', $url);
+	$stmt->setFetchMode(PDO::FETCH_ASSOC);
+	$stmt->execute();
+	$content = $stmt->fetchColumn();
+} catch(PDOException $e) {
+	echo $e->getMessage();
+}
 
-/*
-echo "urls: " . "<br>";
-print_r($urls) . "<br>";
-echo "appRootPath: " . $appRootPath . "<br>";
-echo "fileStorePath: " . $fileStorePath . "<br>";
-*/
-
-
-$fd = new FileDownloader($urls);
-$fd->setAppRootPath($appRootPath);
-$fd->setFileStorePath($fileStorePath);
-$fd->createCurlMultiHandler();
-$fd->storeFiles();
+$rmnParser = FileParser::createFromHtml("RetailmenotParser", $content);
 
 
 ?>

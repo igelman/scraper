@@ -10,12 +10,9 @@ $dbUser = DB_USER;
 $dbPass = DB_PASS;
 
 try {
-	$dbh = new PDO("mysql:host=$dbHost;dbname=$db", $dbUser, $dbPass, array(
-		PDO::ATTR_PERSISTENT => true
-	));
-
+	$dbh = new PDO("mysql:host=$dbHost;dbname=$db", $dbUser, $dbPass, array(PDO::ATTR_PERSISTENT => true));
 	
-	$aq = new ArrayQueuer(selectUrlsFromFilesTable($dbh), 10);
+	$aq = new ArrayQueuer(selectUrlsFromFilesTable($dbh), 4);
 	$sets = $aq->getSets();
 	$i = 0;
 	foreach( $sets as $set ) {
@@ -70,10 +67,6 @@ function setUrlSetNumber($setNumber, $urls, $dbh) {
 SET column1=value, column2=value2,...
 WHERE some_column=some_value
 */
-}
-
-function setBlob($blob, $url, $dbh) {
-	
 }
 
 ?>

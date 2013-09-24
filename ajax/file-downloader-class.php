@@ -76,9 +76,17 @@ class FileDownloader {
 	public function storeFiles() {
 		$this->executeMultiHandler();
 		foreach($this->curlHandlers as $ch) {
+			$this->stopIfDetected($ch);
 			$this->handleCurlOutput($ch);
 			curl_multi_remove_handle($this->mh, $ch);
-			sleep($this->sleep);
+			sleep( rand( 0, $this->sleep));
+		}
+	}
+	
+	protected function stopIfDetected($ch){
+		$effectiveUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+		if (strstr($effectiveUrl, "humanCheck") ) {
+			exit("We got found out: $effectiveUrl");
 		}
 	}
 		
@@ -143,36 +151,29 @@ class FileToBlobDownloader extends FileDownloader {
 
 	protected function handleCurlOutput($ch) {
 		$url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+		$downloadSize = curl_getinfo($ch, CURLINFO_SIZE_DOWNLOAD);
 		
 		if ( ($html = curl_multi_getcontent($ch) ) === FALSE){ // check for empty output
 		// test length of retrieved file
 			$error = curl_error($ch);
 		}
-		$length = $this->writeFile($url, $html);
+		$length = $this->writeFile($url, $html, $downloadSize);
 		if ( ($length) === FALSE) {
 		// test length of written file
 			echo "crap" . PHP_EOL;
 		}
-		
-/*
-		$this->fileStores[] = array(
-			'url'		=>	$url,
-			'curlInfo'	=>	curl_getinfo($ch),
-			'fileStore'	=>	$fileStore,
-		);
-*/
 	}
 	
-	public function writeFile($url, $html) {
+	public function writeFile($url, $html, $downloadSize) {
 		echo "F2BD writeFile($url, html)" . PHP_EOL;
 		$dbh = PdoManager::getInstance();
 		try {
-			$stmt = $dbh->prepare("UPDATE files SET content=:html WHERE url=:url");
+			$stmt = $dbh->prepare("UPDATE files SET content=:html, date_retrieved = NOW() WHERE url=:url");
 			$stmt->bindParam(':html', $html);
 			$stmt->bindParam(':url', $url);
 			
 			if($stmt->execute()) {
-				echo "Update $url with blob" . PHP_EOL;
+				echo "Update $url with blob size $downloadSize" . PHP_EOL;
 			} else {
 				echo "Didn't update $url with blob" . PHP_EOL;
 				echo "UPDATE files SET content=html WHERE url=$url" . PHP_EOL . PHP_EOL;

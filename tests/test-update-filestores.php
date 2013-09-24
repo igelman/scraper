@@ -5,7 +5,7 @@ class TestUpdateFilestores extends PHPUnit_Framework_TestCase {
 
 	protected function setUp() {
 		$this->uf = new UpdateFilestores();
-		$this->setNumber = 7; // (0 - 6 complete)
+		$this->setNumber = 68; // (0 - 7 complete)
 	}
 	
 	public function testConstruct() {
