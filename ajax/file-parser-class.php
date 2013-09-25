@@ -40,9 +40,9 @@ class FileParser {
 	}
 	
 	public function parseDomObject() {
-		echo "called FileParser->parseDomObject()" . PHP_EOL;
+		//echo "called FileParser->parseDomObject()" . PHP_EOL;
 		$itemClass = $this->assignElementClass();
-		echo "parseDomObject itemClass: " . $itemClass . PHP_EOL;
+		//echo "parseDomObject itemClass: " . $itemClass . PHP_EOL;
 		$this->parsedContent = array();
 		foreach($this->domObject->find( $itemClass ) as $node) {
 			$this->parsedContent[] = $this->parseItem($node);
@@ -89,7 +89,7 @@ class RetailmenotParser extends FileParser {
 	*  element classes.
 	*/
 	public function parseItem(simple_html_dom_node $node) {
-		echo "called class RetalmenotParser->parseItem()" . PHP_EOL;
+		//echo "called class RetalmenotParser->parseItem()" . PHP_EOL;
 		$item = array();
 		
 		$article_outer = $node->outertext; // I use this later to find some stuff that simple_html_dom can't parse on its own

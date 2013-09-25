@@ -15,23 +15,17 @@ class testFileDownloader extends PHPUnit_Framework_TestCase {
 		$this->proxyIp = "127.0.0.1:9150";
 		$this->urls = array(
 			//"http://www.retailmenot.com/view/gamefly.com",
-			"http://localhost/development/scraper/tests/sample-files/gamefly-20130904-1140.html",
-			"http://localhost/development/scraper/tests/sample-files/gamestop-20130904-1140.html",
-			"http://localhost/development/scraper/tests/sample-files/gap-20130904-1140.html",
-			"http://localhost/development/scraper/tests/sample-files/gamefly-20130904-1140.html",
-			"http://localhost/development/scraper/tests/sample-files/gamestop-20130904-1140.html",
-			"http://localhost/development/scraper/tests/sample-files/gap-20130904-1140.html",
+			"http://localhost/development/scraper/tests/sample-files/gamefly-20130923-1854.html",
+			"http://localhost/development/scraper/tests/sample-files/1800flowers-20130923-1200.html",
 		);
-		$this->proxyUrls = array("http://localhost/development/scraper/tests/sample-files/gap-20130904-1140.html",);
+		$this->proxyUrls = array("http://localhost/development/scraper/tests/sample-files/1800flowers-20130923-1200.html",);
 		$this->files = array(
-			"sample-files/gamefly-20130904-1140.html",
-			"sample-files/gamestop-20130904-1140.html",
-			"sample-files/gap-20130904-1140.html",
-			"sample-files/gamefly-20130904-1140.html",
-			"sample-files/gamestop-20130904-1140.html",
-			"sample-files/gap-20130904-1140.html",
+			"sample-files/gamefly-20130923-1854.html",
+			"sample-files/1800flowers-20130923-1200.html",
+			"sample-files/gamefly-20130923-1854.html",
+			"sample-files/1800flowers-20130923-1200.html",
 		);
-		$this->uniqueUrls = count(array_unique($this->urls)); // 3, i.e., number of unique urls in $urls
+		$this->uniqueUrls = count(array_unique($this->urls)); // 2, i.e., number of unique urls in $urls
 		$this->uniqueProxyUrls = count(array_unique($this->proxyUrls));
 		
 		$appRootPath = $GLOBALS['appRootPath'];
@@ -41,7 +35,6 @@ class testFileDownloader extends PHPUnit_Framework_TestCase {
 			$name = pathinfo($file, PATHINFO_BASENAME);
 			$this->testFilesInfo[$name] = filesize($file);
 		}
-		//print_r($this->testFilesInfo);
 		
 		$this->fd = new FileDownloader($this->urls);
 		$this->fd->setAppRootPath($appRootPath);
@@ -129,14 +122,15 @@ class testFileDownloader extends PHPUnit_Framework_TestCase {
 		$this->pfd->createCurlMultiHandler();
 		$this->pfd->storeFiles();
 		$fileStores = $this->pfd->getFileStores();
-		$this->assertTrue( filesize( $fileStores[0]['fileStore'] ) > 0);
+		$this->assertTrue( filesize( $fileStores[0]['fileStore'] ) > 0, "Make sure proxy server is running");
 		echo print_r ( $this->pfd->getFileStores() );
 
 	}
 	
+/*
 	public function testStoreFilesToDb() {
 		echo "*** testStoreFilesToDb ***" . PHP_EOL;
-		$urls = array("http://www.retailmenot.com/view/adidas.com");
+		$urls = array("http://www.retailmenot.com/view/6pm.com");
 		$fd2db = new FiletoBlobDownloader($urls);
 		$this->assertInstanceOf('FileToBlobDownloader',$fd2db);
 		$fd2db->createCurlMultiHandler();
@@ -144,7 +138,27 @@ class testFileDownloader extends PHPUnit_Framework_TestCase {
 		$fd2db->storeFiles();
 
 	}
-	
+*/
+
+/*
+	public function testCallback() {
+		echo PHP_EOL . "*** testCallback ***" . PHP_EOL;
+		$callback = function($content){return $content;};
+
+		$fdwc = new FileDownloaderWithCallback(array("http://localhost/development/scraper/tests/sample-files/gamefly-20130923-1854.html"), $callback);
+		$this->assertInstanceOf('FileDownloaderWithCallback', $fdwc,"assertInstanceOf('FileDownloaderWithCallback', \$fdwc)");
+		$this->assertInstanceOf('FileDownloader', $fdwc, "assertInstanceOf('FileDownloader', \$fdwc)");
+
+		$fdwc->createCurlMultiHandler();
+		$this->assertEquals('curl_multi', get_resource_type($fdwc->mh), "assertEquals('curl_multi', get_resource_type(\$fdwc->mh) )" );
+		
+		$hcoReturn = $fdwc->storeFiles();
+		echo "hcoReturn: $hcoReturn" . PHP_EOL;
+		echo "testCallback about to assertEquals('callback function returned', \$hcoReturn)";
+		$this->assertEquals($callback("callback function returned"), $hcoReturn, "assertEquals('callback function returned', \$hcoReturn)");
+
+	}	
+*/
 	
 }
 

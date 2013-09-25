@@ -5,35 +5,43 @@ error_reporting(E_ALL);
 require_once("../config/local.config");
 require_once("pdo-manager-class.php");
 require_once("file-parser-class.php");
+require_once("file-downloader-class.php");
 
 $pm = PdoManager::getInstance();
 
+
+$setNumber = 67;
 try {
-//	$stmt = $pm->prepare("SELECT url, content FROM files WHERE date_retrieved > SUBDATE( NOW(), 7 )");
-	$stmt = $pm->prepare("SELECT url, content FROM files WHERE url = :url");
-	$stmt->bindParam(':url', $url);
-	$url = "http://www.retailmenot.com/view/1800flowers.com";
+	$stmt = $pm->prepare("SELECT url FROM files WHERE set_number = :set_number");
+	$stmt->bindParam(':set_number', $setNumber);
 
 	$stmt->setFetchMode(PDO::FETCH_ASSOC);
 	$stmt->execute();
 	
-	$rmnParser = array();
+	$urls = array();
 	foreach($stmt as $row) {
+		$urls[] = $row['url'];
+		
+/*
 		$rmnParser = FileParser::createFromHtml("RetailmenotParser", $row['content']);
 		$rmnParser->parseDomObject();
 		$parsedContent[$row['url']] = $rmnParser->getParsedContent();
+
+*/
+
+
 	}
+	$fd2db = new FiletoBlobDownloader($urls);
+	$fd2db->createCurlMultiHandler();
+	$fd2db->storeFiles();
+
 	
 } catch(PDOException $e) {
 	echo $e->getMessage();
 }
 
-echo json_encode($parsedContent);
-/*
-$rmnParser = FileParser::createFromHtml("RetailmenotParser", $content);
-$rmnParser->parseDomObject();
-echo json_encode( $rmnParser->getParsedContent() );
-echo $content;
-*/
+
+
+
 
 ?>

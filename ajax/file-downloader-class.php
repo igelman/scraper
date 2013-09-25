@@ -1,6 +1,7 @@
 <?php
 
 require_once("pdo-manager-class.php");
+require_once("file-parser-class.php");
 
 class FileDownloader {
 	private $urls;
@@ -91,15 +92,21 @@ class FileDownloader {
 	}
 		
 	protected function handleCurlOutput($ch) {
-		$url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
-		$urlBasename = pathinfo( parse_url( $url, PHP_URL_PATH ), PATHINFO_BASENAME );
-		
-		$fileStore = $this->appRootPath . $this->fileStorePath . time() . "-" . $urlBasename ;
-		
 		if ( ($html = curl_multi_getcontent($ch) ) === FALSE){ // check for empty output
 		// test length of retrieved file
 			$error = curl_error($ch);
 		}
+		$this->writeCurlToFile($ch, $html);
+	}
+	
+	private function writeCurlToFile($ch, $html) {
+		$url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+		$urlBasename = pathinfo( parse_url( $url, PHP_URL_PATH ), PATHINFO_BASENAME );
+		$fileStore = $this->appRootPath . $this->fileStorePath . time() . "-" . $urlBasename ;
+		
+		
+	//	echo PHP_EOL . "*** writeFile ***" . PHP_EOL . "fileStore: $fileStore" . PHP_EOL . "html: " . substr($html, 0, 10) . PHP_EOL . "about to file_put_contents..." . PHP_EOL;
+		
 		$length = $this->writeFile($fileStore, $html);
 		if ( ($length) === FALSE) {
 		// test length of written file
@@ -113,18 +120,8 @@ class FileDownloader {
 		);
 	}
 	
-	public function writeFile($fileStore, $html) {
-	/**
-	This method might be replaced by a DB insert.
-	Input:
-		$fileStore path to new file location
-		$html string of html
-	Side Effect:
-		Writes file to location $fileStore
-	Output:
-		Length of written file
-	**/
-		return file_put_contents($fileStore, $html);
+	public function writeFile($fileStore, $string) {
+		return file_put_contents($fileStore, $string);
 	}
 	
 	public function getFileStores() {
@@ -147,6 +144,26 @@ class ProxyFileDownloader extends FileDownloader {
 	}
 }
 
+class FileDownloaderWithCallback extends FileDownloader{
+
+	private $callback;
+	public function __construct($urls, $callback) {
+		$this->callback = $callback;
+		parent::__construct($urls);
+	}
+	
+	protected function handleCurlOutput($ch) {
+		parent::handleCurlOutput($ch);
+//		echo "returned from parent::handleCurlOutput" . PHP_EOL;
+		$callback = $this->callback;
+		echo PHP_EOL . "hco callback: " . $callback("callback function returned") . PHP_EOL;
+		
+		$return = $callback("callback function returned");
+		echo "hco: $return" . PHP_EOL;
+		return $return;
+	}
+}
+
 class FileToBlobDownloader extends FileDownloader {
 
 	protected function handleCurlOutput($ch) {
@@ -157,20 +174,24 @@ class FileToBlobDownloader extends FileDownloader {
 		// test length of retrieved file
 			$error = curl_error($ch);
 		}
-		$length = $this->writeFile($url, $html, $downloadSize);
+		
+		$parsed_content = $this->parseContent($html);
+		var_dump($parsed_content);
+		$length = $this->writeFile($url, $html, $downloadSize, $parsed_content);
 		if ( ($length) === FALSE) {
 		// test length of written file
 			echo "crap" . PHP_EOL;
 		}
 	}
 	
-	public function writeFile($url, $html, $downloadSize) {
+	public function writeFile($url, $html, $downloadSize, $parsed_content="") {
 		echo "F2BD writeFile($url, html)" . PHP_EOL;
 		$dbh = PdoManager::getInstance();
 		try {
-			$stmt = $dbh->prepare("UPDATE files SET content=:html, date_retrieved = NOW() WHERE url=:url");
+			$stmt = $dbh->prepare("UPDATE files SET content=:html, date_retrieved = NOW(), parsed_content = :parsed_content WHERE url=:url");
 			$stmt->bindParam(':html', $html);
 			$stmt->bindParam(':url', $url);
+			$stmt->bindParam(':parsed_content', $parsed_content);
 			
 			if($stmt->execute()) {
 				echo "Update $url with blob size $downloadSize" . PHP_EOL;
@@ -182,6 +203,13 @@ class FileToBlobDownloader extends FileDownloader {
 		catch(PDOException $e){
 			echo $e->getMessage();
 		}		
+
+	}
+	
+	private function parseContent($html) {
+		$rmnParser = FileParser::createFromHtml("RetailmenotParser", $html);
+		$rmnParser->parseDomObject();
+		return json_encode($rmnParser->getParsedContent());
 
 	}
 }
