@@ -13,7 +13,7 @@ class ClientSelectParsedContent {
 	public function queryParsedContent() {
 		$dbh = PdoManager::getInstance();
 		try {
-			$stmt = $dbh->prepare("SELECT url, date_retrieved, parsed_content FROM files WHERE LENGTH(parsed_content) > 0");
+			$stmt = $dbh->prepare("SELECT url, date_retrieved, parsed_content FROM files WHERE url IN ('http://www.retailmenot.com/view/apple.com' , 'http://www.retailmenot.com/view/ardenb.com') AND LENGTH(parsed_content) > 0");
 			$stmt->setFetchMode(PDO::FETCH_ASSOC);
 			$stmt->execute();
 			
@@ -38,10 +38,14 @@ class ClientSelectParsedContent {
 	public function aggregateParsedContent() {
 		$this->aggregateArray = array();
 		foreach($this->parsedContentArray as $pageRecord) {
-			$url = $pageRecord['url'];
-			$date_retrieved = $pageRecord['date_retrieved'];	
+			$sourceUrl = $pageRecord['url'];
+			$dateRetrieved = $pageRecord['date_retrieved'];	
 			$parsedContent = json_decode($pageRecord['parsed_content'], TRUE);
 			foreach ($parsedContent as $item){
+				$item['source_url'] = $sourceUrl;
+				$item['date_retrieved'] = $dateRetrieved;
+				$this->aggregateArray[] = $item;
+/*
 				$tr = "<tr class='item'>" . PHP_EOL;
 				$tr .= "<td class='url'>" . $url . "</td>" . PHP_EOL;
 				$tr .= "<td class='date_retrieved'>" . $date_retrieved . "</td>" .PHP_EOL;
@@ -49,8 +53,13 @@ class ClientSelectParsedContent {
 				$tr .= "</tr>" . PHP_EOL;
 				
 				$this->table .= $tr;
+*/
 			}
 		}
+	}
+	
+	public function getAggregateArray(){
+		return $this->aggregateArray;
 	}
 	
 	public function getAggregateTable(){
@@ -72,6 +81,8 @@ $client->queryParsedContent();
 $client->aggregateParsedContent();
 
 $client->getParsedContentArray();
+echo json_encode($client->getAggregateArray());
+/*
 $html = "<html><body>" . PHP_EOL . $client->getAggregateTable() . "</body></html>";
 $writeLength = file_put_contents($fileStore, $html) ;
 
@@ -80,5 +91,6 @@ if ($writeLength) {
 } else {
 	die( "*** Something went wrong when I tried to write to $fileStore" . PHP_EOL);
 }
+*/
 
 ?>
