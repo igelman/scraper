@@ -10,7 +10,7 @@ class FileDownloader {
 	public $curlHandlers;
 	private $appRootPath;
 	private $fileStorePath;
-	private $sleep = 10;
+	protected $sleep = 10;
 	
 	//private $userAgent = "Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)";
 	public $curlOptsArray = array(
@@ -29,6 +29,7 @@ class FileDownloader {
 		return $this->urls;
 	}
 	
+/*
 	public function setAppRootPath($appRootPath) {
 		$this->appRootPath = $appRootPath;
 	}
@@ -36,6 +37,7 @@ class FileDownloader {
 	public function setFileStorePath($fileStorePath) {
 		$this->fileStorePath = $fileStorePath;
 	}
+*/
 	
 	public function setExtraCurlOptions($extraOptions) {
 		$this->curlOptsArray += $extraOptions;
@@ -67,22 +69,27 @@ class FileDownloader {
 		}
 	} // createCurlMultiHandler
 	
-	private function executeMultiHandler(){
+	protected function executeMultiHandler(){
 		$running = null;
 		do {
 			curl_multi_exec($this->mh, $running);
 		} while($running > 0);
 	}
-	
+		
+/*
 	public function storeFiles() {
 		$this->executeMultiHandler();
 		foreach($this->curlHandlers as $ch) {
 			$this->stopIfDetected($ch);
-			$this->handleCurlOutput($ch);
+			// $this->handleCurlOutput($ch);
+			$html = $this->handleCurlOutput($ch);
+			$this->writeCurlToFile($ch, $html);
+			//
 			curl_multi_remove_handle($this->mh, $ch);
 			sleep( rand( 0, $this->sleep));
 		}
 	}
+*/
 	
 	protected function stopIfDetected($ch){
 		$effectiveUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
@@ -96,9 +103,11 @@ class FileDownloader {
 		// test length of retrieved file
 			$error = curl_error($ch);
 		}
-		$this->writeCurlToFile($ch, $html);
+		return $html;
+		//$this->writeCurlToFile($ch, $html);
 	}
 	
+/*
 	private function writeCurlToFile($ch, $html) {
 		$url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
 		$urlBasename = pathinfo( parse_url( $url, PHP_URL_PATH ), PATHINFO_BASENAME );
@@ -119,7 +128,9 @@ class FileDownloader {
 			'fileStore'	=>	$fileStore,
 		);
 	}
+*/
 	
+/*
 	public function writeFile($fileStore, $string) {
 		return file_put_contents($fileStore, $string);
 	}
@@ -127,11 +138,12 @@ class FileDownloader {
 	public function getFileStores() {
 		return $this->fileStores;
 	}
+*/
 	
 	
 }
 
-class ProxyFileDownloader extends FileDownloader {
+class ProxyFileDownloader extends FileDownloaderWithCallback {
 	
 	public function __construct($urls, $proxyIp) {
 		$extraOptions = array(
@@ -147,71 +159,26 @@ class ProxyFileDownloader extends FileDownloader {
 class FileDownloaderWithCallback extends FileDownloader{
 
 	private $callback;
-	public function __construct($urls, $callback) {
-		$this->callback = $callback;
-		parent::__construct($urls);
-	}
 	
-	protected function handleCurlOutput($ch) {
-		parent::handleCurlOutput($ch);
-//		echo "returned from parent::handleCurlOutput" . PHP_EOL;
-		$callback = $this->callback;
-		echo PHP_EOL . "hco callback: " . $callback("callback function returned") . PHP_EOL;
+	public function executeCurls($callback=null) {
+		$this->executeMultiHandler();
+		$callbackExecuted = FALSE;
 		
-		$return = $callback("callback function returned");
-		echo "hco: $return" . PHP_EOL;
-		return $return;
-	}
-}
-
-class FileToBlobDownloader extends FileDownloader {
-
-	protected function handleCurlOutput($ch) {
-		$url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
-		$downloadSize = curl_getinfo($ch, CURLINFO_SIZE_DOWNLOAD);
-		
-		if ( ($html = curl_multi_getcontent($ch) ) === FALSE){ // check for empty output
-		// test length of retrieved file
-			$error = curl_error($ch);
-		}
-		
-		$parsed_content = $this->parseContent($html);
-		var_dump($parsed_content);
-		$length = $this->writeFile($url, $html, $downloadSize, $parsed_content);
-		if ( ($length) === FALSE) {
-		// test length of written file
-			echo "crap" . PHP_EOL;
-		}
-	}
-	
-	public function writeFile($url, $html, $downloadSize, $parsed_content="") {
-		echo "F2BD writeFile($url, html)" . PHP_EOL;
-		$dbh = PdoManager::getInstance();
-		try {
-			$stmt = $dbh->prepare("UPDATE files SET content=:html, date_retrieved = NOW(), parsed_content = :parsed_content WHERE url=:url");
-			$stmt->bindParam(':html', $html);
-			$stmt->bindParam(':url', $url);
-			$stmt->bindParam(':parsed_content', $parsed_content);
-			
-			if($stmt->execute()) {
-				echo "Update $url with blob size $downloadSize" . PHP_EOL;
-			} else {
-				echo "Didn't update $url with blob" . PHP_EOL;
-				echo "UPDATE files SET content=html WHERE url=$url" . PHP_EOL . PHP_EOL;
+		$callbackReturn = array();
+		foreach($this->curlHandlers as $ch) {
+			$this->stopIfDetected($ch);
+			$html = $this->handleCurlOutput($ch);
+			if (isset($callback)) {
+				//echo "Callback on " . curl_getinfo($ch, CURLINFO_EFFECTIVE_URL) . PHP_EOL;
+				$callbackReturn[] = $callback($ch);
+				$callbackExecuted = TRUE;
 			}
+			curl_multi_remove_handle($this->mh, $ch);
+			sleep( rand( 0, $this->sleep));
 		}
-		catch(PDOException $e){
-			echo $e->getMessage();
-		}		
-
-	}
-	
-	private function parseContent($html) {
-		$rmnParser = FileParser::createFromHtml("RetailmenotParser", $html);
-		$rmnParser->parseDomObject();
-		return json_encode($rmnParser->getParsedContent());
-
-	}
+		return $callbackReturn; //$callbackExecuted;
+		
+	}	
 }
 
 ?>
