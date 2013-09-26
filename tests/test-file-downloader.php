@@ -41,21 +41,9 @@ class testFileDownloader extends PHPUnit_Framework_TestCase {
 			$name = pathinfo($file, PATHINFO_BASENAME);
 			$this->testFilesInfo[$name] = filesize($file);
 		}
-		
-/*
-After refactoring, these methods can be moved to a general function library
-		$this->fd = new FileDownloader($this->urls);
-		$this->fd->setAppRootPath($appRootPath);
-		$this->fd->setFileStorePath($fileStorePath);
-*/
-		
-		$this->fd = new FileDownloaderWithCallback($this->localUrls);
-		
+				
+		$this->fd = new FileDownloader($this->localUrls);
 		$this->pfd = new ProxyFileDownloader($this->proxyUrls, $this->proxyIp);
-/*
-		$this->pfd->setAppRootPath($appRootPath);
-		$this->pfd->setFileStorePath($fileStorePath);
-*/
 		
 		// delete all files in fileStorePath
 		$files = glob($this->appRootPath . $this->fileStorePath . "*"); // get all filenames in directory
@@ -77,43 +65,6 @@ After refactoring, these methods can be moved to a general function library
 		$this->assertEquals($this->pfd->curlOptsArray[CURLOPT_PROXY], $this->proxyIp);
 
 	}
-		
-/*
-	public function testWriteFile(){
-		$string = "this is a string";
-		$fileStore = $GLOBALS['appRootPath'] . $GLOBALS['fileStorePath'] . time() . "-" . "testWriteFile.txt" ;
-		$lengthOfWrite = $this->fd->writeFile($fileStore, $string);
-		$this->assertEquals(strlen($string), $lengthOfWrite);
-		
-		$writtenFileContents = file_get_contents($fileStore);
-		$this->assertEquals($writtenFileContents, $string);		
-	}
-*/
-	
-/*
-	public function testStoreFiles() {
-		$this->fd->createCurlMultiHandler();
-		$this->fd->storeFiles();
-		$this->assertEquals("curl_multi", get_resource_type($this->fd->mh) );
-		$this->assertEquals($this->uniqueUrls, count($this->fd->getFileStores() ));
-				
-		foreach($this->fd->getFileStores() as $file) {
-			$name = pathinfo($file['url'], PATHINFO_BASENAME);
-			$size = filesize($file['fileStore']);
-			$expectedSize = $this->testFilesInfo[$name];
-			$this->assertEquals($expectedSize, $size );
-
-		}		
-
-		
-		$this->pfd->createCurlMultiHandler();
-		$this->pfd->storeFiles();
-		$fileStores = $this->pfd->getFileStores();
-		$this->assertTrue( filesize( $fileStores[0]['fileStore'] ) > 0, "Make sure proxy server is running");
-		echo print_r ( $this->pfd->getFileStores() );
-
-	}
-*/
 
 	public function testCallbackToFile() {
 		echo PHP_EOL . "*** testCallbackToFile ***" . PHP_EOL;
@@ -121,7 +72,8 @@ After refactoring, these methods can be moved to a general function library
 		$urls = $this->localUrls;
 		$uniqueUrls = count(array_unique($urls)); // 2, i.e., number of unique urls in $urls
 
-		$fdwc = new FileDownloaderWithCallback($urls);		
+//		$fdwc = new FileDownloaderWithCallback($urls);
+		$fdwc = new FileDownloader($urls);
 		$this->assertEquals($uniqueUrls, count($fdwc->getUrls())); // constructor de-dupes array, so 2 unique items in the 6 item array
 
 		$fdwc->createCurlMultiHandler();
@@ -165,18 +117,12 @@ After refactoring, these methods can be moved to a general function library
 	public function testCallbackToDb() {
 		echo PHP_EOL . "*** testCallbackToDb ***" . PHP_EOL;
 
-		$fdwc = new FileDownloaderWithCallback(array("http://www.retailmenot.com/view/aveda.com",));//"http://localhost/development/scraper/tests/sample-files/gamefly-20130923-1854.html"));
-		$this->assertInstanceOf('FileDownloaderWithCallback', $fdwc,"assertInstanceOf('FileDownloaderWithCallback', \$fdwc)");
+		$fdwc = new FileDownloader(array("http://www.retailmenot.com/view/adidas.com",));//"http://localhost/development/scraper/tests/sample-files/gamefly-20130923-1854.html"));
 		$this->assertInstanceOf('FileDownloader', $fdwc, "assertInstanceOf('FileDownloader', \$fdwc)");
 
 		$fdwc->createCurlMultiHandler();
 		$this->assertEquals('curl_multi', get_resource_type($fdwc->mh), "assertEquals('curl_multi', get_resource_type(\$fdwc->mh) )" );
-		
-/*
-		$callback = function($ch){
-			return $ch;
-		};
-*/
+
 		$callback = function($ch){
 			$return = "";
 			$url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
@@ -206,21 +152,17 @@ After refactoring, these methods can be moved to a general function library
 				echo $e->getMessage();
 			}
 			return $return;
-
 		};
 
 		$ecReturn = $fdwc->executeCurls($callback);
-//		$this->assertTrue($ecReturn, "assertTrue(ecReturn) means callback fired");
 		echo PHP_EOL . "testCallbackToDb ecReturn: " . PHP_EOL;
 		echo print_r($ecReturn, TRUE);
-
 	}
 	
 	public function testNoCallback() {
 		echo PHP_EOL . "*** testNoCallback ***" . PHP_EOL;
 
-		$fdwc = new FileDownloaderWithCallback($this->localUrls); //array("http://localhost/development/scraper/tests/sample-files/gamefly-20130923-1854.html"));
-		$this->assertInstanceOf('FileDownloaderWithCallback', $fdwc,"assertInstanceOf('FileDownloaderWithCallback', \$fdwc)");
+		$fdwc = new FileDownloader($this->localUrls);
 		$this->assertInstanceOf('FileDownloader', $fdwc, "assertInstanceOf('FileDownloader', \$fdwc)");
 
 		$fdwc->createCurlMultiHandler();
@@ -230,7 +172,6 @@ After refactoring, these methods can be moved to a general function library
 //		$this->assertFalse($ecReturn, "tested assertNull(ecReturn)");	
 		echo PHP_EOL . "testNoCallback ecReturn: " . PHP_EOL;
 		echo print_r($ecReturn, TRUE);
-
 	}
 }
 

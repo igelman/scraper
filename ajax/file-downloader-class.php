@@ -10,6 +10,7 @@ class FileDownloader {
 	public $curlHandlers;
 	private $appRootPath;
 	private $fileStorePath;
+	private $callback;
 	protected $sleep = 10;
 	
 	//private $userAgent = "Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)";
@@ -28,16 +29,6 @@ class FileDownloader {
 	public function getUrls(){
 		return $this->urls;
 	}
-	
-/*
-	public function setAppRootPath($appRootPath) {
-		$this->appRootPath = $appRootPath;
-	}
-
-	public function setFileStorePath($fileStorePath) {
-		$this->fileStorePath = $fileStorePath;
-	}
-*/
 	
 	public function setExtraCurlOptions($extraOptions) {
 		$this->curlOptsArray += $extraOptions;
@@ -75,21 +66,25 @@ class FileDownloader {
 			curl_multi_exec($this->mh, $running);
 		} while($running > 0);
 	}
-		
-/*
-	public function storeFiles() {
+
+	public function executeCurls($callback=null) {
 		$this->executeMultiHandler();
+		$callbackExecuted = FALSE;
+		
+		$callbackReturn = array();
 		foreach($this->curlHandlers as $ch) {
 			$this->stopIfDetected($ch);
-			// $this->handleCurlOutput($ch);
 			$html = $this->handleCurlOutput($ch);
-			$this->writeCurlToFile($ch, $html);
-			//
+			if (isset($callback)) {
+				//echo "Callback on " . curl_getinfo($ch, CURLINFO_EFFECTIVE_URL) . PHP_EOL;
+				$callbackReturn[] = $callback($ch);
+				$callbackExecuted = TRUE;
+			}
 			curl_multi_remove_handle($this->mh, $ch);
 			sleep( rand( 0, $this->sleep));
 		}
+		return $callbackReturn; //$callbackExecuted;
 	}
-*/
 	
 	protected function stopIfDetected($ch){
 		$effectiveUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
@@ -106,44 +101,9 @@ class FileDownloader {
 		return $html;
 		//$this->writeCurlToFile($ch, $html);
 	}
-	
-/*
-	private function writeCurlToFile($ch, $html) {
-		$url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
-		$urlBasename = pathinfo( parse_url( $url, PHP_URL_PATH ), PATHINFO_BASENAME );
-		$fileStore = $this->appRootPath . $this->fileStorePath . time() . "-" . $urlBasename ;
-		
-		
-	//	echo PHP_EOL . "*** writeFile ***" . PHP_EOL . "fileStore: $fileStore" . PHP_EOL . "html: " . substr($html, 0, 10) . PHP_EOL . "about to file_put_contents..." . PHP_EOL;
-		
-		$length = $this->writeFile($fileStore, $html);
-		if ( ($length) === FALSE) {
-		// test length of written file
-			echo "crap" . PHP_EOL;
-		}
-		
-		$this->fileStores[] = array(
-			'url'		=>	$url,
-			'curlInfo'	=>	curl_getinfo($ch),
-			'fileStore'	=>	$fileStore,
-		);
-	}
-*/
-	
-/*
-	public function writeFile($fileStore, $string) {
-		return file_put_contents($fileStore, $string);
-	}
-	
-	public function getFileStores() {
-		return $this->fileStores;
-	}
-*/
-	
-	
 }
 
-class ProxyFileDownloader extends FileDownloaderWithCallback {
+class ProxyFileDownloader extends FileDownloader {
 	
 	public function __construct($urls, $proxyIp) {
 		$extraOptions = array(
@@ -156,6 +116,7 @@ class ProxyFileDownloader extends FileDownloaderWithCallback {
 	}
 }
 
+/*
 class FileDownloaderWithCallback extends FileDownloader{
 
 	private $callback;
@@ -180,5 +141,6 @@ class FileDownloaderWithCallback extends FileDownloader{
 		
 	}	
 }
+*/
 
 ?>
