@@ -3,7 +3,7 @@ require_once("../ajax/file-downloader-class.php");
 require_once("../ajax/file-parser-class.php");
 require_once("../config/scraper.config");
 
-class testFileDownloader extends PHPUnit_Framework_TestCase {
+class TestFileDownloader extends PHPUnit_Framework_TestCase {
 
 	private $fd;
 	private $localUrls; // locally hosted files so our tests don't attract attention
@@ -55,7 +55,11 @@ class testFileDownloader extends PHPUnit_Framework_TestCase {
 	public function testConstruct() {
 		$this->assertInstanceOf('FileDownloader',$this->fd);
 		$this->assertEquals($this->uniqueUrls, count($this->fd->getUrls())); // constructor de-dupes array, so 3 unique items in the 6 item array
-		
+	}
+	
+	public function testEmptyUrlArray() {
+		$urls = array();
+		$emptyFd = new FileDownloader($urls);
 	}
 
 	public function testProxyConstruct() {
@@ -66,6 +70,7 @@ class testFileDownloader extends PHPUnit_Framework_TestCase {
 
 	}
 
+/*
 	public function testCallbackToFile() {
 		echo PHP_EOL . "*** testCallbackToFile ***" . PHP_EOL;
 		
@@ -104,16 +109,14 @@ class testFileDownloader extends PHPUnit_Framework_TestCase {
 		};
 
 		$ecReturn = $fdwc->executeCurls($callback);
-/*
-		echo PHP_EOL . "testCallbackToFile ecReturn: " . PHP_EOL;
-		echo print_r($ecReturn, TRUE);
-*/
 		$writeFilesSize0 = filesize($ecReturn[0]['fileStore']);
 		$readFileSize0 = $ecReturn[0]['curlInfo']['size_download'];
 		$this->assertEquals($writeFilesSize0, $readFileSize0, "assertEquals(\$writeFilesSize0, \$readFileSize0)");
 
 	}
+*/
 	
+/*
 	public function testCallbackToDb() {
 		echo PHP_EOL . "*** testCallbackToDb ***" . PHP_EOL;
 
@@ -158,6 +161,34 @@ class testFileDownloader extends PHPUnit_Framework_TestCase {
 		echo PHP_EOL . "testCallbackToDb ecReturn: " . PHP_EOL;
 		echo print_r($ecReturn, TRUE);
 	}
+*/
+	
+	public function testCallback() {
+		echo PHP_EOL . "*** testCallback ***" . PHP_EOL;
+
+		$fdwc = new FileDownloader($this->localUrls);
+		$this->assertInstanceOf('FileDownloader', $fdwc, "assertInstanceOf('FileDownloader', \$fdwc)");
+
+		$fdwc->createCurlMultiHandler();
+		$this->assertEquals('curl_multi', get_resource_type($fdwc->mh), "assertEquals('curl_multi', get_resource_type(\$fdwc->mh) )" );
+
+		$callback=function($ch){
+			$finalUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+			$downloadSize = curl_getinfo($ch, CURLINFO_SIZE_DOWNLOAD);
+			return array(
+				'finalUrl'			=> $finalUrl,
+				'downloadSize'	=>	$downloadSize,
+			);
+		};
+
+		$ecReturn = $fdwc->executeCurls($callback);
+		echo PHP_EOL . "testCallback ecReturn: " . PHP_EOL;
+		//echo print_r($ecReturn, TRUE);
+		echo PHP_EOL . "sizeof(ecReturn): " . sizeof($ecReturn) . PHP_EOL;
+		echo "this->uniqueUrls: $this->uniqueUrls" . PHP_EOL;
+		$this->assertEquals(sizeof($ecReturn), $this->uniqueUrls, "assertEquals(sizeof(\$ecReturn), \$this->uniqueUrls");
+		
+	}
 	
 	public function testNoCallback() {
 		echo PHP_EOL . "*** testNoCallback ***" . PHP_EOL;
@@ -169,9 +200,9 @@ class testFileDownloader extends PHPUnit_Framework_TestCase {
 		$this->assertEquals('curl_multi', get_resource_type($fdwc->mh), "assertEquals('curl_multi', get_resource_type(\$fdwc->mh) )" );
 		
 		$ecReturn = $fdwc->executeCurls();
-//		$this->assertFalse($ecReturn, "tested assertNull(ecReturn)");	
 		echo PHP_EOL . "testNoCallback ecReturn: " . PHP_EOL;
 		echo print_r($ecReturn, TRUE);
+		$this->assertTrue((sizeof($ecReturn)==0), "assertTrue(sizeof(\ecReturn)==0");
 	}
 }
 

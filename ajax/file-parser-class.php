@@ -88,6 +88,14 @@ class RetailmenotParser extends FileParser {
 	*  each source type. It's basically a mapping of
 	*  element classes.
 	*/
+	
+	protected function useAlternativeStructure($string, $node, $elementsArray, $attribute="innertext") {
+		if (strlen($string)==0) {
+			return $this->checkNestedElements($node, $elementsArray, $attribute);
+		}
+		return $string;
+	}
+	
 	public function parseItem(simple_html_dom_node $node) {
 		//echo "called class RetalmenotParser->parseItem()" . PHP_EOL;
 		$item = array();
@@ -97,9 +105,23 @@ class RetailmenotParser extends FileParser {
 		//$item['content'] = $node->innertext;
 		
 		$item['title'] = $this->checkNestedElements($node, array('h2.title'));
+		$item['title'] = $this->useAlternativeStructure($item['title'], $node, array('div.title','h3'));
+
+		
 		$item['details'] = $this->checkNestedElements($node, array('.description-wrapper','.description'));
+		$item['details'] = $this->useAlternativeStructure($item['details'], $node, array('.detail','.description','p.discount'));
+		
 		$item['coupon'] = $this->checkNestedElements($node, array('.code-text'));
+		$item['coupon'] = $this->useAlternativeStructure($item['coupon'], $node, array('.description','.crux','.code'));
+		
 		$item['use-data'] = $this->checkNestedElements($node, array('.use-data'));
+		if (strlen($item['use-data']) == 0) {
+			$usedata_pattern = '/data-num-clicks-today="(.+?)"/';
+			preg_match($usedata_pattern, $article_outer, $usedata_matches);
+			$item['use-data'] = isset($usedata_matches[1]) ? $usedata_matches[1] : "";
+		}
+
+//<ul class="offer_status" data-expires="2013-09-29 23:59:59" data-last-click="-4194000" data-num-clicks-today="252">
 
 		// The regex patterns fail if the attribute is empty string
 		//  leading to the ugly kludge in the "expires" element
@@ -138,19 +160,33 @@ class RetailmenotParser extends FileParser {
 * Now there's something like this: <li class="bullet">Expires 9/30/2013</li>
 		$expires_pattern = '/data-expires="(.+?)"/';
 */
-		$expires_pattern = '/Expires (1?\d\/[1-3]?\d\/201\d)/';
+		//$expires_pattern = '/Expires (1?\d\/[1-3]?\d\/201\d)/';
+		$expires_pattern = '/(Expires|On|Ends)\s((([012])?\d\/[0123]?\d\/(20)?\d\d))/';
 		preg_match($expires_pattern, $article_outer, $expires_matches);
-		$item['expires'] = isset( $expires_matches[1] ) ?  $expires_matches[1] : "" ;
+		$item['expires'] = isset( $expires_matches[2] ) ?  $expires_matches[2] : "" ;
+		if (strlen($item['expires'] == 0)) {
+			unset($expires_matches);
+			$expires_pattern = '/data-expires="(.+?)"/';
+			preg_match($expires_pattern, $article_outer, $expires_matches);
+			$item['expires'] = isset( $expires_matches[1] ) ?  $expires_matches[1] : "" ;
+			if (strstr($item['expires'], "data-last-click")) $item['expires'] = "";
+		}
 				
 		$last_click_pattern = '/data-last-click="(.+?)"/';
 		preg_match($last_click_pattern, $article_outer, $last_click_matches);
 		$item['last_click'] = isset($last_click_matches[1]) ?  $last_click_matches[1] : "";
 				
 		$item['comment_count'] = $this->checkNestedElements($node, array('.js-comment-count'));
+		$item['comment_count'] = $this->useAlternativeStructure($item['comment_count'], $node, array('.commentBubble'));
 
 
-		$item['vote_count'] = $this->checkNestedElements($node, array('.tert votes', 'js-vote-count'));
+		$item['vote_count'] = $this->checkNestedElements($node, array('.js-vote-count'));
+		$item['vote_count'] = $this->useAlternativeStructure($item['vote_count'], $node, array('.voting','.vote_count'));
+		
 		$item['success'] = $this->checkNestedElements($node, array('.success','.js-percent'));
+		$item['success'] = $this->useAlternativeStructure($item['success'], $node, array('.voting', '.rating', '.percent'));
+		$item['success'] = str_replace("<span>%</span>", "", $item['success']);
+		
 		$item['verified'] = $this->checkNestedElements($node, array('li.verified'));
 		 
 

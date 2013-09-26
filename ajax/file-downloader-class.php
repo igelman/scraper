@@ -16,7 +16,7 @@ class FileDownloader {
 	//private $userAgent = "Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)";
 	public $curlOptsArray = array(
 			CURLOPT_RETURNTRANSFER => TRUE, // return content
-			CURLOPT_USERAGENT      => "Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)", // set user-agent
+			CURLOPT_USERAGENT      => "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.47 Safari/537.36", //"Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)", // set user-agent
 			CURLOPT_AUTOREFERER    => TRUE,
 			CURLOPT_FOLLOWLOCATION => TRUE, // follow redirects
 			//CURLOPT_URL            => $url, // this is where we'll put the target url
@@ -24,6 +24,7 @@ class FileDownloader {
 	
 	public function __construct($urls) {
 		$this->urls = $this->cleanUrlArray($urls);
+		// Also, throw an exception if $urls is empty
 	}
 	
 	public function getUrls(){
@@ -77,7 +78,7 @@ class FileDownloader {
 			$html = $this->handleCurlOutput($ch);
 			if (isset($callback)) {
 				//echo "Callback on " . curl_getinfo($ch, CURLINFO_EFFECTIVE_URL) . PHP_EOL;
-				$callbackReturn[] = $callback($ch);
+				$callbackReturn[] = $callback($ch); ///////
 				$callbackExecuted = TRUE;
 			}
 			curl_multi_remove_handle($this->mh, $ch);
@@ -89,7 +90,7 @@ class FileDownloader {
 	protected function stopIfDetected($ch){
 		$effectiveUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
 		if (strstr($effectiveUrl, "humanCheck") ) {
-			exit("We got found out: $effectiveUrl");
+			exit("We got found out: $effectiveUrl" . PHP_EOL);
 		}
 	}
 		
@@ -115,32 +116,5 @@ class ProxyFileDownloader extends FileDownloader {
 		parent::__construct($urls);
 	}
 }
-
-/*
-class FileDownloaderWithCallback extends FileDownloader{
-
-	private $callback;
-	
-	public function executeCurls($callback=null) {
-		$this->executeMultiHandler();
-		$callbackExecuted = FALSE;
-		
-		$callbackReturn = array();
-		foreach($this->curlHandlers as $ch) {
-			$this->stopIfDetected($ch);
-			$html = $this->handleCurlOutput($ch);
-			if (isset($callback)) {
-				//echo "Callback on " . curl_getinfo($ch, CURLINFO_EFFECTIVE_URL) . PHP_EOL;
-				$callbackReturn[] = $callback($ch);
-				$callbackExecuted = TRUE;
-			}
-			curl_multi_remove_handle($this->mh, $ch);
-			sleep( rand( 0, $this->sleep));
-		}
-		return $callbackReturn; //$callbackExecuted;
-		
-	}	
-}
-*/
 
 ?>
