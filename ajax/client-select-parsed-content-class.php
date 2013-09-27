@@ -9,11 +9,28 @@ class ClientSelectParsedContent {
 	private $parsedContentArray;
 	private $aggregateArray;
 	private $table = "";
+	private $offset;
+	private $maxRecords;
+	private $urls;
 	
+	public function __construct() {
+			$this->offset = (isset($_POST['offset'])) ?$_POST['offset'] : 0;
+			$this->maxRecords = (isset($_POST['maxRecords'])) ? ($_POST['maxRecords']) : 9999999;
+			$this->urls = (isset($_POST['urls'])) ? $_POST['urls'] : null;
+		
+	}
 	public function queryParsedContent() {
 		$dbh = PdoManager::getInstance();
 		try {
-			$stmt = $dbh->prepare("SELECT url, date_retrieved, parsed_content FROM files WHERE url IN ('http://www.retailmenot.com/view/apple.com' , 'http://www.retailmenot.com/view/ardenb.com') AND LENGTH(parsed_content) > 0");
+			$stmt = $dbh->prepare("SELECT url, date_retrieved, parsed_content FROM files WHERE LENGTH(parsed_content) > 0");// . $this->makeInUrlSqlPhrase() . "LIMIT :offset, :maxRecords"); // url IN ('http://www.retailmenot.com/view/apple.com' , 'http://www.retailmenot.com/view/ardenb.com') AND
+			
+			
+			$stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+			$stmt->bindParam(':maxRecords', $maxRecords, PDO::PARAM_INT);
+			
+			$offset = $this->offset;
+			$maxRecords = $this->maxRecords;
+			
 			$stmt->setFetchMode(PDO::FETCH_ASSOC);
 			$stmt->execute();
 			
@@ -31,8 +48,25 @@ class ClientSelectParsedContent {
 		}
 	}
 	
+	private function makeInUrlSqlPhrase() {
+		$inUrlSqlPhrase = (isset($this->urls)) ? "AND url IN (" . implode(',', $_POST['urls']) . ")" : "";
+		return $inUrlSqlPhrase;
+	}
+	
 	public function getParsedContentArray() {
 		return $this->parsedContentArray;
+	}
+	
+	private function handlePostData() {
+		
+	}
+	
+	public function setOffset($offset){
+		$this->offset = $offset;
+	}
+	
+	public function setMaxRecords($maxRecords) {
+		$this->maxRecords = $maxRecords;
 	}
 	
 	public function aggregateParsedContent() {
@@ -81,16 +115,6 @@ $client->queryParsedContent();
 $client->aggregateParsedContent();
 
 $client->getParsedContentArray();
-echo json_encode($client->getAggregateArray());
-/*
-$html = "<html><body>" . PHP_EOL . $client->getAggregateTable() . "</body></html>";
-$writeLength = file_put_contents($fileStore, $html) ;
-
-if ($writeLength) {
-	exit( "*** I wrote $writeLength bytes to $fileStore" . PHP_EOL );
-} else {
-	die( "*** Something went wrong when I tried to write to $fileStore" . PHP_EOL);
-}
-*/
+echo json_encode($client->getAggregateArray()) . PHP_EOL;
 
 ?>

@@ -82,6 +82,15 @@ class ClientDownloadAndProcess {
 	}
 }
 
+class ClientDownloadAndProcessSet extends ClientDownloadAndProcess {
+	
+}
+
+class ClientDownloadAndProcessUrls extends ClientDownloadAndProcess {
+	
+}
+
+
 /**
 * Usage: "php client-class.php <int setNumber>"
 */
