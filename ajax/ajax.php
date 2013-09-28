@@ -1,94 +1,52 @@
 <?php
-require_once("../config/local.config"); // define PROXY_IP | APP_ROOT_PATH | FILE_STORE_PATH
-require_once("../config/urls-local.config");
-require_once("../config/scraper-pages.config");
+require_once("client-download-and-process-class.php");
 
-require_once("file-downloader-class.php");
-require_once("file-parser-class.php");
-
-
-class Client {
-	private $url;
-	private $rmnFileParser;
-	private $fileStores;
-	private $table;
-	private $theadings;
-	private $parsedContent;
-	
-	public function __construct($urls) {
-		$this->urls = $urls;
-	}
-	
-	public function downloadIt() {
-		$this->pfd = new FileDownloader( $this->urls );
-		$this->pfd->setAppRootPath(APP_ROOT_PATH);
-		$this->pfd->setFileStorePath(FILE_STORE_PATH);
-		$this->pfd->createCurlMultiHandler();
-		$this->pfd->storeFiles();
-		$this->fileStores = $this->pfd->getFileStores();
-	}
-	
-	public function parseThem() {
-		$this->parsedContent = array();
-		foreach ($this->fileStores as $fileStore) {
-			$key = pathinfo($fileStore['fileStore'], PATHINFO_BASENAME);
-			$this->parsedContent[$key] = $this->parseIt($fileStore['fileStore']);
-			
-		}
-	}
-
-	public function parseIt($fileStore) {
-		$this->rmnFileParser = FileParser::createFromFile("RetailmenotParser", $fileStore);
-		$this->rmnFileParser->parseDomObject();
-		
-		$this->formatIt( $this->rmnFileParser->getParsedContent() );
-		return $this->rmnFileParser->getParsedContent();
-	}
-	
-	public function formatIt($array) {
-		//foreach key in $array[0], popultate theadings
-		$this->theadings = "";
-		foreach (array_keys($array[0]) as $key) {
-			$this->theadings .= "<th>" . $key . "</th>" . PHP_EOL;
-		}
-
-		
-		//foreach ($array as $item), populate row of $this->table
-		foreach ($array as $item) {
-			$this->table .= "<tr style='vertical-align:top'>" . PHP_EOL;
-			foreach ($item as $field) {
-				$this->table .= "<td>" . $field . "</td>" . PHP_EOL;
-			}
-			$this->table .= "</tr>" . PHP_EOL;
-		}
-	}
-	
-	public function getParsedContent() {
-		return $this->parsedContent;
-	}
-	
-	public function getTable() {
-		$thead = "<table border=1><thead>" . $this->theadings . "</thead><tbody>" . PHP_EOL;
-		$tfoot = "</tbody><tfoot></tfoot></table>";
-		$this->table = $thead . $this->table . $tfoot;
-		return $this->table;
-	}
-	
+$usageMessage = "Usage: post 'action' (and arguments as required for that action).";
+if (!isset($_POST['action'])) die(json_encode($usageMessage));
+switch ($_POST['action']) {
+	case 'downloadAndProcess':
+		downloadAndProcess();
+		break;
+	case 'listAllUrls':
+		listAllUrls();
+		break;
+	default:
+		echo json_encode ($usageMessage);
 }
 
-set_time_limit(60);
-$urls = $localTestUrls;
-shuffle($urls);
-
-$client = new Client($urls);
-$client->downloadIt();
-
-$client->parseThem();
-
-if (isset($_GET['table'])) {
-	echo "<html><body>" . $client->getTable() . "</body></html>";	
-} else {
-	echo json_encode( $client->getParsedContent() );	
+function downloadAndProcess(){
+	if (isset($_POST['urls'])) {
+		$urlsClient = new ClientDownloadAndProcessUrls($_POST['urls']);
+		echo $urlsClient->processUrls();
+	} /*
+else (isset($_POST['setNumber'])) {
+		$setClient = new ClientDownloadAndProcessSet($_POST['setNumber']);
+		$setClient->selectUrls();
+		echo $setClient->processUrls();
+	}
+*/ else {
+		echo "Usage: post either 'urls' (array of urls) or 'setNumber' (integer set id).";
+	}	
 }
-//echo "<pre>" . print_r($client->parseThem(), TRUE) . "</pre>";
+
+function listAllUrls() {
+	$pm = PdoManager::getInstance();
+	try {
+		$stmt = $pm->prepare("SELECT date_retrieved, set_number, url FROM files");
+	
+		$stmt->setFetchMode(PDO::FETCH_ASSOC);
+		$stmt->execute();
+		
+		$result = array();
+		foreach($stmt as $row) {
+			$result[] = $row;
+		}
+		echo json_encode($result);
+
+	} catch(PDOException $e) {
+		echo $e->getMessage();
+	}
+
+}
+
 ?>

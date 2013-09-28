@@ -9,31 +9,9 @@ require_once("file-downloader-class.php");
 
 
 class ClientDownloadAndProcess {
-	private $setNumber;
-	private $urls;
+	protected $setNumber;
+	protected $urls;
 
-	public function __construct($setNumber) {
-		$this->setNumber = $setNumber;
-	}
-	
-	public function selectUrls() {
-		$pm = PdoManager::getInstance();
-		try {
-			$stmt = $pm->prepare("SELECT url FROM files WHERE set_number = :set_number");
-			$stmt->bindParam(':set_number', $this->setNumber);
-		
-			$stmt->setFetchMode(PDO::FETCH_ASSOC);
-			$stmt->execute();
-			
-			$this->urls = array();
-			foreach($stmt as $row) {
-				$this->urls[] = $row['url'];
-			}
-		} catch(PDOException $e) {
-			echo $e->getMessage();
-		}	
-	}
-	
 	public function getUrls() {
 		return $this->urls;
 	}
@@ -83,21 +61,63 @@ class ClientDownloadAndProcess {
 }
 
 class ClientDownloadAndProcessSet extends ClientDownloadAndProcess {
+
+	public function __construct($setNumber) {
+		$this->setNumber = $setNumber;
+		echo PHP_EOL . "set construct: setNumber: $setNumber | this->setNumber: $this->setNumber";
+	}
+
+
+	public function selectUrls() {
+		$pm = PdoManager::getInstance();
+		try {
+			$stmt = $pm->prepare("SELECT url FROM files WHERE set_number = :set_number");
+			$stmt->bindParam(':set_number', $this->setNumber);
+		
+			$stmt->setFetchMode(PDO::FETCH_ASSOC);
+			$stmt->execute();
+			
+			$this->urls = array();
+			foreach($stmt as $row) {
+				$this->urls[] = $row['url'];
+			}
+
+		} catch(PDOException $e) {
+			echo $e->getMessage();
+		}
+	}
 	
 }
 
 class ClientDownloadAndProcessUrls extends ClientDownloadAndProcess {
+
+	public function __construct($urls) {
+		$this->urls = $urls;
+		echo PHP_EOL . "I'm the ClietnDownloadAndProcessUrls class!! url construct: urls: " . print_r($this->urls, TRUE) . PHP_EOL;
+	}
 	
+	private function testUrls(){
+		// make sure urls are in our list else we'll curl them but callback will fail. Probably harmless.
+	}
+
 }
 
 
 /**
 * Usage: "php client-class.php <int setNumber>"
 */
+/*
 $setNumber = (isset($argv[1]) && $argc==2 ) ? $argv[1] : die("Usage: 'php client-class.php <int setNumber>'" . PHP_EOL);
-$client = new ClientDownloadAndProcess($setNumber);
+$client = new ClientDownloadAndProcessSet($setNumber);
 $client->selectUrls();
 echo $client->processUrls();
 echo "All done!" . PHP_EOL;
+*/
 
+/*
+$urls = array("http://www.retailmenot.com/view/victoriassecret.com","http://www.retailmenot.com/view/bananarepublic.com");
+$client = new ClientDownloadAndProcessUrls($urls);
+echo $client->processUrls();
+echo "All done!" . PHP_EOL;
+*/
 ?>
