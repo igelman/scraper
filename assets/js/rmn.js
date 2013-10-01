@@ -24,7 +24,7 @@ console.log("in makeSourceTable()");
 			var columns = new Array();
 			$.each(data[0], function(key){
 				columns.push(
-					{'key': key, 'allowHTML': true}
+					{'key': key, 'allowHTML': true, resizeable: true}
 				);
 			});
 

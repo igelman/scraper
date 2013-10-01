@@ -106,7 +106,6 @@ class RetailmenotParser extends FileParser {
 		
 		$item['title'] = $this->checkNestedElements($node, array('h2.title'));
 		$item['title'] = $this->useAlternativeStructure($item['title'], $node, array('div.title','h3'));
-
 		
 		$item['details'] = $this->checkNestedElements($node, array('.description-wrapper','.description'));
 		$item['details'] = $this->useAlternativeStructure($item['details'], $node, array('.detail','.description','p.discount'));

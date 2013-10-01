@@ -17,8 +17,8 @@ class testFileParser extends PHPUnit_Framework_TestCase {
 		
 		$this->rmnFile = 
 			//"http://www.retailmenot.com/view/beautybar.com";
-			"sample-files/petsmart-20130926-0140.html"; // alternative structure
-			//"sample-files/1800flowers-20130923-1200.html"; // normal (new) structure
+			//"sample-files/petsmart-20130926-0140.html"; // alternative structure
+			"sample-files/1800flowers-20130923-1200.html"; // normal (new) structure
 			//"sample-files/gamefly-20130923-1854.html"; // normal (new) structure
 			//"http://www.retailmenot.com/view/gamefly.com";
 		$this->rmnItems0Title = " 20% Off Digital Downloads "; // First article's title
