@@ -18,7 +18,7 @@ function downloadAndProcess(){
 	if (isset($_POST['urls']) && isset($_POST['element-id'])) {
 		$urlsClient = new ClientDownloadAndProcessUrls($_POST['urls']);
 		$return['package'] = $urlsClient->processUrls();
-		$return['element-id'] = $_POST['element-id'];
+		$return['post'] = $_POST;
 	} /*
 else (isset($_POST['setNumber'])) {
 		$setClient = new ClientDownloadAndProcessSet($_POST['setNumber']);
