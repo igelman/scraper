@@ -15,9 +15,10 @@ switch ($_POST['action']) {
 }
 
 function downloadAndProcess(){
-	if (isset($_POST['urls'])) {
+	if (isset($_POST['urls']) && isset($_POST['element-id'])) {
 		$urlsClient = new ClientDownloadAndProcessUrls($_POST['urls']);
-		echo $urlsClient->processUrls();
+		$return['package'] = $urlsClient->processUrls();
+		$return['element-id'] = $_POST['element-id'];
 	} /*
 else (isset($_POST['setNumber'])) {
 		$setClient = new ClientDownloadAndProcessSet($_POST['setNumber']);
@@ -25,8 +26,11 @@ else (isset($_POST['setNumber'])) {
 		echo $setClient->processUrls();
 	}
 */ else {
-		echo "Usage: post either 'urls' (array of urls) or 'setNumber' (integer set id).";
-	}	
+		$return['message'] = "Usage: post either 'urls' (array of urls) or 'setNumber' (integer set id).";
+	}
+	
+	echo json_encode($return);
+	
 }
 
 function listAllUrls() {

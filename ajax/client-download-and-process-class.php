@@ -11,6 +11,7 @@ require_once("file-downloader-class.php");
 class ClientDownloadAndProcess {
 	protected $setNumber;
 	protected $urls;
+	protected $ajaxReturn;
 
 	public function getUrls() {
 		return $this->urls;
@@ -21,35 +22,40 @@ class ClientDownloadAndProcess {
 		$fd->createCurlMultiHandler();
 
 		$callback = function($ch){
-			$return = "";
+			$return['message'] = "";
 			$url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
 			$downloadSize = curl_getinfo($ch, CURLINFO_SIZE_DOWNLOAD);
 			if ( ($html = curl_multi_getcontent($ch) ) === FALSE){
 				$error = curl_error($ch);
 			}
+			$dateRetrieved = date("Y-m-d H:i:s");
 
-			echo PHP_EOL . "processUrls downloading $url ..." . PHP_EOL;
+			$return['message'] .= PHP_EOL . "processUrls downloading $url ..." . PHP_EOL;
 
 			$rmnParser = FileParser::createFromHtml("RetailmenotParser", $html);
 			$rmnParser->parseDomObject();
 			$parsed_content = json_encode($rmnParser->getParsedContent());
 			$dbh = PdoManager::getInstance();
 			try {
-				$stmt = $dbh->prepare("UPDATE files SET content=:html, date_retrieved = NOW(), parsed_content = :parsed_content WHERE url=:url");
+				$stmt = $dbh->prepare("UPDATE files SET content=:html, date_retrieved = :dateRetrieved, parsed_content = :parsed_content WHERE url=:url");
 				$stmt->bindParam(':html', $html);
+				$stmt->bindParam(':dateRetrieved', $dateRetrieved);
 				$stmt->bindParam(':url', $url); // no good if there's a redirect. Use the original url, not the curl result.
 				$stmt->bindParam(':parsed_content', $parsed_content);
 				
 				if($stmt->execute()) {
-					$return .= "Update $url with blob size $downloadSize" . PHP_EOL;
-					//$return .= print_r(curl_getinfo($ch));
+					$return['url'] = $url;
+					$return['size'] = $downloadSize;
+					$return['time'] = $dateRetrieved;
+					$return['message'] .= "Update $url with blob size $downloadSize" . PHP_EOL;
+					$return['message'] .= print_r(curl_getinfo($ch), TRUE);
 				} else {
-					$return .= "Didn't update $url with blob" . PHP_EOL;
-					$return .= "UPDATE files SET content=html WHERE url=$url" . PHP_EOL . PHP_EOL;
+					$return['message'] .= "Didn't update $url with blob" . PHP_EOL;
+					$return['message'] .= "UPDATE files SET content=html WHERE url=$url" . PHP_EOL . PHP_EOL;
 				}
 			}
 			catch(PDOException $e){
-				echo $e->getMessage();
+				$return['message'] .= $e->getMessage();
 			}
 			return $return;
 		};
@@ -64,7 +70,7 @@ class ClientDownloadAndProcessSet extends ClientDownloadAndProcess {
 
 	public function __construct($setNumber) {
 		$this->setNumber = $setNumber;
-		echo PHP_EOL . "set construct: setNumber: $setNumber | this->setNumber: $this->setNumber";
+		$this->ajaxReturn['message'] .= PHP_EOL . "set construct: setNumber: $setNumber | this->setNumber: $this->setNumber";
 	}
 
 
@@ -83,7 +89,7 @@ class ClientDownloadAndProcessSet extends ClientDownloadAndProcess {
 			}
 
 		} catch(PDOException $e) {
-			echo $e->getMessage();
+			$this->ajaxReturn['message'] .= $e->getMessage();
 		}
 	}
 	
@@ -93,7 +99,7 @@ class ClientDownloadAndProcessUrls extends ClientDownloadAndProcess {
 
 	public function __construct($urls) {
 		$this->urls = $urls;
-		echo PHP_EOL . "I'm the ClietnDownloadAndProcessUrls class!! url construct: urls: " . print_r($this->urls, TRUE) . PHP_EOL;
+		$this->ajaxReturn['message'] = PHP_EOL . "I'm the ClietnDownloadAndProcessUrls class!! url construct: urls: " . print_r($this->urls, TRUE) . PHP_EOL;
 	}
 	
 	private function testUrls(){
