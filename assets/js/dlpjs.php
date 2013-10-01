@@ -2,13 +2,7 @@
 
 function init() {
 	console.log("called init");
-	urls = [
-		"http://www.retailmenot.com/view/giorgioarmanibeauty-usa.com",
-		"http://www.retailmenot.com/view/blissworld.com",
-		]
 	listAllUrls();
-	//downloadAndProcess(urls);
-	return;
 }
 
 function listAllUrls() {
@@ -18,46 +12,32 @@ function listAllUrls() {
 		{	'action': "listAllUrls",
 		},
 		function(data, status){
-			console.log("ajax success function");
 			makeSourceTable(data);
-			bindRefreshSelectedButton();
-			bindRefreshRecordButtons();
+			//$('#data-table').dataTable();
+			bindRefreshSelectedButton();	// button refreshes all selected records
+			bindRefreshRecordButtons();		// button refreshes current record
+			bindRefreshCheckbox();			// checkbox to select record for refresh
 		}
 	);
 }
 
-function downloadAndProcess(urls) {
-	console.log("called downloadAndProcess");
-	$.post(
-		"ajax/ajax.php",
-		{	'action': "downloadAndProcess",
-			'urls': urls
-		},
-		function(data, status){
-			console.log("calling makeSourceTable");
-			makeSourceTable(data);
-		}
-	);
-	
-}
 
 function makeSourceTable(data) {
-	console.log("in makeSourceTable");
-	// Create a new YUI instance and populate it with the required modules.
 	data = $.parseJSON(data);
 	
 	var refreshSelectedButton = "<button type='button' data-loading-text='Loading...'  class='btn btn-default' id='refresh-selected'><span class='glyphicon glyphicon-repeat'></span></button>";
-	var thead = "<thead><th>" + refreshSelectedButton + "</th><th>Date Retrieved</th><th>Set</th><th>Url</th></thead>";
-	var dataTable = "<table class='table table-hover table-condensed'>" + thead + "<tbody>";
+	var thead = "<thead><tr><th>" + refreshSelectedButton + "</th><th>Date Retrieved</th><th>Set</th><th>Url</th><th> </th></tr></thead>";
+	var dataTable = "<table class='table table-hover table-condensed' id='data-table'>" + thead + "<tbody>";
 	var dataRows = "";
 	$.each(data, function(rowNumber, item) {
 		var refreshRecordButton = "<button type='button' data-loading-text='Loading...'  class='btn btn-default refresh-record' id='button-refresh-" + rowNumber + "'><span class='glyphicon glyphicon-repeat'></span></button>";
 		var refreshCheckBox = "<input type='checkbox' class='select-refresh' id='select-refresh-" + rowNumber +"'>";
+		var linkToUrl = "<a href='" + item.url + "' target='_blank'>" + item.url + " <span class='glyphicon glyphicon-new-window'></span></a>";
 		var row = "<tr class='item' id='row-" + rowNumber + "'>";
 		row += makeTableCell(refreshCheckBox, "", "cell-checkbox-refresh");
 		row += makeTableCell(item.date_retrieved, "cell-date-retrieved-" + rowNumber, "cell-date-retrieved");
 		row += makeTableCell(item.set_number, "", "cell-set-number");
-		row += makeTableCell(item.url, "cell-url-" + rowNumber, "cell-url");
+		row += makeTableCell(linkToUrl, "cell-url-" + rowNumber, "cell-url");
 		row += makeTableCell(refreshRecordButton, "", "cell-button-refresh");
 		row += "</tr>";
 		dataRows += row;
@@ -65,11 +45,7 @@ function makeSourceTable(data) {
 	dataTable += dataRows;
 	dataTable += "</tbody></table>";
 	$('#data').html(dataTable);
-
-/*
-	bindRefreshSelectedButton();
-	bindRefreshRecordButtons();
-*/
+	
 }
 
 
@@ -80,7 +56,6 @@ function makeTableCell(cellContent, cellId, cellClass) {
 
 function bindRefreshSelectedButton() {
 	$('#refresh-selected').on('click', function() {
-		console.log("clicked #refresh-selected");
 		$(this).button('loading');
 
 		var selectedCheckboxes = $('.select-refresh:checked'); // set of selected checkboxes
@@ -90,17 +65,14 @@ function bindRefreshSelectedButton() {
 			return;
 		}
 
-		console.log("about to loop through checkboxes");
 		var selectedRows = new Array();
 		var selectedUrls = new Array();
 		$.each(selectedCheckboxes, function() {
-			console.log($(this).attr('id'));
 			var selectedCheckboxId = $(this).attr('id');
 			var selectedRowNumber = selectedCheckboxId.replace("select-refresh-", "");
-			var selectedUrl = $( 'tr#row-' + selectedRowNumber + ' > td.cell-url' ).html();
+			var selectedUrl = $( 'tr#row-' + selectedRowNumber + ' > td.cell-url > a' ).attr('href');
 			$( 'tr#row-' + selectedRowNumber).addClass('active');
-			console.log("clickedUrl: " + selectedUrl);
-			selectedRows.push(selectedRowNumber);
+			//selectedRows.push(selectedRowNumber);
 			selectedUrls.push(selectedUrl);
 		});
 		console.log(selectedUrls);
@@ -110,32 +82,20 @@ function bindRefreshSelectedButton() {
 			{	'action'		:	"downloadAndProcess",
 				'urls'			:	selectedUrls,
 				'element-id'	:	$(this).attr('id'),
-				'rows'			:	selectedRows,
-				
+				//'rows'			:	selectedRows,
 			},
 			function(result, status){
-				var result = $.parseJSON(result);
-				console.log(result);			
-				// reset button
+				var result = $.parseJSON(result);		
 				$('#' + result['element-id']).button('reset');
-/*
-				// reset rows
-				$.each(result.post.rows, function(rowNumber) {
-					$( 'tr#row-' + rowNumber).removeClass('active').addClass('success');
-				});
-*/
-				// update date
-				$.each(result.package, function(data) {
-					updateRowId = $( "tr:contains("+ data.url + ")" ).attr('id');
-					console.log("...looping through package... data:");
+				$.each(result.package, function(i, data) {
+					updateRowId = $( "tr:contains("+ data.url + ")" ).attr('id'); // What if this doesn't exist? Do a check to make sure it matches one of the urls we sent, and that the size of the download is largish.
 					console.log(data);
-					console.log("updateRowId: " + updateRowId);
 					$('#' + updateRowId).removeClass('active').addClass('success');
 					$('#' + updateRowId + ' > td.cell-date-retrieved' ).html(data.time);
-					$('#' + updateRowId + ' > input.select-refresh' ).prop('unchecked');
+					$('#' + updateRowId + ' > input.select-refresh' ).prop('checked', false);
 
 				});
-				// check url, size
+				// We should check url, size
 			}
 		);
 
@@ -144,11 +104,10 @@ function bindRefreshSelectedButton() {
 }
 
 function bindRefreshRecordButtons() {
-	console.log("in bindRefreshRecordButtons");
 	$('.refresh-record').on('click', function () {
 		var clickedButtonId = $(this).attr('id');
 		var clickedRowNumber = clickedButtonId.replace("button-refresh-", "");
-		var clickedUrl = $( "tr#row-" + clickedRowNumber + " > td.cell-url" ).html();
+		var clickedUrl = $( 'tr#row-' + clickedRowNumber + ' > td.cell-url > a' ).attr('href');
 
 		$(this).button('loading');
 		$('tr#row-' + clickedRowNumber).addClass('active');
@@ -170,6 +129,18 @@ function bindRefreshRecordButtons() {
 				$('#' + resetButtonId).button('reset');
 			}
 		);
-
 	});
+}
+
+function bindRefreshCheckbox() {
+	$('.select-refresh').on('click', function () {
+		if ( $(this).prop('checked') ) {
+			var selectedCheckboxes = $('.select-refresh:checked'); // set of selected checkboxes
+			if (selectedCheckboxes.length > 5) { // don't do more than five, else we risk getting the IP blocked
+				alert("Risky to try so many");
+				$(this).prop('checked', false);
+			}
+		}
+	});
+	return;
 }

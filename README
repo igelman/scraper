@@ -1,0 +1,1 @@
+To tar this package, run this command from parent directory: tar --exclude='./scraper/.git' --exclude='./scraper/.gitignore' --exclude='./scraper/.project' --exclude='./scraper/.settings' --exclude='./scraper/.buildpath' -zcvf scraper.tar.gz scraper

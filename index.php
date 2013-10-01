@@ -24,10 +24,20 @@
       <script src="../../assets/js/html5shiv.js"></script>
       <script src="../../assets/js/respond.min.js"></script>
     <![endif]-->
+    <style>
+    	body { padding-top: 70px; };
+	</style>
 	
 </head>
 
 <body>
+	<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+		<div class="collapse navbar-collapse navbar-ex1-collapse">
+			<ul class="nav navbar-nav">
+				<li><a href="download-and-process.php">Download & Process</a></li>
+				<li class="active"><a href="#">Data</a></li>
+			</ul>
+	</nav>
 	<div class='row'>
 		<div id='alerts' class='col-md-11 col-md-offset-1'>
 		</div>

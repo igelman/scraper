@@ -24,10 +24,20 @@
       <script src="../../assets/js/html5shiv.js"></script>
       <script src="../../assets/js/respond.min.js"></script>
     <![endif]-->
-	
+    <style>
+    	body { padding-top: 70px; };
+	</style>
+   
 </head>
 
 <body>
+	<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+		<div class="collapse navbar-collapse navbar-ex1-collapse">
+			<ul class="nav navbar-nav">
+				<li class="active"><a href="#">Download & Process</a></li>
+				<li><a href="index.php">Data</a></li>
+			</ul>
+	</nav>
 	<div class='row'>
 		<div id='alerts' class='col-md-11 col-md-offset-1'>
 		</div>
@@ -56,15 +66,13 @@
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>
     <script src="http://yui.yahooapis.com/3.12.0/build/yui/yui-min.js"></script>
     <script src="assets/bootstrap/js/bootstrap.js"></script>
     <script src="assets/js/dlpjs.php?version=<?php echo(rand())?>"></script>
     <script>
 		console.log("About to call init");
 		$( init );
-
-
-
     </script>
 
 
