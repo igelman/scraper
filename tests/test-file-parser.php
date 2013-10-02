@@ -1,7 +1,7 @@
 <?php
 require_once("../ajax/file-parser-class.php");
 
-class testFileParser extends PHPUnit_Framework_TestCase {
+class TestFileParser extends PHPUnit_Framework_TestCase {
 	private $rmnParser;
 	private $dnParser;
 	private $rmnString;
@@ -59,7 +59,8 @@ class testFileParser extends PHPUnit_Framework_TestCase {
 /*
 		$this->dnParser->parseDomObject();
 		$dnItems = $this->dnParser->getParsedContent();
-		$this->assertEquals($this->dnContent['title'], $dnItems[0]['title']);		
+		$this->assertEquals($this->dnContent['title'], $dnItems[0]['title']);
+		var_dump($dnItems);
 */
 	}
 

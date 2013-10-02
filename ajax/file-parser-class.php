@@ -197,7 +197,7 @@ class RetailmenotParser extends FileParser {
 class DealnewsParser extends FileParser {
 
 	public function assignElementClass() {
-		return ".article-wide"; // "div.DnItemClass";
+		return ".article-block";
 	}
 
 	public function parseItem(simple_html_dom_node $node) {
@@ -205,11 +205,19 @@ class DealnewsParser extends FileParser {
 		
 		$article_outer = $node->outertext;
 
-		$item['title'] = $this->checkNestedElements($node, array('.std-headline'));
-		$item['details'] = $this->checkNestedElements($node, array('.art'));
+		$item['title'] = $this->checkNestedElements($node, array('h3.article-heading', 'a.std-headline'));
+		$item['details'] = $this->checkNestedElements($node, array('.article-detail'));
+
+		//$item['links'][] = $title->find('a',0)->href;
+		if ( is_array($node->find('a')) ) {
+			foreach($node->find('a') as $link) {
+				$item['links'][] = $link->href;
+			}			
+		}
+
 
 		$tags = "";
-		$category_path = $this->checkNestedElements($node, array('a[data-iref=fp-category]'), "href");
+		$category_path = $this->checkNestedElements($node, array('a[data-iref=fp-category-3col]'), "href");
 		if ($category_path) {
 			$temp =  explode ( "/" , $category_path );
 			foreach ($temp as $tag) {
@@ -220,7 +228,23 @@ class DealnewsParser extends FileParser {
 		}
 		
 		$item['tags'] = $tags;
-	
+		
+		$item['primary_image'] = $this->checkNestedElements($node,array(".article-specs", ".body", ".leftCol", "a", "img"),"src");
+
+
+		// Get "hotness" from the img title=hotness-level
+		foreach ($node->find('img[title]') as $img) {
+		// $debug .= "<div> img->title: " . $img->title . "</div>";
+			if ( strstr ( $img->title , "hotness" ) ) {
+				$item['hotness'] = $img->title;
+				$hotness_class = preg_replace('/[^a-z0-9]/i', '-', $item['hotness']);
+				$item['hotness_class'] = $hotness_class;
+				//$hotness_menu_items[$hotness_class] = $items[$i]['hotness'];
+			}
+		}
+		//if ( is_array($hotness_menu_items) ) { ksort ($hotness_menu_items ); }
+
+
 		return $item;
 	}	
 }
