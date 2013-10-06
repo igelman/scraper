@@ -15,7 +15,7 @@ class TestFileDealnewsParser extends PHPUnit_Framework_TestCase {
 
 	public function setUp() {
 		
-		$this->dnFile = "sample-files/dealnews-20131001.html"; //dealnews-20130913.html"; //"http://dealnews.com";// 
+		$this->dnFile = "http://dealnews.com";// "sample-files/dealnews-20131001.html"; //dealnews-20130913.html"; //"http://dealnews.com";// 
 		$this->dnFileParser = FileParser::createFromFile("DealnewsParser", $this->dnFile);
 
 	}
@@ -28,8 +28,11 @@ class TestFileDealnewsParser extends PHPUnit_Framework_TestCase {
 	public function testParseDomObject() {			
 		$this->dnFileParser->parseDomObject();
 		$dnItems = $this->dnFileParser->getParsedContent();
+		$hotnessMenuItems = $this->dnFileParser->getHotnessMenuItems();
 //		$this->assertEquals($this->dnContent['title'], $dnItems[0]['title']);
 		var_dump($dnItems);
+		var_dump($hotnessMenuItems);
+		file_put_contents("../data/html/fdp-test.txt", print_r($dnItems, TRUE));
 	}
 
 

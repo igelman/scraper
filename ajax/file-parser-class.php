@@ -187,14 +187,19 @@ class RetailmenotParser extends FileParser {
 		$item['success'] = str_replace("<span>%</span>", "", $item['success']);
 		
 		$item['verified'] = $this->checkNestedElements($node, array('li.verified'));
-		 
-
+		
 		return $item;
 	}
 		
 }
 
 class DealnewsParser extends FileParser {
+
+	private $hotness_menu_items;
+	
+	public function getHotnessMenuItems() {
+		return $this->hotness_menu_items;
+	}
 
 	public function assignElementClass() {
 		return ".article-block";
@@ -230,6 +235,12 @@ class DealnewsParser extends FileParser {
 		$item['tags'] = $tags;
 		
 		$item['primary_image'] = $this->checkNestedElements($node,array(".article-specs", ".body", ".leftCol", "a", "img"),"src");
+		if ($item['primary_image'] == "") {
+			$comment = $this->checkNestedElements($node,array("comment"));
+			$comment_inner = str_replace ( array("<!--", "-->"), "", $comment );
+			$comment_object = str_get_html ($comment_inner);
+			$item['primary_image'] = $this->checkNestedElements($comment_object,array("img"),"src");
+		}
 
 
 		// Get "hotness" from the img title=hotness-level
@@ -239,14 +250,45 @@ class DealnewsParser extends FileParser {
 				$item['hotness'] = $img->title;
 				$hotness_class = preg_replace('/[^a-z0-9]/i', '-', $item['hotness']);
 				$item['hotness_class'] = $hotness_class;
-				//$hotness_menu_items[$hotness_class] = $items[$i]['hotness'];
+				$this->hotness_menu_items[$hotness_class] = $item['hotness'];
 			}
 		}
-		//if ( is_array($hotness_menu_items) ) { ksort ($hotness_menu_items ); }
-
-
+		if ( is_array($this->hotness_menu_items) ) { ksort ($this->hotness_menu_items ); }
+		
+		foreach($item as $key=>$html) {
+			$item[$key] = $this->dealnewsFormat($html);
+		}
+		
 		return $item;
-	}	
+	}
+	
+	private function dealnewsFormat($html) {
+	// Strips out dealnews formatting
+
+		if (!is_string($html)) {
+			return $html;
+		}
+		
+		$shd = new simple_html_dom();
+		$shd->load($html);
+
+		foreach($shd->find ( 'div' ) as $div) {
+			$div->class = null;
+		}
+		
+		foreach($shd->find('a') as $a) {
+			$href = $a->href;
+			$innertext = $a->innertext;
+			$a->outertext = "<a" . " href='" . $href . "'>" . $innertext . "</a>";
+		}
+				
+		$html = $shd->save(); // dumps DOM to string
+		$shd->clear(); 
+		unset($shd);
+		return $html;
+	}
+
+		
 }
 
 
