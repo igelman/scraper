@@ -5,13 +5,15 @@ require_once("file-parser-class.php");
 
 class FileDownloader {
 	private $urls;
-	private $fileStores;
 	public $mh;
-	public $curlHandlers;
+	private $curlHandlers;
+/*
+	private $fileStores;
 	private $appRootPath;
 	private $fileStorePath;
+*/
 	private $callback;
-	protected $sleep = 10;
+	protected $sleep;
 	
 	//private $userAgent = "Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)";
 	public $curlOptsArray = array(
@@ -22,8 +24,9 @@ class FileDownloader {
 			//CURLOPT_URL            => $url, // this is where we'll put the target url
 	);
 	
-	public function __construct($urls) {
+	public function __construct($urls, $sleep=10) {
 		$this->urls = $this->cleanUrlArray($urls);
+		$this->sleep = $sleep;
 		// Also, throw an exception if $urls is empty
 	}
 	

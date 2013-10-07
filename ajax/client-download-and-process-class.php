@@ -70,7 +70,7 @@ class ClientDownloadAndProcessSet extends ClientDownloadAndProcess {
 
 	public function __construct($setNumber) {
 		$this->setNumber = $setNumber;
-		$this->ajaxReturn['message'] .= PHP_EOL . "set construct: setNumber: $setNumber | this->setNumber: $this->setNumber";
+		$this->ajaxReturn['message'] = PHP_EOL . "set construct: setNumber: $setNumber | this->setNumber: $this->setNumber";
 	}
 
 
