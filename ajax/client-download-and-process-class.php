@@ -12,13 +12,17 @@ class ClientDownloadAndProcess {
 	protected $setNumber;
 	protected $urls;
 	protected $ajaxReturn;
+	
+	protected function __construct($sleep=null) {
+		$this->sleep = $sleep;
+	}
 
 	public function getUrls() {
 		return $this->urls;
 	}
 	
 	public function processUrls() {
-		$fd = new FileDownloader($this->urls);
+		$fd = new FileDownloader($this->urls, $this->sleep);
 		$fd->createCurlMultiHandler();
 
 		$callback = function($ch){
@@ -30,7 +34,7 @@ class ClientDownloadAndProcess {
 			}
 			$dateRetrieved = date("Y-m-d H:i:s");
 
-			$return['message'] .= PHP_EOL . "processUrls downloading $url ..." . PHP_EOL;
+			$return['message'] .= PHP_EOL . "processUrls downloaded $url ..." . PHP_EOL;
 
 			$rmnParser = FileParser::createFromHtml("RetailmenotParser", $html);
 			$rmnParser->parseDomObject();
@@ -44,11 +48,11 @@ class ClientDownloadAndProcess {
 				$stmt->bindParam(':parsed_content', $parsed_content);
 				
 				if($stmt->execute()) {
-					$return['url'] = $url;
+					$return['CURLINFO_EFFECTIVE_URL'] = $url;
 					$return['size'] = $downloadSize;
 					$return['time'] = $dateRetrieved;
 					$return['message'] .= "Update $url with blob size $downloadSize" . PHP_EOL;
-					$return['message'] .= print_r(curl_getinfo($ch), TRUE);
+					//$return['message'] .= print_r(curl_getinfo($ch), TRUE);
 				} else {
 					$return['message'] .= "Didn't update $url with blob" . PHP_EOL;
 					$return['message'] .= "UPDATE files SET content=html WHERE url=$url" . PHP_EOL . PHP_EOL;
@@ -68,13 +72,15 @@ class ClientDownloadAndProcess {
 
 class ClientDownloadAndProcessSet extends ClientDownloadAndProcess {
 
-	public function __construct($setNumber) {
+	public function __construct($setNumber, $sleep=null) {
 		$this->setNumber = $setNumber;
+		$this->selectUrls();
 		$this->ajaxReturn['message'] = PHP_EOL . "set construct: setNumber: $setNumber | this->setNumber: $this->setNumber";
+		parent::__construct($sleep);
 	}
 
 
-	public function selectUrls() {
+	private function selectUrls() {
 		$pm = PdoManager::getInstance();
 		try {
 			$stmt = $pm->prepare("SELECT url FROM files WHERE set_number = :set_number");
@@ -87,7 +93,6 @@ class ClientDownloadAndProcessSet extends ClientDownloadAndProcess {
 			foreach($stmt as $row) {
 				$this->urls[] = $row['url'];
 			}
-
 		} catch(PDOException $e) {
 			$this->ajaxReturn['message'] .= $e->getMessage();
 		}
@@ -97,9 +102,10 @@ class ClientDownloadAndProcessSet extends ClientDownloadAndProcess {
 
 class ClientDownloadAndProcessUrls extends ClientDownloadAndProcess {
 
-	public function __construct($urls) {
+	public function __construct($urls, $sleep=null) {
 		$this->urls = $urls;
 		$this->ajaxReturn['message'] = PHP_EOL . "I'm the ClietnDownloadAndProcessUrls class!! url construct: urls: " . print_r($this->urls, TRUE) . PHP_EOL;
+		parent::__construct($sleep);
 	}
 	
 	private function testUrls(){

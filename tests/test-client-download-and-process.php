@@ -5,14 +5,14 @@ class TestClientDownloadAndProcess extends PHPUnit_Framework_TestCase {
 
 	protected function setUp() {
 	
-		$this->urlsArray = array("http://www.retailmenot.com/view/victoriassecret.com","http://www.retailmenot.com/view/bananarepublic.com");
+		$this->urlsArray = array("http://www.retailmenot.com/view/disneystore.com","http://www.retailmenot.com/view/feelunique.com");
 
 		$this->urlsClient = new ClientDownloadAndProcessUrls($this->urlsArray);
-		$this->setClient = new ClientDownloadAndProcessSet(8);
+		$this->setClient = new ClientDownloadAndProcessSet(21);
 		
-		$set = 15;
-		$sleep = 10;
-//		$this->setClientWithSleep = new ClientDownloadAndProcessSet($set,$sleep);
+		$set = 40;
+		$sleep = 90;
+		$this->setClientWithSleep = new ClientDownloadAndProcessSet($set,$sleep);
 
 		//$this->badUrlsClient = new ClientDownloadAndProcessUrls();
 
@@ -24,7 +24,7 @@ class TestClientDownloadAndProcess extends PHPUnit_Framework_TestCase {
 		$this->assertInstanceOf("ClientDownloadAndProcess", $this->urlsClient);
 		$this->assertInstanceOf("ClientDownloadAndProcessUrls", $this->urlsClient);
 		
-		//$this->assertInstanceOf("ClientDownloadAndProcessSet", $this->setClientWithSleep);
+		$this->assertInstanceOf("ClientDownloadAndProcessSet", $this->setClientWithSleep);
 
 /*  Maybe the class should throw an exception if it doesn't receive the right arguments
 		$usageMessage = "Usage: 'php client-class.php <int setNumber>'";
@@ -34,15 +34,11 @@ class TestClientDownloadAndProcess extends PHPUnit_Framework_TestCase {
 	
 	public function testSelectUrls(){
 		
-		$this->setClient->selectUrls();
 		echo PHP_EOL . "setClient->getUrls(): " . print_r($this->setClient->getUrls(),TRUE) . PHP_EOL;
 		$this->assertTrue(count($this->setClient->getUrls()) > 0);
 
-/*
-		$this->setClientWithSleep->selectUrls();
 		echo PHP_EOL . "setClientWithSleep->getUrls(): " . print_r($this->setClientWithSleep->getUrls(),TRUE) . PHP_EOL;
 		$this->assertTrue(count($this->setClientWithSleep->getUrls()) > 0);
-*/
 
 
 		echo PHP_EOL . "urlClient->getUrls(): " . print_r($this->urlsClient->getUrls(),TRUE) . PHP_EOL;
@@ -50,7 +46,16 @@ class TestClientDownloadAndProcess extends PHPUnit_Framework_TestCase {
 	}
 	
 	public function testCallback() {
-		echo print_r($this->setClient->processUrls(),TRUE) . PHP_EOL;
+/*
+		$urlsClientProcessUrlsOutput = $this->urlsClient->processUrls();
+		echo print_r($urlsClientProcessUrlsOutput,TRUE) . PHP_EOL;
+		$this->assertEquals(sizeof($this->urlsArray), sizeof($urlsClientProcessUrlsOutput), "Size of processUrls array is the number of urls requested");
+*/
+
+		$setClientProcessUrlsOutput = $this->setClient->processUrls();
+		echo print_r($setClientProcessUrlsOutput,TRUE) . PHP_EOL;
+		$this->assertEquals(sizeof($this->setClient->getUrls()), sizeof($setClientProcessUrlsOutput), "Size of processUrls array is the number of urls requested");
+
 	}
 	
 	

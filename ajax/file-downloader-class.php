@@ -77,7 +77,7 @@ class FileDownloader {
 		
 		$callbackReturn = array();
 		foreach($this->curlHandlers as $ch) {
-			$this->stopIfDetected($ch);
+			$this->stopIfDetected($ch); // Actually, I think this is too late. The curls have all been sent, so all I'm doing is stopping the post-processing.
 			$html = $this->handleCurlOutput($ch);
 			if (isset($callback)) {
 				//echo "Callback on " . curl_getinfo($ch, CURLINFO_EFFECTIVE_URL) . PHP_EOL;
@@ -85,7 +85,7 @@ class FileDownloader {
 				$callbackExecuted = TRUE;
 			}
 			curl_multi_remove_handle($this->mh, $ch);
-			sleep( rand( 0, $this->sleep));
+			sleep( rand( 0, $this->sleep)); // Actually, I think this just spaces out the post-processing. The curls are actually happening at the same time.
 		}
 		return $callbackReturn; //$callbackExecuted;
 	}
