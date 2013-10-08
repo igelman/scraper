@@ -3,6 +3,7 @@
 function init() {
 	console.log("called init");
 	listAllUrls();
+	addFixedFooter();
 }
 
 function listAllUrls() {
@@ -143,4 +144,35 @@ function bindRefreshCheckbox() {
 		}
 	});
 	return;
+}
+
+function addFixedFooter() {
+// http://ryanfait.com/sticky-footer/
+	var footerHeight = "200px";
+	var htmlAndBodyCss = {
+		"height"		:	"100%",	
+	};
+	
+	var wrapCss = {
+        "min-height"	:	"100%",
+        "height"		:	"auto !important",
+        "height"		:	"100%",
+        /* Negative indent footer by it's height */
+        "margin"		: 	"0 auto -" + footerHeight,
+    };
+	
+	var pushCss = {
+		"height"		:	footerHeight,
+	}
+	
+	var footerCss = {
+		"height"		:	footerHeight,
+		"position"		:	"fixed",
+		// background-color	:	"white",
+	}
+	
+	$( "html body" ).css( htmlAndBodyCss );
+	$( "#wrap" ).css( wrapCss );
+	$( "#push" ).css( pushCss );
+	$( "#footer" ).css( footerCss );
 }

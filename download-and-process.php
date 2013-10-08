@@ -31,37 +31,47 @@
 </head>
 
 <body>
-	<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
-		<div class="collapse navbar-collapse navbar-ex1-collapse">
-			<ul class="nav navbar-nav">
-				<li class="active"><a href="#">Download & Process</a></li>
-				<li><a href="index.php">Data</a></li>
-			</ul>
-	</nav>
-	<div class='row'>
-		<div id='alerts' class='col-md-11 col-md-offset-1'>
+	<div id='wrap'>
+		<div class='container'>
+			<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+				<div class="collapse navbar-collapse navbar-ex1-collapse">
+					<ul class="nav navbar-nav">
+						<li class="active"><a href="#">Download & Process</a></li>
+						<li><a href="index.php">Data</a></li>
+					</ul>
+			</nav>
+			<div class='row'>
+				<div id='alerts' class='col-md-11 col-md-offset-1'>
+				</div>
+			</div>
+			<div class='row'>
+				<div id='controls' class='col-md-11 col-md-offset-1'>
+				</div>
+				<div id='finder' class='col-md-11 col-md-offset-1'>
+				</div>
+			</div>
+		    <div class='row'>
+		    	<div id='output' class='col-md-12'>
+		    	</div>
+		    </div>
+		    <div class='row'>
+		    	<div id='data' class='col-md-12'>
+		    	</div>
+		    </div>
+		    <div class='row'>
+		    	<div id='debug' class='col-md-12'>
+		    		<?php echo $debug; ?>
+		    	</div>
+		    </div>
+		    <div id='push'>
+		    </div>
+	    </div> <!-- .container -->
+	</div> <!-- #wrap -->
+	<div id='footer'>
+		<div class='container'>
+			footer
 		</div>
 	</div>
-	<div class='row'>
-		<div id='controls' class='col-md-11 col-md-offset-1'>
-		</div>
-		<div id='finder' class='col-md-11 col-md-offset-1'>
-		</div>
-	</div>
-    <div class='row'>
-    	<div id='output' class='col-md-12'>
-    	</div>
-    </div>
-    <div class='row'>
-    	<div id='data' class='col-md-12'>
-    	</div>
-    </div>
-    <div class='row'>
-    	<div id='debug' class='col-md-12'>
-    		<?php echo $debug; ?>
-    	</div>
-    </div>
-	
     <!-- Le javascript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->

@@ -5,13 +5,13 @@ class TestClientDownloadAndProcess extends PHPUnit_Framework_TestCase {
 
 	protected function setUp() {
 	
-		$this->urlsArray = array("http://www.retailmenot.com/view/disneystore.com","http://www.retailmenot.com/view/feelunique.com");
+		$this->urlsArray = array("http://www.retailmenot.com/view/fossil.com","http://www.retailmenot.com/view/fragrancenet.com ");
 
-		$this->urlsClient = new ClientDownloadAndProcessUrls($this->urlsArray);
+		$this->urlsClient = new ClientDownloadAndProcessUrls($this->urlsArray, 20);
 		$this->setClient = new ClientDownloadAndProcessSet(41);
 		
-		$set = 45;
-		$sleep = 30;
+		$set = 42;
+		$sleep = 15;
 		$this->setClientWithSleep = new ClientDownloadAndProcessSet($set,$sleep);
 
 		//$this->badUrlsClient = new ClientDownloadAndProcessUrls();
@@ -32,7 +32,7 @@ class TestClientDownloadAndProcess extends PHPUnit_Framework_TestCase {
 */
 	}
 	
-	public function testSelectUrls(){
+	public function testSelectUrlsReturnsUrlsExpectedToBeDownloaded(){
 		
 		echo PHP_EOL . "setClient->getUrls(): " . print_r($this->setClient->getUrls(),TRUE) . PHP_EOL;
 		$this->assertTrue(count($this->setClient->getUrls()) > 0);
@@ -45,16 +45,17 @@ class TestClientDownloadAndProcess extends PHPUnit_Framework_TestCase {
 		$this->assertEquals($this->urlsArray,$this->urlsClient->getUrls());
 	}
 	
-	public function testCallback() {
-/*
-		$urlsClientProcessUrlsOutput = $this->urlsClient->processUrls();
-		echo print_r($urlsClientProcessUrlsOutput,TRUE) . PHP_EOL;
-		$this->assertEquals(sizeof($this->urlsArray), sizeof($urlsClientProcessUrlsOutput), "Size of processUrls array is the number of urls requested");
-*/
+	public function testCallbackReturnsAndSleepInterval() {
 
+/*
 		$setClientProcessUrlsOutput = $this->setClientWithSleep->processUrls();
 		echo print_r($setClientProcessUrlsOutput,TRUE) . PHP_EOL;
 		$this->assertEquals(sizeof($this->setClientWithSleep->getUrls()), sizeof($setClientProcessUrlsOutput), "Size of processUrls array is the number of urls requested");
+*/
+		
+		$urlClientProcessUrlsOutpout = $this->urlsClient->processUrls();
+		echo print_r($urlClientProcessUrlsOutpout,TRUE) . PHP_EOL;
+		$this->assertEquals(sizeof($this->urlsClient->getUrls()), sizeof($urlClientProcessUrlsOutpout), "Size of processUrls array is the number of urls requested");
 
 	}
 	
