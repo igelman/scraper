@@ -171,26 +171,18 @@ class TestFileDownloader extends PHPUnit_Framework_TestCase {
 		$this->assertEquals('curl',get_resource_type($curlHandlers[0]));
 	}
 	
-	public function testCurlOutput() {
+	public function testCurlDownloadsTheFile() {
 		$this->fdwc->createCurlMultiHandler();
 		$this->fdwc->executeCurls();
 		$curlHandlers = $this->fdwc->getCurlHandlers();
 		$ch = $curlHandlers[0];
 		$curlInfo = curl_getinfo($ch);
-		echo "testCurlOutput curl_getinfo(ch[0]): " . print_r(curl_getinfo($ch), TRUE) . PHP_EOL;
-		echo "testCurlOutput curl_error(ch[0]): " . print_r(curl_error($ch), TRUE) . PHP_EOL;
-		$file = $this->localUrls[0];
+		$file = "sample-files/gamefly-20130923-1854.html";//$this->localUrls[0];
 		$this->assertTrue($curlInfo['size_download'] == filesize($file), "assetTrue that curlInfo[size_download] = filesize(file)");
 	}
 	
-	public function testCallback() {
+	public function testCallbackReturnsCallbackResult() {
 		echo PHP_EOL . "*** testCallback ***" . PHP_EOL;
-
-		$fdwc = new FileDownloader($this->localUrls);
-		$this->assertInstanceOf('FileDownloader', $fdwc, "assertInstanceOf('FileDownloader', \$fdwc)");
-
-		$fdwc->createCurlMultiHandler();
-		$this->assertEquals('curl_multi', get_resource_type($fdwc->getCurlMultiHandler()), "assertEquals('curl_multi', get_resource_type(\$fdwc->mh) )" );
 
 		$callback=function($ch){
 			$finalUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
@@ -201,27 +193,23 @@ class TestFileDownloader extends PHPUnit_Framework_TestCase {
 			);
 		};
 
-		$ecReturn = $fdwc->executeCurls($callback);
+		$this->fdwc->createCurlMultiHandler();
+		$this->fdwc->executeCurls($callback);
+		$ecReturn = $this->fdwc->getCallbackReturn();
 		echo PHP_EOL . "testCallback ecReturn: " . PHP_EOL;
-		//echo print_r($ecReturn, TRUE);
+		echo print_r($ecReturn, TRUE);
 		echo PHP_EOL . "sizeof(ecReturn): " . sizeof($ecReturn) . PHP_EOL;
 		echo "this->uniqueUrls: $this->uniqueUrls" . PHP_EOL;
 		$this->assertEquals(sizeof($ecReturn), $this->uniqueUrls, "assertEquals(sizeof(\$ecReturn), \$this->uniqueUrls");
 		
 	}
 	
-	public function testNoCallback() {
+	public function testNoCallbackReturnsEmptyArray() {
 		echo PHP_EOL . "*** testNoCallback ***" . PHP_EOL;
 
-		$fdwc = new FileDownloader($this->localUrls);
-		$this->assertInstanceOf('FileDownloader', $fdwc, "assertInstanceOf('FileDownloader', \$fdwc)");
-
-		$fdwc->createCurlMultiHandler();
-		$this->assertEquals('curl_multi', get_resource_type($fdwc->getCurlMultiHandler()), "assertEquals('curl_multi', get_resource_type(\$fdwc->mh) )" );
-		
-		$ecReturn = $fdwc->executeCurls();
-		echo PHP_EOL . "testNoCallback ecReturn: " . PHP_EOL;
-		echo print_r($ecReturn, TRUE);
+		$this->fdwc->createCurlMultiHandler();
+		$this->fdwc->executeCurls();
+		$ecReturn = $this->fdwc->getCallbackReturn();
 		$this->assertTrue((sizeof($ecReturn)==0), "assertTrue(sizeof(\ecReturn)==0");
 	}
 }
