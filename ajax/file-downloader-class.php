@@ -5,7 +5,7 @@ require_once("file-parser-class.php");
 
 class FileDownloader {
 	private $urls;
-	public $mh;
+	private $mh;
 	private $curlHandlers;
 /*
 	private $fileStores;
@@ -55,6 +55,15 @@ class FileDownloader {
 	
 	} // createCurlOptionsArray
 	
+	public function getCurlHandlers() {
+		return $this->curlHandlers;
+	}
+
+	public function getCurlMultiHandler() {
+		return $this->mh;
+	}
+
+	
 	public function createCurlMultiHandler() {
 		$this->mh = curl_multi_init();
 		foreach ($this->urls as $i => $url) {
@@ -70,8 +79,24 @@ class FileDownloader {
 			curl_multi_exec($this->mh, $running);
 		} while($running > 0);
 	}
-
+	
 	public function executeCurls($callback=null) {
+		$callbackReturn = array();
+		foreach($this->curlHandlers as $ch) {
+			curl_exec($ch);
+			$this->stopIfDetected($ch);
+			$html = $this->handleCurlOutput($ch);
+			if (isset($callback)) {
+				//echo "Callback on " . curl_getinfo($ch, CURLINFO_EFFECTIVE_URL) . PHP_EOL;
+				$callbackReturn[] = $callback($ch); ///////
+				$callbackExecuted = TRUE;
+			}
+			//curl_close($ch);
+			sleep( rand( 0, $this->sleep));
+		}
+	}
+
+	public function OLDexecuteCurls($callback=null) {
 		$this->executeMultiHandler();
 		$callbackExecuted = FALSE;
 		
@@ -96,14 +121,21 @@ class FileDownloader {
 			exit("We got found out: $effectiveUrl" . PHP_EOL);
 		}
 	}
-		
+	
 	protected function handleCurlOutput($ch) {
+		if ( ($html = curl_exec($ch) ) === FALSE){ // check for empty output
+		// test length of retrieved file
+			$error = curl_error($ch);
+		}
+		return $html;
+	}
+	
+	protected function OLDhandleCurlOutput($ch) {
 		if ( ($html = curl_multi_getcontent($ch) ) === FALSE){ // check for empty output
 		// test length of retrieved file
 			$error = curl_error($ch);
 		}
 		return $html;
-		//$this->writeCurlToFile($ch, $html);
 	}
 }
 
