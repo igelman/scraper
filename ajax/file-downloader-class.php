@@ -72,7 +72,7 @@ class FileDownloader {
 				$this->callbackExecuted = TRUE;
 			}
 			//curl_close($ch);
-			sleep( rand( 0, $this->sleep));
+			sleep( rand( ($this->sleep)/2, ($this->sleep))*3/2);
 		}
 		$this->callbackReturn = $callbackReturn;
 	}

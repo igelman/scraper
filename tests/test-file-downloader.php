@@ -196,7 +196,7 @@ class TestFileDownloader extends PHPUnit_Framework_TestCase {
 		$this->fdwc->createCurlMultiHandler();
 		$this->fdwc->executeCurls($callback);
 		$ecReturn = $this->fdwc->getCallbackReturn();
-		echo PHP_EOL . "testCallback ecReturn: " . PHP_EOL;
+		echo PHP_EOL . "testCallbackReturnsCallbackResult ecReturn: " . PHP_EOL;
 		echo print_r($ecReturn, TRUE);
 		echo PHP_EOL . "sizeof(ecReturn): " . sizeof($ecReturn) . PHP_EOL;
 		echo "this->uniqueUrls: $this->uniqueUrls" . PHP_EOL;
@@ -210,9 +210,34 @@ class TestFileDownloader extends PHPUnit_Framework_TestCase {
 		$this->fdwc->createCurlMultiHandler();
 		$this->fdwc->executeCurls();
 		$ecReturn = $this->fdwc->getCallbackReturn();
+		echo PHP_EOL . "testNoCallbackReturnsEmptyArray ecReturn: " . PHP_EOL;
+		echo print_r($ecReturn, TRUE);
 		$this->assertTrue((sizeof($ecReturn)==0), "assertTrue(sizeof(\ecReturn)==0");
 	}
+	
+	public function testSleepParameterInsertsPauseInCurlRequests() {
+		echo PHP_EOL . "*** testSleepParameterInsertsPauseInCurlRequests ***" . PHP_EOL;
+	
+		$sleep = 30;
+		$callback=function($ch){
+			return new DateTime();
+		};
+
+		$fdwcs = new FileDownloader($this->localUrls, $sleep);
+		$fdwcs->createCurlMultiHandler();
+		$fdwcs->executeCurls($callback);
+		$ecReturn = $fdwcs->getCallbackReturn();
+		$interval = $ecReturn[0]->diff($ecReturn[1]);
+		$secondsInterval = $interval->format('%s');
+		echo "secondsInterval: ". print_r($secondsInterval, TRUE) . PHP_EOL;
+		$this->assertTrue($secondsInterval >= $sleep/2 && $secondsInterval <= $sleep*3/2, "secondsInterval should be between 1/2 and 3/2 of \$sleep");
+	
+	}
+
+
+
 }
+
 
 ?>
 
