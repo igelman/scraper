@@ -8,10 +8,10 @@ class TestClientDownloadAndProcess extends PHPUnit_Framework_TestCase {
 		$this->urlsArray = array("http://www.retailmenot.com/view/disneystore.com","http://www.retailmenot.com/view/feelunique.com");
 
 		$this->urlsClient = new ClientDownloadAndProcessUrls($this->urlsArray);
-		$this->setClient = new ClientDownloadAndProcessSet(21);
+		$this->setClient = new ClientDownloadAndProcessSet(41);
 		
-		$set = 40;
-		$sleep = 90;
+		$set = 45;
+		$sleep = 30;
 		$this->setClientWithSleep = new ClientDownloadAndProcessSet($set,$sleep);
 
 		//$this->badUrlsClient = new ClientDownloadAndProcessUrls();
@@ -52,9 +52,9 @@ class TestClientDownloadAndProcess extends PHPUnit_Framework_TestCase {
 		$this->assertEquals(sizeof($this->urlsArray), sizeof($urlsClientProcessUrlsOutput), "Size of processUrls array is the number of urls requested");
 */
 
-		$setClientProcessUrlsOutput = $this->setClient->processUrls();
+		$setClientProcessUrlsOutput = $this->setClientWithSleep->processUrls();
 		echo print_r($setClientProcessUrlsOutput,TRUE) . PHP_EOL;
-		$this->assertEquals(sizeof($this->setClient->getUrls()), sizeof($setClientProcessUrlsOutput), "Size of processUrls array is the number of urls requested");
+		$this->assertEquals(sizeof($this->setClientWithSleep->getUrls()), sizeof($setClientProcessUrlsOutput), "Size of processUrls array is the number of urls requested");
 
 	}
 	

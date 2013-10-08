@@ -22,14 +22,12 @@ class ClientDownloadAndProcess {
 	}
 	
 	public function processUrls() {
-		$fd = new FileDownloader($this->urls, $this->sleep);
-		$fd->createCurlMultiHandler();
 
-		$callback = function($ch){
+		$callback = function($ch, $html){
 			$return['message'] = "";
 			$url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
 			$downloadSize = curl_getinfo($ch, CURLINFO_SIZE_DOWNLOAD);
-			if ( ($html = curl_multi_getcontent($ch) ) === FALSE){
+			if ( ($html ) === FALSE){
 				$error = curl_error($ch);
 			}
 			$dateRetrieved = date("Y-m-d H:i:s");
@@ -64,8 +62,11 @@ class ClientDownloadAndProcess {
 			return $return;
 		};
 
-		$ecReturn = $fd->executeCurls($callback);
-		return $ecReturn;
+		$fd = new FileDownloader($this->urls, $this->sleep);
+		$fd->createCurlMultiHandler();
+		$fd->executeCurls($callback);
+		return $fd->getCallbackReturn();
+		//return $ecReturn;
 		
 	}
 }

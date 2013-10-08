@@ -18,7 +18,7 @@ class FileDownloader {
 			//CURLOPT_URL            => $url, // this is where we'll put the target url
 	);
 	
-	public function __construct($urls, $sleep=10) {
+	public function __construct($urls, $sleep=2) {
 		$this->urls = $this->cleanUrlArray($urls);
 		$this->sleep = $sleep;
 		// Also, throw an exception if $urls is empty
@@ -68,7 +68,7 @@ class FileDownloader {
 			$html = $this->handleCurlOutput($ch);
 			if (isset($callback)) {
 				//echo "Callback on " . curl_getinfo($ch, CURLINFO_EFFECTIVE_URL) . PHP_EOL;
-				$callbackReturn[] = $callback($ch); ///////
+				$callbackReturn[] = $callback($ch, $html); ///////
 				$this->callbackExecuted = TRUE;
 			}
 			//curl_close($ch);
