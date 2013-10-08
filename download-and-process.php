@@ -33,13 +33,14 @@
 <body>
 	<div id='wrap'>
 		<div class='container'>
-			<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+			<nav id='navbar' class="navbar navbar-default navbar-fixed-top" role="navigation">
 				<div class="collapse navbar-collapse navbar-ex1-collapse">
 					<ul class="nav navbar-nav">
 						<li class="active"><a href="#">Download & Process</a></li>
 						<li><a href="index.php">Data</a></li>
 					</ul>
 			</nav>
+			<div id='fixed-message-window'></div>
 			<div class='row'>
 				<div id='alerts' class='col-md-11 col-md-offset-1'>
 				</div>
@@ -67,11 +68,6 @@
 		    </div>
 	    </div> <!-- .container -->
 	</div> <!-- #wrap -->
-	<div id='footer'>
-		<div class='container'>
-			footer
-		</div>
-	</div>
     <!-- Le javascript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->

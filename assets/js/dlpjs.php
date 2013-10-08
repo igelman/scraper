@@ -3,7 +3,6 @@
 function init() {
 	console.log("called init");
 	listAllUrls();
-	addFixedFooter();
 }
 
 function listAllUrls() {
@@ -94,6 +93,7 @@ function bindRefreshSelectedButton() {
 					$('#' + updateRowId).removeClass('active').addClass('success');
 					$('#' + updateRowId + ' > td.cell-date-retrieved' ).html(data.time);
 					$('#' + updateRowId + ' > input.select-refresh' ).prop('checked', false);
+					appendMessageToFixedHeader("all done");
 
 				});
 				// We should check url, size
@@ -128,6 +128,7 @@ function bindRefreshRecordButtons() {
 				$('tr#row-' + updateRowNumber).removeClass('active').addClass('success');
 				$('#cell-date-retrieved-' + updateRowNumber).html(result.package[0]['time']);
 				$('#' + resetButtonId).button('reset');
+				appendMessageToFixedHeader("all done");
 			}
 		);
 	});
@@ -146,33 +147,34 @@ function bindRefreshCheckbox() {
 	return;
 }
 
-function addFixedFooter() {
-// http://ryanfait.com/sticky-footer/
-	var footerHeight = "200px";
-	var htmlAndBodyCss = {
-		"height"		:	"100%",	
-	};
-	
-	var wrapCss = {
-        "min-height"	:	"100%",
-        "height"		:	"auto !important",
-        "height"		:	"100%",
-        /* Negative indent footer by it's height */
-        "margin"		: 	"0 auto -" + footerHeight,
-    };
-	
-	var pushCss = {
-		"height"		:	footerHeight,
+function appendMessageToFixedHeader(htmlContent) {
+
+	var divId = "#fixed-message-window";
+	if ($(divId).length != 0) {
+		var navbarHeight = 70;
+		var divHeight = 70;
+		var bodyPadding = navbarHeight + divHeight;
+		
+		var divCss = {
+			"position"		:	"fixed",
+			"overflow"		:	"auto",
+			"top"			:	navbarHeight + "px",
+			"height"		:	divHeight + "px",
+			"width"			:	"100%",
+			"z-index"		:	10,
+			"background-color"	:	"white",
+			"opacity"		:	1,
+		};
+		
+		var bodyCss = {
+			"padding-top"	:	bodyPadding + "px",
+		};
+		
+		$(divId).insertAfter('nav#navbar');
+		$(divId).css( divCss );
+		//$(divId).html( divContent );
+		$('body').css( bodyCss );
 	}
+	$(divId).append(htmlContent);
 	
-	var footerCss = {
-		"height"		:	footerHeight,
-		"position"		:	"fixed",
-		// background-color	:	"white",
-	}
-	
-	$( "html body" ).css( htmlAndBodyCss );
-	$( "#wrap" ).css( wrapCss );
-	$( "#push" ).css( pushCss );
-	$( "#footer" ).css( footerCss );
 }
