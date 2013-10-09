@@ -22,8 +22,15 @@ class ClientDownloadAndProcess {
 	}
 	
 	public function processUrls() {
-
-		$callback = function($ch, $html){
+		$callback = $this->createCallbackFunctionToUpdateDb();
+		$fd = new FileDownloader($this->urls, $this->sleep);
+		$fd->createCurlMultiHandler();
+		$fd->executeCurls($callback);
+		return $fd->getCallbackReturn();
+	}
+	
+	private function createCallbackFunctionToUpdateDb(){
+		return = function($ch, $html){
 			$return['message'] = "";
 			$url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
 			$downloadSize = curl_getinfo($ch, CURLINFO_SIZE_DOWNLOAD);
@@ -61,13 +68,6 @@ class ClientDownloadAndProcess {
 			}
 			return $return;
 		};
-
-		$fd = new FileDownloader($this->urls, $this->sleep);
-		$fd->createCurlMultiHandler();
-		$fd->executeCurls($callback);
-		return $fd->getCallbackReturn();
-		//return $ecReturn;
-		
 	}
 }
 

@@ -14,9 +14,11 @@ function listAllUrls() {
 		function(data, status){
 			makeSourceTable(data);
 			//$('#data-table').dataTable();
+/*
 			bindRefreshSelectedButton();	// button refreshes all selected records
 			bindRefreshRecordButtons();		// button refreshes current record
 			bindRefreshCheckbox();			// checkbox to select record for refresh
+*/
 		}
 	);
 }
@@ -51,6 +53,19 @@ function makeSourceTable(data) {
 
 function makeTableCell(cellContent, cellId, cellClass) {
 	return "<td class='" + cellClass + "' id='" + cellId + "'>" + cellContent + "</td>";
+}
+
+function bindRefreshCheckbox() {
+	$('.select-refresh').on('click', function () {
+		if ( $(this).prop('checked') ) {
+			var selectedCheckboxes = $('.select-refresh:checked'); // set of selected checkboxes
+			if (selectedCheckboxes.length > 5) { // don't do more than five, else we risk getting the IP blocked
+				alert("Risky to try so many");
+				$(this).prop('checked', false);
+			}
+		}
+	});
+	return;
 }
 
 
@@ -98,10 +113,8 @@ function bindRefreshSelectedButton() {
 					updateAffectedRow(updateRowNumber, data);
 
 				});
-				// We should check url, size
 			}
 		);
-
 		return;
 	});
 }
@@ -161,19 +174,6 @@ console.log(package);
 	display += "</div>";
 
 	return display;
-}
-
-function bindRefreshCheckbox() {
-	$('.select-refresh').on('click', function () {
-		if ( $(this).prop('checked') ) {
-			var selectedCheckboxes = $('.select-refresh:checked'); // set of selected checkboxes
-			if (selectedCheckboxes.length > 5) { // don't do more than five, else we risk getting the IP blocked
-				alert("Risky to try so many");
-				$(this).prop('checked', false);
-			}
-		}
-	});
-	return;
 }
 
 function appendMessageToFixedHeader(htmlContent) {
