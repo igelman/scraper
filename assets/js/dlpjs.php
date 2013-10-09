@@ -71,15 +71,14 @@ function makeTableCell(cellContent, cellId, cellClass) {
 
 function bindRefreshCheckbox() {
 	$('.select-refresh').on('click', function () {
-		if ( $(this).prop('checked') ) {
-			var selectedCheckboxes = $('.select-refresh:checked'); // set of selected checkboxes
-			if (selectedCheckboxes.length > 5) { // don't do more than five, else we risk getting the IP blocked
-				alert("Risky to try so many");
-				$(this).prop('checked', false);
-			}
+		var selectedCheckboxes = $('.select-refresh:checked'); // set of selected checkboxes
+		if ( $(this).prop('checked') && (selectedCheckboxes.length > 5)) {
+			$('#refresh-selected').hide();
+		}
+		else if (selectedCheckboxes.length <= 5) {
+			$('#refresh-selected').show();
 		}
 	});
-	return;
 }
 
 
