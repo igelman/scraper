@@ -30,7 +30,7 @@ class ClientDownloadAndProcess {
 	}
 	
 	private function createCallbackFunctionToUpdateDb(){
-		return = function($ch, $html){
+		return function($ch, $html){
 			$return['message'] = "";
 			$url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
 			$downloadSize = curl_getinfo($ch, CURLINFO_SIZE_DOWNLOAD);
