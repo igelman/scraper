@@ -12,13 +12,11 @@ function listAllUrls() {
 		{	'action': "listAllUrls",
 		},
 		function(data, status){
+		console.log(data);
 			makeSourceTable(data);
-			//$('#data-table').dataTable();
-/*
 			bindRefreshSelectedButton();	// button refreshes all selected records
 			bindRefreshRecordButtons();		// button refreshes current record
 			bindRefreshCheckbox();			// checkbox to select record for refresh
-*/
 		}
 	);
 }
