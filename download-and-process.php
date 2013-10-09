@@ -40,7 +40,7 @@
 						<li><a href="index.php">Data</a></li>
 					</ul>
 			</nav>
-			<div id='fixed-message-window'></div>
+			<div id='fixed-message-window' class='row'></div>
 			<div class='row'>
 				<div id='alerts' class='col-md-11 col-md-offset-1'>
 				</div>

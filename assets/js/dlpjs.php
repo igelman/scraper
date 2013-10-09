@@ -85,15 +85,17 @@ function bindRefreshSelectedButton() {
 				//'rows'			:	selectedRows,
 			},
 			function(result, status){
-				var result = $.parseJSON(result);		
+				var result = $.parseJSON(result);
+				console.log(result);
 				$('#' + result['element-id']).button('reset');
+
 				$.each(result.package, function(i, data) {
-					updateRowId = $( "tr:contains("+ data.url + ")" ).attr('id'); // What if this doesn't exist? Do a check to make sure it matches one of the urls we sent, and that the size of the download is largish.
-					console.log(data);
-					$('#' + updateRowId).removeClass('active').addClass('success');
-					$('#' + updateRowId + ' > td.cell-date-retrieved' ).html(data.time);
-					$('#' + updateRowId + ' > input.select-refresh' ).prop('checked', false);
-					appendMessageToFixedHeader("all done");
+					
+					appendMessageToFixedHeader(generateResultMessage(data));
+					var url = data.CURLINFO_EFFECTIVE_URL;
+					var updateRowId = $( "tr:contains(" + url + ")" ).attr('id'); // What if this doesn't exist? Do a check to make sure it matches one of the urls we sent, and that the size of the download is largish.					
+					var updateRowNumber = updateRowId.replace("row-", "");
+					updateAffectedRow(updateRowNumber, data);
 
 				});
 				// We should check url, size
@@ -121,17 +123,44 @@ function bindRefreshRecordButtons() {
 			},
 			function(result, status){
 				var result = $.parseJSON(result);
-				console.log(result);			
+				console.log(result);
+				$('#' + result.post['element-id']).button('reset');
+
+				appendMessageToFixedHeader(generateResultMessage(result.package[0]));
 				var resetButtonId = result.post['element-id'];
 				var updateRowNumber = resetButtonId.replace("button-refresh-", "");
+				updateAffectedRow(updateRowNumber, result.package[0]);				
 				
-				$('tr#row-' + updateRowNumber).removeClass('active').addClass('success');
-				$('#cell-date-retrieved-' + updateRowNumber).html(result.package[0]['time']);
-				$('#' + resetButtonId).button('reset');
-				appendMessageToFixedHeader("all done");
 			}
 		);
 	});
+}
+
+function updateAffectedRow(rowNumber, package) {
+	$('tr#row-' + rowNumber).removeClass('active').addClass('success');
+	$('#cell-date-retrieved-' + rowNumber).html(package.time);
+	$('#row-' + rowNumber + ' > input.select-refresh' ).prop('checked', false);
+console.log("clearing checkmark in " + '#row-' + rowNumber + ' > input.select-refresh');
+}
+
+function generateResultMessage(package) {
+console.log("generateResultMessage package:");
+console.log(package);
+	var display = "";
+	var time = package.time;
+	var effectiveUrl = package.CURLINFO_EFFECTIVE_URL;
+	var size = package.size;
+	var message = package.message;
+	
+	display += "<div>";
+	display += "<p>" + message + "</p>";
+	display += "<ul>";
+	display += "<li>Effective URL: " + effectiveUrl + "</li>";
+	display += "<li>Download size: " + size + "</li>";
+	display += "</ul>";
+	display += "</div>";
+
+	return display;
 }
 
 function bindRefreshCheckbox() {
@@ -175,6 +204,7 @@ function appendMessageToFixedHeader(htmlContent) {
 		//$(divId).html( divContent );
 		$('body').css( bodyCss );
 	}
-	$(divId).append(htmlContent);
+	
+	$(divId).append("<div class='col-md-8'>" + htmlContent + "</div>");
 	
 }
