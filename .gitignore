@@ -3,6 +3,7 @@
 # ignore third party libraries
 assets/php/simplehtmldom/
 assets/bootstrap
+assets/kcfinder
 
 # ignore config file with authentication info
 config/*local.config
