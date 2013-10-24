@@ -30,6 +30,11 @@ switch ($function) {
 		//logToFile($logfile, "findEndpoint ajax " . $output);
 		echo $output;
 		break;
+	case 'SkimLinkShortener'; // returns JSON {shorturl: status: error:}
+		$output = SkimLinkShortener();
+		logToFile($logfile, "SkimLinkShorterner ajax $output");
+		echo $output;
+		break;
 
 }
 
@@ -212,9 +217,24 @@ function CheckRedirect($url){
 		}   
 	}   	
 	return null;
-
-//curl -L -v --header 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.7; rv:10.0.7) Gecko/20100101 Firefox/10.0.7' http://dealnews.com/lw/click.html?1,2,681094,2690097
 } // CheckRedirect($url) Return redirect target
+
+function SkimLinkShortener () {
+	$logfile = $GLOBALS['logfile'];
+
+	$user = $_GET['user'];
+	$longUrl = $_GET['url'];
+	$url = "http://buyth.at/-make?user=" . $user . "&url=" . $longUrl;
+	
+	$ch = curl_init(); // create curl resource 
+	curl_setopt($ch, CURLOPT_URL, $url); // set url 
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); //return the transfer as a string 
+	$output = curl_exec($ch); // $output contains the output string 
+	curl_close($ch); // close curl resource to free up system resources 
+    
+    return($output);	
+}
+
 
 function logToFile($filename, $msg) { 
 // http://www.devshed.com/c/a/PHP/Logging-With-PHP/1/#ccJi5GVsszHo1aYy.99 

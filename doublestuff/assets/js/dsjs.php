@@ -415,8 +415,9 @@ function copyImage(id) {
 	var purl = $.url(url); // use URL-Parser plugin to parse url
 	// basename = purl.attr('file'); // user URL-Parser plugin to get basename (e.g., image.png)
 	basename = purl.segment(-1); // attr('file') breaks if the file doesn't have an extension (e.g., ".jpg")
-	imagesDirname = "/Volumes/Macintosh HD/Library/Server/Web/Data/Sites/Default/development/scraper/doublestuff/assets/stored-content/images/";
-	imagesUrlDirname = "http://localhost/development/scraper/doublestuff/assets/stored-content/images/";
+	//imagesDirname = "/Volumes/Macintosh HD/Library/Server/Web/Data/Sites/Default/development/scraper/doublestuff/assets/stored-content/images/";
+	imagesDirname = "assets/stored-content/images/";
+	imagesUrlDirname = "assets/stored-content/images/";
 	
 	path = imagesDirname + basename;
 
@@ -485,3 +486,42 @@ function getEndpoint(link, elementId) {
 	});
 	
 } // getEndpoint
+
+function skimify(id) {
+// Grab URL from element #id
+// Skimify it using SkimLinkShortener API
+// Display the shortened link just for kicks
+// Replace the original link in the content
+//
+	console.log( "called skimify(" + id + ")");
+	var elem = id;
+	var shortElem = id.replace("new","short");
+	
+	console.log( "skimify on #" + elem );
+
+// set id.button('loading')
+// then reset the button in the ajax callback		
+// id = item-3-new-link-0  button id is skimify-button-item-3-new-link-0
+	$('#skimify-button-' + id).button('loading');
+	
+	longUrl = $("#" + elem).val(); // input field's original content
+	console.log( "longUrl: " + longUrl );
+
+
+	$.ajax({
+		url: "ajax/ajax.php?function=SkimLinkShortener&user=25078X843312&url=" + encodeURIComponent(longUrl),
+		type: "GET",
+		dataType: "json",
+		contentType: 'application/json',
+		success: function(data){
+			// instead of inserting a new element, I should just update the elements value. That way the skimify button can be reused
+//			$("#" + elem).after("<span id=" + shortElem + ">" + data.shorturl + "</span>");
+			$('span#' + shortElem).html( data.shorturl );
+			$('#skimify-button-' + id).button('reset'); //remove();
+			console.log( id + "success skimify() " + " " + data.shorturl );
+		},
+		error: function(data){
+			console.log("skimify fail status: " + data.status + "message: " + data.error );
+		}
+	});
+}

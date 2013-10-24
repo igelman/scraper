@@ -9,7 +9,7 @@ assets/third-party/
 simplehtmldom/
 purl-master/
 third-party/
-stored-content/images/
+stored-content/images/*
 
 # ignore config file with authentication info
 config/*local.config
