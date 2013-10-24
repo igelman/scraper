@@ -4,7 +4,8 @@
 require_once ("dom-object-manager-class.php");
 require_once("file-parser-class.php");
 
-
+$logfile = "ajax-dev.log";
+$debug = FALSE;
 $function = $_GET['function'];
 
 switch ($function) {
