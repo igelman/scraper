@@ -525,3 +525,21 @@ function skimify(id) {
 		}
 	});
 }
+
+function endEditItem(id) {
+	console.log("Called endEditItem id "+ id);
+
+	// Remove CKEditor control
+	var editor = CKEDITOR.instances['content-' + id];
+	if (editor) {
+		editor.updateElement();
+		editor.destroy(true);
+	}
+	
+	// replace the button eith editItem
+	console.log("about to toggle button id button-item-" + id + " ...");
+	$('button#button-item-' + id).replaceWith("<button id='button-item-" + id + "' class='btn btn-mini' onclick='editItem(" + id + ")' type='button'>" + id + "</button>");
+	console.log("toggled button...");
+
+	return;
+}
