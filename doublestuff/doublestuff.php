@@ -50,7 +50,7 @@
     </div>
     <div class='row'>
     	<div id='debug' class='col-md-12'>
-    		<?php echo $debug; ?>
+    		<?php //echo $debug; ?>
     	</div>
     </div>
 
@@ -58,8 +58,10 @@
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="assets/third-party/purl-master/purl.js"></script>
+    <script src="assets/third-party/ckeditor/ckeditor.js"></script>
     <script src="../assets/bootstrap/js/bootstrap.js"></script>
-    <script src="assets/js/ds.js"></script>
+    <script src="assets/js/dsjs.php"></script>
     <script>
 		console.log("About to call init");
 		$( init );

@@ -1,1 +1,5 @@
 To tar this package, run this command from parent directory: tar --exclude='./scraper/.git' --exclude='./scraper/.gitignore' --exclude='./scraper/.project' --exclude='./scraper/.settings' --exclude='./scraper/.buildpath' -zcvf scraper.tar.gz scraper
+
+To make a writeable folder (e.g., for uploading content etc etc)
+http://francoisdeschenes.com/2013/02/26/enable-write-permissions-for-apache-built-into-mac-os-x
+sudo chmod -R +a '_www allow read,write,delete,add_file,add_subdirectory,file_inherit,directory_inherit' <dir>
