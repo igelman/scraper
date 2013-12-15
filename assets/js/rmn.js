@@ -9,6 +9,10 @@ function init() {
 	return;
 }
 
+function makeTableCell(cellContent, cellId, cellClass) {
+	return "<td class='" + cellClass + "' id='" + cellId + "'>" + cellContent + "</td>";
+}
+
 function makeSourceTable() {
 console.log("in makeSourceTable()");
 	// Create a new YUI instance and populate it with the required modules.

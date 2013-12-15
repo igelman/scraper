@@ -1,5 +1,6 @@
 <?php
 require_once("client-download-and-process-class.php");
+require_once("xmlrpc-client-class.php");
 
 $usageMessage = "Usage: post 'action' (and arguments as required for that action).";
 if (!isset($_POST['action'])) die(json_encode($usageMessage));
@@ -10,8 +11,51 @@ switch ($_POST['action']) {
 	case 'listAllUrls':
 		listAllUrls();
 		break;
+	case 'postCouponToTjd':
+		postCouponToTjd();
+		break;
 	default:
 		echo json_encode ($usageMessage);
+}
+
+function postCouponToTjd() {
+	$username = "rpcxml";
+	$password = "oT5VcsoF";
+	$blogId = 0;
+	$endpoint = "http://localhost/development/wordpress/xmlrpc.php";
+	$xmlrpcClient = new XmlrpcClient($username, $password, $blogId, $endpoint);
+
+	$encoding='UTF-8';
+	$postTitle = htmlentities($_POST['postTitle',ENT_NOQUOTES,$encoding);
+	$postContent = $_POST['postContent'];
+	$postType = "tmt-coupon-posts";
+	$customFields = array(
+		array(
+			"key" 	=> "code",
+			"value"	=> $_POST['couponCode'],
+		),
+		array(
+			"key"	=> "expires",
+			"value"	=> $_POST['couponExpires'] // YYYYMMDD
+		),
+		array(
+			"key"	=>	"url",
+			"value"	=> $_POST['couponUrl'],
+		),
+		array(
+			"key"	=> "offer_id",
+			"value"	=> $_POST['postOfferId'],
+		),
+	);
+	
+	$taxonomies = array(
+		"product_type"	=> $_POST['productTypes'],
+		"merchant"	=> array($_POST['merchant']),
+	);
+
+    $postParams = $this->xmlrpcClient->createPostParams($postTitle, $postContent, $postType, $customFields, $taxonomies);
+    $xmlrpcRequest = $this->xmlrpcClient->createRequest("wp.newPost", $postParams);
+    $response = $this->xmlrpcClient->sendRequest();	
 }
 
 function downloadAndProcess(){
