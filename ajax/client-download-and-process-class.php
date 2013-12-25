@@ -41,9 +41,12 @@ class ClientDownloadAndProcess {
 
 			$return['message'] .= PHP_EOL . "processUrls downloaded $url ..." . PHP_EOL;
 
+			// Send curl result to FileParser
 			$rmnParser = FileParser::createFromHtml("RetailmenotParser", $html);
 			$rmnParser->parseDomObject();
 			$parsed_content = json_encode($rmnParser->getParsedContent());
+			
+			// Update files table with the parsed content
 			$dbh = PdoManager::getInstance();
 			try {
 				$stmt = $dbh->prepare("UPDATE files SET content=:html, date_retrieved = :dateRetrieved, parsed_content = :parsed_content WHERE url=:url");
