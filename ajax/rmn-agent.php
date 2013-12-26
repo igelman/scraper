@@ -10,14 +10,14 @@ $semaphoreBase = "semaphore.flag";
 
 $message = "";
 
+// If the semaphore already exists, halt execution.
 $sm = new SemaphoreManager($semaphoreDir, $semaphoreBase);
 if ( $sm->semaphoreExists() ) {
-	$message .= $sm->readSemaphore();
-	exit($message);
+	exit($message . $sm->readSemaphore());
 }
 
 $url = selectStalestUrl(); //"http://igelman.com/development/humanCheck.html";
-echo $url . PHP_EOL;
+$message .= $url . PHP_EOL;
 $callback = createCallbackFunctionToUpdateDb();
 
 $cc = new CurlWithCallback($url, $callback);

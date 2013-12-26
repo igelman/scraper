@@ -5,6 +5,8 @@ class CurlWithCallback {
 	private $callback;
 	private $curlOptsArray;
 	private $ch;
+	private $result;
+	private $error;
 	
 	public function __construct($url, $callback = NULL) {
 		$this->url = $url;
@@ -21,14 +23,14 @@ class CurlWithCallback {
 	}
 	
 	public function executeCurl() {
-		if ( ($html = curl_exec($this->ch) ) === FALSE){ // check for empty output
+		if ( ($this->result = curl_exec($this->ch) ) === FALSE){ // check for empty output
 		// test length of retrieved file
-			$error = curl_error($this->ch);
+			$this->error = curl_error($this->ch);
 		}
 		if (isset($this->callback)) {
 			//echo "Callback on " . curl_getinfo($this->ch, CURLINFO_EFFECTIVE_URL) . PHP_EOL;
 			$callbackFunction = $this->callback;
-			$this->callbackReturn = $callbackFunction($this->ch, $html);
+			$this->callbackReturn = $callbackFunction($this->ch, $this->result);
 		}
 	}
 	
@@ -39,6 +41,13 @@ class CurlWithCallback {
 		return $this->callbackReturn;
 	}
 	
+	public function getCurlResult() {
+		return $this->result;
+	}
+	
+	public function getCurlError() {
+		return $this->error;
+	}
 
 }
 
