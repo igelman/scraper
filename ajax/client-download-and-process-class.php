@@ -28,7 +28,7 @@ class ClientDownloadAndProcess {
 		$fd->executeCurls($callback);
 		return $fd->getCallbackReturn();
 	}
-	
+		
 	private function createCallbackFunctionToUpdateDb(){
 		return function($ch, $html){
 			$return['message'] = "";
