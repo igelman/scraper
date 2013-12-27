@@ -15,22 +15,23 @@ class ClientSelectParsedContent {
 	
 	public function __construct() {
 			$this->offset = (isset($_POST['offset'])) ?$_POST['offset'] : 0;
-			$this->maxRecords = (isset($_POST['maxRecords'])) ? ($_POST['maxRecords']) : 9999999;
+			$this->maxRecords = (isset($_POST['maxRecords'])) ? ($_POST['maxRecords']) : 999999;
 			$this->urls = (isset($_POST['urls'])) ? $_POST['urls'] : null;
 		
 	}
 	public function queryParsedContent() {
 		$dbh = PdoManager::getInstance();
-		try {
-			$stmt = $dbh->prepare("SELECT url, date_retrieved, parsed_content FROM files WHERE LENGTH(parsed_content) > 0");// . $this->makeInUrlSqlPhrase() . "LIMIT :offset, :maxRecords"); // url IN ('http://www.retailmenot.com/view/apple.com' , 'http://www.retailmenot.com/view/ardenb.com') AND
-			
-			
-			$stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
-			$stmt->bindParam(':maxRecords', $maxRecords, PDO::PARAM_INT);
-			
+		try {			
+			$stmt = $dbh->prepare("SELECT url, date_retrieved, parsed_content FROM files WHERE LENGTH(parsed_content) > 0 LIMIT :maxRecords OFFSET :offset");// . $this->makeInUrlSqlPhrase() . "LIMIT :offset, :maxRecords"); // url IN ('http://www.retailmenot.com/view/apple.com' , 'http://www.retailmenot.com/view/ardenb.com') AND
+
 			$offset = $this->offset;
 			$maxRecords = $this->maxRecords;
-			
+
+			$stmt->bindValue(':offset', (int) $offset, PDO::PARAM_INT);
+			$stmt->bindValue(':maxRecords', (int) $maxRecords, PDO::PARAM_INT);
+
+
+						
 			$stmt->setFetchMode(PDO::FETCH_ASSOC);
 			$stmt->execute();
 			
