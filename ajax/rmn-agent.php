@@ -5,27 +5,108 @@ require_once("pdo-manager-class.php");
 require_once("file-parser-class.php");
 
 
+$message = "";
+
+// Parameters for semaphore file. If it exists, this process exits.
+// If this process fails because of a humanCheck, it creates the file.
 $semaphoreDir = "../data/html/"; // "/Users/alantest/Downloads/";
 $semaphoreBase = "semaphore.flag";
-
-$message = "";
+$semaphoreContent = "Agent encountered a human check at RMN. Clear the captcha, and delete the file at " . $semaphoreDir . $semaphoreBase . PHP_EOL;
+$semaphoreContent .= "Agent will stall until the file $semaphoreBase is removed." . PHP_EOL;
 
 // If the semaphore already exists, halt execution.
 $sm = new SemaphoreManager($semaphoreDir, $semaphoreBase);
 if ( $sm->semaphoreExists() ) {
-	exit($message . $sm->readSemaphore());
+	$message .= $sm->readSemaphore();
+	logMessage($message);
+	exit();
 }
 
+// Choose the oldest record. 
 $url = selectStalestUrl(); //"http://igelman.com/development/humanCheck.html";
-$message .= $url . PHP_EOL;
-$callback = createCallbackFunctionToUpdateDb();
 
-$cc = new CurlWithCallback($url, $callback);
+// Curl it
 $message .= "Curling $url..." . PHP_EOL;
+$cc = new CurlWithCallback($url);
 $cc->executeCurl();
-var_dump ($cc->getCallbackReturn());
+$ch = $cc->getCurlHandle();
+$html = $cc->getCurlResult();
+
+// Process it
+if (handleHumanCheck($ch, $sm)) {
+	exit("We got found out: $effectiveUrl" . PHP_EOL);
+}
+$url = handleNewUrl($url, $ch);
+$parsedContent = parseContent($html);
+updateRecord($url, $html, $parsedContent);
+
+logMessage($message);
+
+function logMessage($message) {
+	$logDir = "../data/html/";
+	$logBase = "rmn-agent.log";
+	file_put_contents($logDir . $logBase, date("Y-m-d H:i:s") . PHP_EOL . $message . PHP_EOL . "*****" . PHP_EOL, FILE_APPEND);
+	echo $message;
+}
+
+function handleNewUrl($url, $ch) {
+	// if effectiveurl != url, update the DB with the new url, log change
+	global $message;
+	$effectiveUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+	if ( $effectiveUrl != $url ) {
+		$message .= "$url is now $effectiveUrl." . PHP_EOL;
+		return $effectiveUrl;
+	}
+	return $url;
+}
+
+function handleHumanCheck($ch, $sm) {
+	// if presented with humanCheck, log, notify, and exit
+	global $message;
+	$effectiveUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+	if (strstr($effectiveUrl, "humanCheck") ) {
+		$sm->createSemaphore();
+		$sm->sendSemaphoreContents("alan@igelman.com", "alert from rmn-agent");
+		$message .= "Presented with human check" . PHP_EOL;
+		return TRUE;
+	}
+	return FALSE;
+}
+
+function parseContent($html) {
+	// Send curl result to FileParser
+	$rmnParser = FileParser::createFromHtml("RetailmenotParser", $html);
+	$rmnParser->parseDomObject();
+	return json_encode($rmnParser->getParsedContent());
+}
+
+function updateRecord($url, $html, $parsedContent) {
+	global $message;
+	$dbh = PdoManager::getInstance();
+	$dateRetrieved = date("Y-m-d H:i:s");
+	try {
+		$stmt = $dbh->prepare("UPDATE files SET content=:html, date_retrieved = :dateRetrieved, parsed_content = :parsed_content WHERE url=:url");
+		$stmt->bindParam(':html', $html);
+		$stmt->bindParam(':dateRetrieved', $dateRetrieved);
+		$stmt->bindParam(':url', $url);
+		$stmt->bindParam(':parsed_content', $parsedContent);
+		
+		if($stmt->execute()) {
+			$message .= "Updated " . $stmt->rowCount() . " row." . PHP_EOL;
+			return TRUE;
+		} else {
+			$message .= "Didn't update $url with blob." . PHP_EOL . $stmt->errorInfo . PHP_EOL;
+			return FALSE;
+		}
+	}
+	catch(PDOException $e){
+		$message .= $e->getMessage() . PHP_EOL;
+		return FALSE;
+	}
+}
 
 function selectStalestUrl() {
+	global $message;
 	$dbh = PdoManager::getInstance();
 	try {
 		$stmt = $dbh->prepare("SELECT url FROM files ORDER BY date_retrieved asc LIMIT 1");
@@ -33,62 +114,10 @@ function selectStalestUrl() {
 		$row = $stmt->fetch();
 		return $row['url'];
 	} catch(PDOException $e){
-		exit ( $e->getMessage() );
+		$message .= "selectStalestUrl failed ... " . $e->getMessage() . PHP_EOL;
+		logMessage("", "", $message);
+		exit($message);
 	}
-}
-
-function createCallbackFunctionToUpdateDb() {
-	return function($ch, $html) {
-		$semaphoreDir = "../data/html/"; // "/Users/alantest/Downloads/";
-		$semaphoreBase = "semaphore.flag";
-		$semaphoreContent = "Agent encountered a human check at RMN. Clear the captcha, and delete the file at " . $semaphoreDir . $semaphoreBase . PHP_EOL;
-		$semaphoreContent .= "Agent will stall until the file $semaphoreBase is removed." . PHP_EOL;
-
-		$return = "";
-		$effectiveUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
-		if (strstr($effectiveUrl, "humanCheck") ) {
-			$sm = new SemaphoreManager($semaphoreDir, $semaphoreBase, $content = $semaphoreContent);
-			$sm->createSemaphore();
-			$sm->sendSemaphoreContents("alan@igelman.com", "alert from rmn-agent");
-			exit("We got found out: $effectiveUrl" . PHP_EOL);
-		}
-		$downloadSize = curl_getinfo($ch, CURLINFO_SIZE_DOWNLOAD);
-		if ( ($html ) === FALSE){
-			$error = curl_error($ch);
-		}
-		$dateRetrieved = date("Y-m-d H:i:s");
-		
-		// Send curl result to FileParser
-		$rmnParser = FileParser::createFromHtml("RetailmenotParser", $html);
-		$rmnParser->parseDomObject();
-		$parsed_content = json_encode($rmnParser->getParsedContent());
-		
-		// Update files table with the parsed content
-		$dbh = PdoManager::getInstance();
-		try {
-			$stmt = $dbh->prepare("UPDATE files SET content=:html, date_retrieved = :dateRetrieved, parsed_content = :parsed_content WHERE url=:url");
-			$stmt->bindParam(':html', $html);
-			$stmt->bindParam(':dateRetrieved', $dateRetrieved);
-			$stmt->bindParam(':url', $effectiveUrl); // no good if there's a redirect. Use the original url, not the curl result.
-			$stmt->bindParam(':parsed_content', $parsed_content);
-			
-			if($stmt->execute()) {
-				$return['CURLINFO_EFFECTIVE_URL'] = $effectiveUrl;
-				$return['size'] = $downloadSize;
-				$return['time'] = $dateRetrieved;
-				$return['message'] .= "Update $effectiveUrl with blob size $downloadSize" . PHP_EOL;
-				//$return['message'] .= print_r(curl_getinfo($ch), TRUE);
-			} else {
-				$return['message'] .= "Didn't update $effectiveUrl with blob" . PHP_EOL;
-				$return['message'] .= "UPDATE files SET content=html WHERE url=$effectiveUrl" . PHP_EOL . PHP_EOL;
-			}
-		}
-		catch(PDOException $e){
-			$return['message'] .= $e->getMessage();
-		}
-
-		return $return;
-	};
 }
 
 ?>

@@ -40,8 +40,11 @@ class TestCurlWithCallback extends PHPUnit_Framework_TestCase {
 		$this->assertNull($this->cc->getCurlError());
 		
 		$this->badC->executeCurl();
-		echo "result: " . $this->badC->getCurlResult() . PHP_EOL;
-		echo "error: " . $this->badC->getcurlError() . PHP_EOL;
-
+		//echo "result: " . $this->badC->getCurlResult() . PHP_EOL;
+		//echo "error: " . $this->badC->getcurlError() . PHP_EOL;
+	}
+	
+	public function testGetCurlHandle() {
+		$this->assertEquals("curl", get_resource_type($this->cc->getCurlHandle()));
 	}
 }

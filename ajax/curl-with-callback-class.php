@@ -48,6 +48,10 @@ class CurlWithCallback {
 	public function getCurlError() {
 		return $this->error;
 	}
+	
+	public function getCurlHandle() {
+		return $this->ch;
+	}
 
 }
 
