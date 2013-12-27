@@ -1,7 +1,7 @@
 <?php
 
-require_once ("../assets/php/simplehtmldom/simple_html_dom.php");
-require_once ("dom-object-manager-class.php");
+require_once (__DIR__ . "/../assets/php/simplehtmldom/simple_html_dom.php");
+require_once (__DIR__ . "/dom-object-manager-class.php");
 
 class FileParser {
 

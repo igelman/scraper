@@ -1,15 +1,15 @@
 <?php
-require_once("../ajax/curl-with-callback-class.php");
-require_once("../ajax/semaphore-manager-class.php");
-require_once("pdo-manager-class.php");
-require_once("file-parser-class.php");
+require_once(__DIR__ . "/curl-with-callback-class.php");
+require_once(__DIR__ . "/semaphore-manager-class.php");
+require_once(__DIR__ . "/pdo-manager-class.php");
+require_once(__DIR__ . "/file-parser-class.php");
 
 
-$message = "";
+$message = PHP_EOL;
 
 // Parameters for semaphore file. If it exists, this process exits.
 // If this process fails because of a humanCheck, it creates the file.
-$semaphoreDir = "../data/html/"; // "/Users/alantest/Downloads/";
+$semaphoreDir = __DIR__ . "/../data/html/"; // "/Users/alantest/Downloads/";
 $semaphoreBase = "semaphore.flag";
 $semaphoreContent = "Agent encountered a human check at RMN. Clear the captcha, and delete the file at " . $semaphoreDir . $semaphoreBase . PHP_EOL;
 $semaphoreContent .= "Agent will stall until the file $semaphoreBase is removed." . PHP_EOL;
@@ -26,7 +26,7 @@ if ( $sm->semaphoreExists() ) {
 $url = selectStalestUrl(); //"http://igelman.com/development/humanCheck.html";
 
 // Curl it
-$message .= "Curling $url..." . PHP_EOL;
+$message .= "#UPDATING MERCHANT Curling $url..." . PHP_EOL;
 $cc = new CurlWithCallback($url);
 $cc->executeCurl();
 $ch = $cc->getCurlHandle();
@@ -43,7 +43,7 @@ updateRecord($url, $html, $parsedContent);
 logMessage($message);
 
 function logMessage($message) {
-	$logDir = "../data/html/";
+	$logDir = __DIR__ . "/../data/html/";
 	$logBase = "rmn-agent.log";
 	file_put_contents($logDir . $logBase, date("Y-m-d H:i:s") . PHP_EOL . $message . PHP_EOL . "*****" . PHP_EOL, FILE_APPEND);
 	echo $message;
@@ -54,8 +54,26 @@ function handleNewUrl($url, $ch) {
 	global $message;
 	$effectiveUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
 	if ( $effectiveUrl != $url ) {
-		$message .= "$url is now $effectiveUrl." . PHP_EOL;
-		return $effectiveUrl;
+		$message .= "#NEW URL $url is now $effectiveUrl." . PHP_EOL;
+		$dbh = PdoManager::getInstance();
+		try {
+			$stmt = $dbh->prepare("UPDATE files SET url=:effectiveUrl WHERE url=:url");
+			$stmt->bindParam(':effectiveUrl', $effectiveUrl);
+			$stmt->bindParam(':url', $url);
+
+			if($stmt->execute()) {
+				$message .= "#UPDATE URL Updated " . $stmt->rowCount() . " row. SET url=$effectiveUrl WHERE url=$url." . PHP_EOL;
+				return $effectiveUrl;
+			} else {
+				$message .= "#UPDATE URL Update failed: SET url=$effectiveUrl WHERE url=$url." . PHP_EOL;
+				return FALSE;
+			}
+		}
+		catch(PDOException $e){
+			$message .= "#UPDATE URL Update failed: SET url=$effectiveUrl WHERE url=$url." . PHP_EOL;
+			$message .= $e->getMessage() . PHP_EOL;
+			return FALSE;
+		}
 	}
 	return $url;
 }
@@ -67,7 +85,7 @@ function handleHumanCheck($ch, $sm) {
 	if (strstr($effectiveUrl, "humanCheck") ) {
 		$sm->createSemaphore();
 		$sm->sendSemaphoreContents("alan@igelman.com", "alert from rmn-agent");
-		$message .= "Presented with human check" . PHP_EOL;
+		$message .= "#HUMANCHECK Presented with human check" . PHP_EOL;
 		return TRUE;
 	}
 	return FALSE;
@@ -92,10 +110,10 @@ function updateRecord($url, $html, $parsedContent) {
 		$stmt->bindParam(':parsed_content', $parsedContent);
 		
 		if($stmt->execute()) {
-			$message .= "Updated " . $stmt->rowCount() . " row." . PHP_EOL;
+			$message .= "#UPDATED RECORD Updated " . $stmt->rowCount() . " row." . PHP_EOL;
 			return TRUE;
 		} else {
-			$message .= "Didn't update $url with blob." . PHP_EOL . $stmt->errorInfo . PHP_EOL;
+			$message .= "#UPDATED RECORD Didn't update $url with blob." . PHP_EOL . $stmt->errorInfo . PHP_EOL;
 			return FALSE;
 		}
 	}
@@ -114,7 +132,7 @@ function selectStalestUrl() {
 		$row = $stmt->fetch();
 		return $row['url'];
 	} catch(PDOException $e){
-		$message .= "selectStalestUrl failed ... " . $e->getMessage() . PHP_EOL;
+		$message .= "#SELECT MERCHANT selectStalestUrl failed ... " . $e->getMessage() . PHP_EOL;
 		logMessage("", "", $message);
 		exit($message);
 	}

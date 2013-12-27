@@ -1,5 +1,5 @@
 <?php
-require_once("../config/local.config"); // define DB connection params DB_HOST DB DB_USER DB_PASS
+require_once(__DIR__ . "/../config/local.config"); // define DB connection params DB_HOST DB DB_USER DB_PASS
 
 class PdoManager {
 

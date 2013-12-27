@@ -1,5 +1,5 @@
 <?php
-require_once("../assets/php/simplehtmldom/simple_html_dom.php");
+require_once(__DIR__ . "/../assets/php/simplehtmldom/simple_html_dom.php");
 
 /**
 * DomObjectManager creates and disposes of DOM object (using simple_html_dom library).
