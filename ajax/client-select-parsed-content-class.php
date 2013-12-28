@@ -13,16 +13,16 @@ class ClientSelectParsedContent {
 	private $maxRecords;
 	private $urls;
 	
-	public function __construct() {
-			$this->offset = (isset($_POST['offset'])) ?$_POST['offset'] : 0;
-			$this->maxRecords = (isset($_POST['maxRecords'])) ? ($_POST['maxRecords']) : 999999;
+	public function __construct($offset = NULL, $maxRecords = NULL) {
+			$this->offset = (isset($offset)) ? $offset : 0;
+			$this->maxRecords = (isset($maxRecords)) ? ($maxRecords) : 999999;
 			$this->urls = (isset($_POST['urls'])) ? $_POST['urls'] : null;
 		
 	}
 	public function queryParsedContent() {
 		$dbh = PdoManager::getInstance();
 		try {			
-			$stmt = $dbh->prepare("SELECT url, date_retrieved, parsed_content FROM files WHERE LENGTH(parsed_content) > 0 LIMIT :maxRecords OFFSET :offset");// . $this->makeInUrlSqlPhrase() . "LIMIT :offset, :maxRecords"); // url IN ('http://www.retailmenot.com/view/apple.com' , 'http://www.retailmenot.com/view/ardenb.com') AND
+			$stmt = $dbh->prepare("SELECT url, date_retrieved, parsed_content FROM files WHERE LENGTH(parsed_content) > 0 LIMIT :maxRecords OFFSET :offset");
 
 			$offset = $this->offset;
 			$maxRecords = $this->maxRecords;
@@ -111,7 +111,9 @@ $fileStorePath = FILE_STORE_PATH; //$GLOBALS['fileStorePath'];
 
 $fileStore = $appRootPath . $fileStorePath . time() . "-table.html" ;
 
-$client = new ClientSelectParsedContent();
+$offset = isset($_GET['offset']) ? $_GET['offset'] : NULL;
+$maxRecords = isset($_GET['maxRecords']) ? $_GET['maxRecords'] : NULL;
+$client = new ClientSelectParsedContent($offset, $maxRecords);
 $client->queryParsedContent();
 $client->aggregateParsedContent();
 

@@ -26,7 +26,7 @@ function postCouponToTjd() {
 	$xmlrpcClient = new XmlrpcClient($username, $password, $blogId, $endpoint);
 
 	$encoding='UTF-8';
-	$postTitle = htmlentities($_POST['postTitle',ENT_NOQUOTES,$encoding);
+	$postTitle = htmlentities($_POST['postTitle'],ENT_NOQUOTES,$encoding);
 	$postContent = $_POST['postContent'];
 	$postType = "tmt-coupon-posts";
 	$customFields = array(

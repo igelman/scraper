@@ -1,20 +1,58 @@
 function init() {
+	addControls();
+	bindLoadButton();
+	bindNextButton();
 	getSourceData();
-//	OLDmakeSourceTable ();
-/*	makeOutputTable ();
-	fetchSource (); // for each row of the table: curl and parse the file
-	
-	style();
-*/
 	return;
 }
 
+function addControls() {
+	var controls = '<form class="form-inline" role="form">'
++'  <div class="form-group">'
++'    <label class="sr-only" for="page-number">Page Number</label>'
++'    <input type="number" class="form-control" id="page-number" placeholder="Page number">'
++'  </div>'
++'  <div class="form-group">'
++'    <label class="sr-only" for="merchants-count">Number of Merchants</label>'
++'    <input type="number" class="form-control" id="merchants-count" placeholder="Merchants per page">'
++'  </div>'
++'  <button type="button" class="btn btn-default" id="load-button">Load</button>'
++'  <button type="button" class="btn btn-default" id="next-page-button">Next Page</button>'
++'</form>';
+	$('#controls').html(controls);
+	return;
+}
 
-function getSourceData() {
-	$.get( "ajax/client-select-parsed-content-class.php", function( data ) {
+function bindLoadButton() {
+	$('#load-button').on('click', function () {
+		getSourceData($('#page-number').val(), $('#merchants-count').val());
+	});
+	return;
+}
+
+function bindNextButton() {
+	$('#next-page-button').on('click', function () {
+		$('#page-number').val(parseInt($('#page-number').val()) + 1);
+		getSourceData($('#page-number').val(), $('#merchants-count').val());
+	});
+	return;
+	
+}
+
+function getSourceData(pageNumber, merchantsCount) {
+	$('.btn').button('loading');
+	$('#data').html("");
+	var query = "";
+	if (pageNumber && merchantsCount) {
+		query = "?offset=" + (parseInt(pageNumber) - 1) + "&maxRecords=" + parseInt(merchantsCount);
+		console.log(query);
+	}
+	ajaxUrl = "ajax/client-select-parsed-content-class.php" + query;
+	$.get( ajaxUrl, function( data ) {
 		console.log(data);
 		makeSourceTable(data);
 		bindDraftToWpButtons();
+		$('.btn').button('reset');
 	});
 }
 
