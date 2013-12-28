@@ -9,7 +9,7 @@ $message = PHP_EOL;
 
 // Parameters for semaphore file. If it exists, this process exits.
 // If this process fails because of a humanCheck, it creates the file.
-$semaphoreDir = __DIR__ . "/../data/html/"; // "/Users/alantest/Downloads/";
+$semaphoreDir = __DIR__ . "/../data/html/";
 $semaphoreBase = "semaphore.flag";
 $semaphoreContent = "Agent encountered a human check at RMN. Clear the captcha, and delete the file at " . $semaphoreDir . $semaphoreBase . PHP_EOL;
 $semaphoreContent .= "Agent will stall until the file $semaphoreBase is removed." . PHP_EOL;
@@ -23,7 +23,7 @@ if ( $sm->semaphoreExists() ) {
 }
 
 // Choose the oldest record. 
-$url = selectStalestUrl(); //"http://igelman.com/development/humanCheck.html";
+$url = selectStalestUrl();
 
 // Curl it
 $message .= "#UPDATING MERCHANT Curling $url..." . PHP_EOL;
