@@ -20,6 +20,7 @@ function addControls() {
 +'  <button type="button" class="btn btn-default" id="next-page-button">Next Page</button>'
 +'</form>';
 	$('#controls').html(controls);
+	$('#controls').parent('.row').addClass('well');
 	return;
 }
 
@@ -78,12 +79,11 @@ function makeSourceTable(data) {
 		"date_retrieved",
 	];
 	var thead = "<thead><tr>";
-	
+	thead += "<th>Draft to tjd</th>";
 	var i;
 	$.each(columns, function(i, columnName){
 		thead += "<th>" + columnName + "</th>";
 	})
-	thead += "<th>Draft to tjd</th>";
 	thead += "</tr></thead>";
 
 	data = $.parseJSON(data);
@@ -94,11 +94,11 @@ function makeSourceTable(data) {
 	$.each(data, function(rowNumber, item) {
 		var draftToWpButton = "<button type='button' data-loading-text='Loading...'  class='btn btn-default draft-to-wp' id='button-draft-" + rowNumber + "'><span class='glyphicon glyphicon-share'></span></button>";
 		var row = "<tr class='item' id='row-" + rowNumber + "'>";
+		row += makeTableCell(draftToWpButton, "", "");
 		var i;
 		$.each(columns, function(i, columnName){
 			row += makeTableCell(item[columnName], "cell-" + columnName + "-" + rowNumber, "cell-" + columnName);
 		})
-		row += makeTableCell(draftToWpButton, "", "");
 		row += "</tr>";
 		dataRows += row;
 	})
@@ -106,6 +106,12 @@ function makeSourceTable(data) {
 	dataTable += dataRows;
 	dataTable += "</tbody></table>";
 	$('#data').html(dataTable);
+	$('#data-table').dataTable({
+        "bPaginate": false,
+        "bLengthChange": false,
+        "bAutoWidth": false
+    });
+
 
 }
 

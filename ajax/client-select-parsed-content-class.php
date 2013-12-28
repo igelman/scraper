@@ -15,7 +15,7 @@ class ClientSelectParsedContent {
 	
 	public function __construct($offset = NULL, $maxRecords = NULL) {
 			$this->offset = (isset($offset)) ? $offset : 0;
-			$this->maxRecords = (isset($maxRecords)) ? ($maxRecords) : 999999;
+			$this->maxRecords = (isset($maxRecords)) ? ($maxRecords) : 5;
 			$this->urls = (isset($_POST['urls'])) ? $_POST['urls'] : null;
 		
 	}
