@@ -1,6 +1,5 @@
 /**
 * TO-DOS
-*  Default to page 1, 1 merchant
 *  Link DLP items to page
 *  Debug the xmlrpc parameters. Some items don't make it to post ... maybe because of markup
 */
@@ -18,9 +17,10 @@ function init() {
 
 function getPaginationFromUrlQueryString() {
 // Returns object {"pageNumber":int, "merchantsCount":int}
-//  (or an empty object if the url doesn't have the parameters)
+//  by getting params from url query.
+//  If url doesn't specify, return default with both values = 1
 	var params = $.deparam.querystring( true );
-	var pagination = {};
+	var pagination = {"pageNumber":1, "merchantsCount":1};
 	if (params.pageNumber) {
 		pagination['pageNumber'] = params.pageNumber;
 	}
