@@ -8,7 +8,7 @@ function init() {
 function listAllUrls() {
 	var request = $.ajax({
 		type:	"POST",
-		url:	"ajax/tempajax.php",
+		url:	"ajax/ajax.php",
 		data:	{
 			action:	"listAllUrls",
 		},
