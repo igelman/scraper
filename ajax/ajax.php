@@ -58,9 +58,13 @@ function postCouponToTjd() {
     $postParams = $xmlrpcClient->createPostParams($postTitle, $postContent, $postType, $customFields, $taxonomies);
     $xmlrpcRequest = $xmlrpcClient->createRequest("wp.newPost", $postParams);
     $response = $xmlrpcClient->sendRequest();
+    
+    $return['request'] = $xmlrpcRequest;
     $return['response'] = $response;
     $return['post'] = $_POST;
-    $return['element-id'] = $_POST['element-id'];	
+    $return['element-id'] = $_POST['element-id'];
+    
+    echo json_encode($return);
 }
 
 function downloadAndProcess(){
