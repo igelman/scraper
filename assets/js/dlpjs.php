@@ -6,20 +6,27 @@ function init() {
 }
 
 function listAllUrls() {
-	console.log("called listAllUrls");
-	$.post(
-		"ajax/ajax.php",
-		{	'action': "listAllUrls",
+	var request = $.ajax({
+		type:	"POST",
+		url:	"ajax/tempajax.php",
+		data:	{
+			action:	"listAllUrls",
 		},
-		function(data, status){
-			makeSourceTable(data);
-			addGetCommandButton();
-			bindRefreshSelectedButton();	// button refreshes all selected records
-			bindRefreshRecordButtons();		// button refreshes current record
-			bindRefreshCheckbox();			// checkbox to select record for refresh
-			bindGetCommandButton();
-		}
-	);
+		dataType:	"json",
+	});
+	request.done(function(data){
+		console.log("listAllUrls success function running...");
+		makeSourceTable(data);
+		addGetCommandButton();
+		bindRefreshSelectedButton();	// button refreshes all selected records
+		bindRefreshRecordButtons();		// button refreshes current record
+		bindRefreshCheckbox();			// checkbox to select record for refresh
+		bindGetCommandButton();
+	});
+	request.fail(function( jqXHR, textStatus ) {
+		console.log(jqXHR);
+		console.log( "Request failed: " + textStatus );
+	});
 }
 
 function addGetCommandButton() {
@@ -33,7 +40,7 @@ function addGetCommandButton() {
 }
 
 function makeSourceTable(data) {
-	data = $.parseJSON(data);
+	console.log("called makeSourceTable");
 	
 	var refreshSelectedButton = "<button type='button' data-loading-text='Loading...'  class='btn btn-default' id='refresh-selected'><span class='glyphicon glyphicon-cloud-download'></span></button>";
 	var thead = "<thead><tr><th>" + refreshSelectedButton + "</th><th>Date Retrieved</th><th>Set</th><th>Url</th><th> </th></tr></thead>";
@@ -44,11 +51,13 @@ function makeSourceTable(data) {
 		var refreshCheckBox = "<label class='block'><input type='checkbox' class='select-refresh' id='select-refresh-" + rowNumber +"'></label>";
 		var linkToUrl = "<a href='" + item.url + "' target='_blank'>" + item.url + " <span class='glyphicon glyphicon-new-window'></span></a>";
 		var row = "<tr class='item' id='row-" + rowNumber + "'>";
+
 		row += makeTableCell(refreshCheckBox, "", "cell-checkbox-refresh");
 		row += makeTableCell(item.date_retrieved, "cell-date-retrieved-" + rowNumber, "cell-date-retrieved");
 		row += makeTableCell(item.set_number, "", "cell-set-number");
 		row += makeTableCell(linkToUrl, "cell-url-" + rowNumber, "cell-url");
 		row += makeTableCell(refreshRecordButton, "", "cell-button-refresh");
+
 		row += "</tr>";
 		dataRows += row;
 	})

@@ -1,5 +1,6 @@
 <?php
 require_once("client-download-and-process-class.php");
+require_once("client-select-parsed-content-class.php");
 require_once("xmlrpc-client-class.php");
 
 $usageMessage = "Usage: post 'action' (and arguments as required for that action).";
@@ -11,12 +12,28 @@ switch ($_POST['action']) {
 	case 'listAllUrls':
 		listAllUrls();
 		break;
+	case 'listCoupons':
+		listCoupons();
+		break;
 	case 'postCouponToTjd':
 		postCouponToTjd();
 		break;
 	default:
 		echo json_encode ($usageMessage);
 }
+
+/*
+function listCoupons() {
+	$offset = isset($_GET['offset']) ? $_GET['offset'] : NULL;
+	$maxRecords = isset($_GET['maxRecords']) ? $_GET['maxRecords'] : NULL;
+	$client = new ClientSelectParsedContent($offset, $maxRecords);
+	$client->queryParsedContent();
+	$client->aggregateParsedContent();
+	
+	$client->getParsedContentArray();
+	echo json_encode($client->getAggregateArray()) . PHP_EOL;
+}
+*/
 
 function postCouponToTjd() {
 	$username = "rpcxml";
@@ -68,6 +85,7 @@ function postCouponToTjd() {
 }
 
 function downloadAndProcess(){
+	$return = [];
 	if (isset($_POST['urls']) && isset($_POST['element-id'])) {
 		$urlsClient = new ClientDownloadAndProcessUrls($_POST['urls']);
 		$return['package'] = $urlsClient->processUrls();
@@ -87,6 +105,7 @@ else (isset($_POST['setNumber'])) {
 }
 
 function listAllUrls() {
+	
 	$pm = PdoManager::getInstance();
 	try {
 		$stmt = $pm->prepare("SELECT date_retrieved, set_number, url FROM files");
@@ -103,7 +122,6 @@ function listAllUrls() {
 	} catch(PDOException $e) {
 		echo $e->getMessage();
 	}
-
 }
 
 ?>

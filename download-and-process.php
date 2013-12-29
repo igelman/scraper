@@ -1,9 +1,11 @@
 <?php
 
+/*
 	define('LOCAL', 'localhost');
 	define('DEVELOPMENT', 'dev.tipjardaily.com');
 	define('PRODUCTION', 'tipjardaily.com');
 	define('DIR', dirname(__FILE__)); // e.g., /home/tipjardaily/tipjardaily.com/tools-dev
+*/
 	
 	$debug = "";
 ?>
