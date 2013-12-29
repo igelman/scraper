@@ -103,7 +103,6 @@ class ClientSelectParsedContent {
 *
 */
 
-/*
 $appRootPath = APP_ROOT_PATH; // $GLOBALS['appRootPath'];
 $fileStorePath = FILE_STORE_PATH; //$GLOBALS['fileStorePath'];		
 
@@ -117,6 +116,5 @@ $client->aggregateParsedContent();
 
 $client->getParsedContentArray();
 echo json_encode($client->getAggregateArray()) . PHP_EOL;
-*/
 
 ?>

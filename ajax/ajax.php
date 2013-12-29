@@ -2,7 +2,7 @@
 require_once("pdo-manager-class.php");
 require_once("client-download-and-process-class.php");
 require_once("xmlrpc-client-class.php");
-//require_once("client-select-parsed-content-class.php");
+require_once("client-select-parsed-content-class.php");
 
 $usageMessage = "Usage: post 'action' (and arguments as required for that action).";
 if (!isset($_POST['action'])) die(json_encode($usageMessage));
@@ -23,7 +23,6 @@ switch ($_POST['action']) {
 		echo json_encode ($usageMessage);
 }
 
-/*
 function listCoupons() {
 	$offset = isset($_GET['offset']) ? $_GET['offset'] : NULL;
 	$maxRecords = isset($_GET['maxRecords']) ? $_GET['maxRecords'] : NULL;
@@ -34,7 +33,6 @@ function listCoupons() {
 	$client->getParsedContentArray();
 	echo json_encode($client->getAggregateArray()) . PHP_EOL;
 }
-*/
 
 function listAllUrls() {	
 	$pm = PdoManager::getInstance();
@@ -110,11 +108,13 @@ function downloadAndProcess(){
 		$urlsClient = new ClientDownloadAndProcessUrls($_POST['urls']);
 		$return['package'] = $urlsClient->processUrls();
 		$return['post'] = $_POST;
-	} else (isset($_POST['setNumber'])) {
+	} /*
+else (isset($_POST['setNumber'])) {
 		$setClient = new ClientDownloadAndProcessSet($_POST['setNumber']);
 		$setClient->selectUrls();
 		echo $setClient->processUrls();
-	} else {
+	}
+*/ else {
 		$return['message'] = "Usage: post either 'urls' (array of urls) or 'setNumber' (integer set id).";
 	}	
 	echo json_encode($return);	

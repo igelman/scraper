@@ -120,12 +120,26 @@ function getSourceData(pagination) {
 	if (pagination.pageNumber && pagination.merchantsCount) {
 		query = "?offset=" + (parseInt(pagination.pageNumber) - 1) + "&maxRecords=" + parseInt(pagination.merchantsCount);
 	}
-	ajaxUrl = "ajax/client-select-parsed-content-class.php" + query;
+/*
+	ajaxUrl = "ajax/OLDclient-select-parsed-content-class.php" + query;
 	$.get( ajaxUrl, function( data ) {
 		makeSourceTable(data);
 		bindDraftToWpButtons();
 		$('.btn').button('reset');
 	});
+*/
+
+	ajaxUrl = "ajax/ajax.php" + query;
+	$.post(
+		ajaxUrl,
+		{action:	"listCoupons"},
+		function( data ) {
+			makeSourceTable(data);
+			bindDraftToWpButtons();
+			$('.btn').button('reset');
+		},
+		"json" 
+	);
 }
 
 function makeSourceTable(data) {
@@ -157,11 +171,9 @@ function makeSourceTable(data) {
 	})
 	thead += "</tr></thead>";
 
-	data = $.parseJSON(data);
 	var dataTable = "<table class='table table-hover table-condensed' id='data-table'>" + thead + "<tbody>";
 
 	var dataRows = "";
-
 	$.each(data, function(rowNumber, item) {
 		var draftToWpButton = "<button type='button' data-loading-text='Loading...'  class='btn btn-default draft-to-wp' id='button-draft-" + rowNumber + "'><span class='glyphicon glyphicon-share'></span></button>";
 		var row = "<tr class='item' id='row-" + rowNumber + "'>";
