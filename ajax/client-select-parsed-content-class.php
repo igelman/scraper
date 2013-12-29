@@ -29,8 +29,6 @@ class ClientSelectParsedContent {
 
 			$stmt->bindValue(':offset', (int) $offset, PDO::PARAM_INT);
 			$stmt->bindValue(':maxRecords', (int) $maxRecords, PDO::PARAM_INT);
-
-
 						
 			$stmt->setFetchMode(PDO::FETCH_ASSOC);
 			$stmt->execute();
@@ -43,7 +41,6 @@ class ClientSelectParsedContent {
 					'parsed_content'	=> $row['parsed_content'],
 				);
 			}
-
 		} catch(PDOException $e) {
 			echo $e->getMessage();
 		}
