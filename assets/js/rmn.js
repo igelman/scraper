@@ -185,15 +185,32 @@ function bindDraftToWpButtons() {
 			},
 			function(result, status){
 				result = $.parseJSON(result);
-				console.log(result);
-				$('#' + result.post['element-id']).button('reset');
+				//console.log(result);
+				var postId = getPostInfoFromXmlResponse(result.response);
 				var resetButtonId = result.post['element-id'];
 				var updateRowNumber = resetButtonId.replace("button-refresh-", "");
+				
+				$('#' + resetButtonId).html("post " + postId);
+				replaceButtonWithLinkToWp(resetButtonId, postId); // $('#' + resetButtonId).button('reset');
 				$('tr#row-' + updateRowNumber).removeClass('active').addClass('success');
 			}
 		);
-
 	});
+}
+
+function replaceButtonWithLinkToWp(buttonId, postId) {
+	// After posting to WordPress, use button to open post in wp-admin
+	$('#' + buttonId).replaceWith(
+		"<a target='_blank' href='http://localhost/development/wordpress/wp-admin/post.php?post=" + $.trim(postId) + "&action=edit'>" + $.trim(postId) + "</a>"
+	);
+	
+}
+
+
+function getPostInfoFromXmlResponse(xmlResponse) {
+	xmlDoc = $.parseXML( xmlResponse ),
+	$xml = $( xmlDoc );
+	return $xml.find( "value" ).text();
 }
 
 function OLDmakeSourceTable() {
