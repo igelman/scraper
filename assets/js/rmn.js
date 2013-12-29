@@ -1,56 +1,98 @@
 function init() {
-	addControls();
+	var pagination = getPaginationFromUrlQueryString();
+	addControls(pagination);
 	bindLoadButton();
-	bindNextButton();
-	getSourceData();
+	bindNextPageButton();
+	getSourceData(pagination);
 	return;
 }
 
-function addControls() {
-	var controls = '<form class="form-inline" role="form">'
-+'  <div class="form-group">'
-+'    <label class="sr-only" for="page-number">Page Number</label>'
-+'    <input type="number" class="form-control" id="page-number" placeholder="Page number">'
-+'  </div>'
-+'  <div class="form-group">'
-+'    <label class="sr-only" for="merchants-count">Number of Merchants</label>'
-+'    <input type="number" class="form-control" id="merchants-count" placeholder="Merchants per page">'
-+'  </div>'
-+'  <button type="button" class="btn btn-default" id="load-button">Load</button>'
-+'  <button type="button" class="btn btn-default" id="next-page-button">Next Page</button>'
-+'</form>';
+function getPaginationFromUrlQueryString() {
+// Returns object {"pageNumber":int, "merchantsCount":int}
+//  (or an empty object if the url doesn't have the parameters)
+	var params = $.deparam.querystring( true );
+	var pagination = {};
+	if (params.pageNumber) {
+		pagination['pageNumber'] = params.pageNumber;
+	}
+	if (params.merchantsCount) {
+		pagination['merchantsCount'] = params.merchantsCount;
+	}
+	return(pagination);
+}
+
+function addControls(pagination) {
+// Add form controls to set page number and merchants per page
+	var controls = '<form class="form-horizontal" role="form">'
+		+'	<div class="row">'
+		+'		<div class="form-group">'
+		+'			<label class="col-sm-2 control-label" for="page-number">Page Number</label>'
+		+'			<div class="col-sm-4">'
+		+'				<input type="number" class="form-control" id="page-number" placeholder="Page number" min="1">'
+		+'			</div>'
+		+'		</div>'
+		+'		<div class="form-group">'
+		+'			<label class="col-sm-2 control-label" for="merchants-count">Number of Merchants</label>'
+		+'			<div class="col-sm-4">'
+		+'				<input type="number" class="form-control" id="merchants-count" placeholder="Merchants per page" min="1">'
+		+'			</div>'
+		+'		</div>'		
+		+'	</div> <!-- .row -->'
+		+'  <button type="button" class="btn btn-default" id="load-button">Load</button>'
+		+'  <button type="button" class="btn btn-default" id="next-page-button">Next Page</button>'
+		+'</form>';
 	$('#controls').html(controls);
+
+	$('#page-number').val( pagination.pageNumber ? pagination.pageNumber: "" );
+	$('#merchants-count').val( pagination.merchantsCount ? pagination.merchantsCount: "" );
+	
 	$('#controls').parent('.row').addClass('well');
 	return;
 }
 
 function bindLoadButton() {
+// Load the page requested in the form.
 	$('#load-button').on('click', function () {
-		getSourceData($('#page-number').val(), $('#merchants-count').val());
+		var pagination = {};
+		pagination.pageNumber = $('#page-number').val();
+		pagination.merchantsCount = $('#merchants-count').val();
+		getSourceData(pagination);
 	});
 	return;
 }
 
-function bindNextButton() {
+function bindNextPageButton() {
+// Get the next page of data.
 	$('#next-page-button').on('click', function () {
 		$('#page-number').val(parseInt($('#page-number').val()) + 1);
-		getSourceData($('#page-number').val(), $('#merchants-count').val());
+		var pagination = {};
+		pagination.pageNumber = $('#page-number').val();
+		pagination.merchantsCount = $('#merchants-count').val();		
+		getSourceData(pagination);
 	});
 	return;
-	
 }
 
-function getSourceData(pageNumber, merchantsCount) {
+function updateUrl(pagination) {
+// Update the url with the new page number & merchants / page parameters.
+//  (This allows the user to rely on the browser back button).
+	var url = window.location.protocol + "//" + window.location.host + window.location.pathname;
+	if ( pagination.pageNumber && pagination.merchantsCount ) {
+		url += "?pageNumber=" + pagination.pageNumber + "&merchantsCount=" + pagination.merchantsCount
+	}
+	history.pushState(null, null, url);
+}
+
+function getSourceData(pagination) {
+	updateUrl(pagination);
 	$('.btn').button('loading');
 	$('#data').html("");
 	var query = "";
-	if (pageNumber && merchantsCount) {
-		query = "?offset=" + (parseInt(pageNumber) - 1) + "&maxRecords=" + parseInt(merchantsCount);
-		console.log(query);
+	if (pagination.pageNumber && pagination.merchantsCount) {
+		query = "?offset=" + (parseInt(pagination.pageNumber) - 1) + "&maxRecords=" + parseInt(pagination.merchantsCount);
 	}
 	ajaxUrl = "ajax/client-select-parsed-content-class.php" + query;
 	$.get( ajaxUrl, function( data ) {
-		console.log(data);
 		makeSourceTable(data);
 		bindDraftToWpButtons();
 		$('.btn').button('reset');
