@@ -1,6 +1,7 @@
 .DS_Store
 
 # ignore third party libraries
+third-party.tar.gz
 assets/php/simplehtmldom/
 assets/bootstrap/
 assets/kcfinder/
@@ -16,3 +17,7 @@ config/*local.config
 
 # ignore data directory
 data/
+
+# ignore scratch
+scratch.php
+junk.php
