@@ -48,14 +48,19 @@ function postCouponToTjd() {
 		),
 	);
 	
+	$productTypes = isset($_POST['productTypes']) ? $_POST['productTypes'] : NULL;
+	$merchant = isset($_POST['merchant']) ? $_POST['merchant'] : NULL;
 	$taxonomies = array(
-		"product_type"	=> $_POST['productTypes'],
-		"merchant"	=> array($_POST['merchant']),
+		"product_type"	=> $productTypes,
+		"merchant"	=> array($merchant),
 	);
 
-    $postParams = $this->xmlrpcClient->createPostParams($postTitle, $postContent, $postType, $customFields, $taxonomies);
-    $xmlrpcRequest = $this->xmlrpcClient->createRequest("wp.newPost", $postParams);
-    $response = $this->xmlrpcClient->sendRequest();	
+    $postParams = $xmlrpcClient->createPostParams($postTitle, $postContent, $postType, $customFields, $taxonomies);
+    $xmlrpcRequest = $xmlrpcClient->createRequest("wp.newPost", $postParams);
+    $response = $xmlrpcClient->sendRequest();
+    $return['response'] = $response;
+    $return['post'] = $_POST;
+    $return['element-id'] = $_POST['element-id'];	
 }
 
 function downloadAndProcess(){

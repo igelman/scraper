@@ -25,18 +25,18 @@ function addControls(pagination) {
 // Add form controls to set page number and merchants per page
 	var controls = '<form class="form-horizontal" role="form">'
 		+'	<div class="row">'
-		+'		<div class="form-group">'
-		+'			<label class="col-sm-2 control-label" for="page-number">Page Number</label>'
-		+'			<div class="col-sm-4">'
-		+'				<input type="number" class="form-control" id="page-number" placeholder="Page number" min="1">'
+		+'		<div class="col-sm-5">'
+		+'			<div class="form-group">'
+		+'				<label class="control-label" for="page-number">Page Number</label>'
+		+'				<input class="form-control" id="page-number" type="number" placeholder="Page number" min="1">'
 		+'			</div>'
 		+'		</div>'
-		+'		<div class="form-group">'
-		+'			<label class="col-sm-2 control-label" for="merchants-count">Number of Merchants</label>'
-		+'			<div class="col-sm-4">'
-		+'				<input type="number" class="form-control" id="merchants-count" placeholder="Merchants per page" min="1">'
+		+'		<div class="col-sm-5">'
+		+'			<div class="form-group">'
+		+'				<label class="control-label" for="merchants-count">Number of Merchants</label>'
+		+'				<input class="form-control" id="merchants-count" type="number" placeholder="Merchants per page" min="1">'
 		+'			</div>'
-		+'		</div>'		
+		+'		</div>'
 		+'	</div> <!-- .row -->'
 		+'  <button type="button" class="btn btn-default" id="load-button">Load</button>'
 		+'  <button type="button" class="btn btn-default" id="next-page-button">Next Page</button>'
@@ -168,26 +168,23 @@ function bindDraftToWpButtons() {
 		var clickedButtonId = $(this).attr('id');
 		var clickedRowNumber = clickedButtonId.replace("button-draft-", "");
 		
-		console.log("clickedButtonId: " + clickedButtonId);
-		console.log("clickedRowNumber: " + clickedRowNumber);
-		
 		$(this).button('loading');
 		$('tr#row-' + clickedRowNumber).addClass('active');
 		$.post(
 			"ajax/ajax.php",
 			{	'action'		: "postCouponToTjd",
 				'element-id'	: clickedButtonId,
-				'postTitle'		: $('#cell-title-' + clickedRowNumber).val(),
-				'postContent'	: $('#cell-details-' + clickedRowNumber).val(),
-				'couponCode'	: $('#cell-coupon-' + clickedRowNumber).val(),
-				'couponExpires'	: $('#cell-expires-' + clickedRowNumber).val(),
+				'postTitle'		: $('#cell-title-' + clickedRowNumber).html(),
+				'postContent'	: $('#cell-details-' + clickedRowNumber).html(),
+				'couponCode'	: $('#cell-coupon-' + clickedRowNumber).html(),
+				'couponExpires'	: $('#cell-expires-' + clickedRowNumber).html(),
 				'couponUrl'		: "",
-				'postOfferId'	: $('#cell-offer_id-' + clickedRowNumber).val(),
+				'postOfferId'	: $('#cell-offer_id-' + clickedRowNumber).html(),
 				'productTypes'	: [],
-				'merchant'		: $('#cell-merchant_domain-' + clickedRowNumber).val(),
+				'merchant'		: $('#cell-merchant_domain-' + clickedRowNumber).html(),
 			},
 			function(result, status){
-				var result = $.parseJSON(result);
+				result = $.parseJSON(result);
 				console.log(result);
 				$('#' + result.post['element-id']).button('reset');
 				var resetButtonId = result.post['element-id'];
