@@ -1,7 +1,16 @@
+/**
+* TO-DOS
+*  Default to page 1, 1 merchant
+*  Link DLP items to page
+*  Debug the xmlrpc parameters. Some items don't make it to post ... maybe because of markup
+*/
+
+
 function init() {
 	var pagination = getPaginationFromUrlQueryString();
 	addControls(pagination);
 	bindLoadButton();
+	bindPrevPageButton();
 	bindNextPageButton();
 	getSourceData(pagination);
 	return;
@@ -39,6 +48,7 @@ function addControls(pagination) {
 		+'		</div>'
 		+'	</div> <!-- .row -->'
 		+'  <button type="button" class="btn btn-default" id="load-button">Load</button>'
+		+'  <button type="button" class="btn btn-default" id="prev-page-button">Prev Page</button>'
 		+'  <button type="button" class="btn btn-default" id="next-page-button">Next Page</button>'
 		+'</form>';
 	$('#controls').html(controls);
@@ -64,7 +74,9 @@ function bindLoadButton() {
 function bindNextPageButton() {
 // Get the next page of data.
 	$('#next-page-button').on('click', function () {
-		$('#page-number').val(parseInt($('#page-number').val()) + 1);
+		var currentPage = parseInt($('#page-number').val());
+		var nextPage = currentPage + 1;
+		$('#page-number').val(nextPage);
 		var pagination = {};
 		pagination.pageNumber = $('#page-number').val();
 		pagination.merchantsCount = $('#merchants-count').val();		
@@ -72,6 +84,23 @@ function bindNextPageButton() {
 	});
 	return;
 }
+
+function bindPrevPageButton() {
+// Get the prev page of data.
+	$('#prev-page-button').on('click', function () {
+		var currentPage = parseInt($('#page-number').val());
+		var prevPage = currentPage - 1;
+		if ( prevPage >= 1 ) {
+			$('#page-number').val(prevPage);
+			var pagination = {};
+			pagination.pageNumber = $('#page-number').val();
+			pagination.merchantsCount = $('#merchants-count').val();		
+			getSourceData(pagination);			
+		}
+	});
+	return;
+}
+
 
 function updateUrl(pagination) {
 // Update the url with the new page number & merchants / page parameters.
