@@ -12,13 +12,69 @@ class ClientSelectParsedContent {
 	private $offset;
 	private $maxRecords;
 	private $urls;
+	private $dbh;
+	private $stmt;
+	public $url;
 	
 	public function __construct($offset = NULL, $maxRecords = NULL) {
-			$this->offset = (isset($offset)) ? $offset : 0;
-			$this->maxRecords = (isset($maxRecords)) ? ($maxRecords) : 5;
-			$this->urls = (isset($_POST['urls'])) ? $_POST['urls'] : null;
-		
+		$this->offset = (isset($offset)) ? $offset : 0;
+		$this->maxRecords = (isset($maxRecords)) ? ($maxRecords) : 999999;
+		$this->urls = (isset($_POST['urls'])) ? $_POST['urls'] : null;
 	}
+	
+	public function createQuery() {
+		$this->queryString = "SELECT url, date_retrieved, parsed_content FROM files WHERE LENGTH(parsed_content) > 0 " . $this->createWhereUrlClause($this->url) . " LIMIT :maxRecords OFFSET :offset";
+	
+		$this->dbh = PdoManager::getInstance();
+		$this->stmt = $this->dbh->prepare($this->queryString);
+	}
+	
+	public function createWhereUrlClause($url=NULL) {
+		if (isset($url)) {
+			$this->url = $url;
+			return "AND url = :url";	
+		}
+		return "";
+	}
+	
+	public function getQueryStatement() {
+		return $this->stmt;
+	}
+	
+	public function bindParameters() {
+		$return = FALSE;
+
+		$return = $this->stmt->bindValue(':offset', (int) $this->offset, PDO::PARAM_INT);
+		$return = $return && $this->stmt->bindValue(':maxRecords', (int) $this->maxRecords, PDO::PARAM_INT);
+		
+		if (isset($this->url)) {
+			$return = $return && $this->stmt->bindValue(':url', $this->url, PDO::PARAM_STR);
+		}
+
+		return $return; 
+	}
+	
+	public function executeQuery() {
+		try {
+			$this->stmt->setFetchMode(PDO::FETCH_ASSOC);
+			$this->stmt->execute();	
+		} catch(PDOException $e) {
+			echo $e->getMessage();
+		}
+	}
+	
+	public function getParsedContent() {
+		$this->parsedContentArray = array();
+		foreach($this->stmt as $row) {
+			$this->parsedContentArray[] = array(
+				'url'	=> $row['url'],
+				'date_retrieved'	=> $row['date_retrieved'],
+				'parsed_content'	=> $row['parsed_content'],
+			);
+		}
+		return $this->parsedContentArray;
+	}
+	
 	public function queryParsedContent() {
 		$dbh = PdoManager::getInstance();
 		try {			
@@ -29,7 +85,7 @@ class ClientSelectParsedContent {
 
 			$stmt->bindValue(':offset', (int) $offset, PDO::PARAM_INT);
 			$stmt->bindValue(':maxRecords', (int) $maxRecords, PDO::PARAM_INT);
-						
+
 			$stmt->setFetchMode(PDO::FETCH_ASSOC);
 			$stmt->execute();
 			
@@ -46,19 +102,18 @@ class ClientSelectParsedContent {
 		}
 	}
 	
+/*
 	private function makeInUrlSqlPhrase() {
 		$inUrlSqlPhrase = (isset($this->urls)) ? "AND url IN (" . implode(',', $_POST['urls']) . ")" : "";
 		return $inUrlSqlPhrase;
 	}
+*/
 	
 	public function getParsedContentArray() {
 		return $this->parsedContentArray;
 	}
 	
-	private function handlePostData() {
-		
-	}
-	
+/*
 	public function setOffset($offset){
 		$this->offset = $offset;
 	}
@@ -66,6 +121,7 @@ class ClientSelectParsedContent {
 	public function setMaxRecords($maxRecords) {
 		$this->maxRecords = $maxRecords;
 	}
+*/
 	
 	public function aggregateParsedContent() {
 		$this->aggregateArray = array();
@@ -77,15 +133,6 @@ class ClientSelectParsedContent {
 				$item['source_url'] = $sourceUrl;
 				$item['date_retrieved'] = $dateRetrieved;
 				$this->aggregateArray[] = $item;
-/*
-				$tr = "<tr class='item'>" . PHP_EOL;
-				$tr .= "<td class='url'>" . $url . "</td>" . PHP_EOL;
-				$tr .= "<td class='date_retrieved'>" . $date_retrieved . "</td>" .PHP_EOL;
-				$tr .= "<td class='title'>" . $item['title'] . "</td>" .PHP_EOL;
-				$tr .= "</tr>" . PHP_EOL;
-				
-				$this->table .= $tr;
-*/
 			}
 		}
 	}

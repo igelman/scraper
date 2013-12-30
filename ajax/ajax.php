@@ -26,12 +26,14 @@ switch ($_POST['action']) {
 function listCoupons() {
 	$offset = isset($_GET['offset']) ? $_GET['offset'] : NULL;
 	$maxRecords = isset($_GET['maxRecords']) ? $_GET['maxRecords'] : NULL;
+
 	$client = new ClientSelectParsedContent($offset, $maxRecords);
-	$client->queryParsedContent();
+	$client->createQuery();
+	$client->bindParameters();
+	$client->executeQuery();
+	$client->getParsedContent();
 	$client->aggregateParsedContent();
-	
-	$client->getParsedContentArray();
-	echo json_encode($client->getAggregateArray()) . PHP_EOL;
+	echo json_encode($client->getAggregateArray());
 }
 
 function listAllUrls() {	
