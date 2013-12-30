@@ -156,9 +156,11 @@ class ClientSelectParsedContent {
 		return $this->aggregateArray;
 	}
 	
+/*
 	public function getAggregateTable(){
 		return "<table><tbody>" . PHP_EOL . $this->table . PHP_EOL . "</tbody></table>";
 	}
+*/
 }
 
 /**

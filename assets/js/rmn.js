@@ -194,8 +194,6 @@ function makeSourceTable(data) {
         "bLengthChange": false,
         "bAutoWidth": false
     });
-
-
 }
 
 function makeTableCell(cellContent, cellId, cellClass) {
