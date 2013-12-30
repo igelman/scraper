@@ -6,31 +6,36 @@
 
 
 function init() {
-	var pagination = getPaginationFromUrlQueryString();
-	addControls(pagination);
-	bindLoadButton();
-	bindPrevPageButton();
-	bindNextPageButton();
-	getSourceData(pagination);
+	var urlParams = $.deparam.querystring( true );
+	
+	if (!urlParams.url) {
+		urlParams = setDefaultUrlParams(urlParams);
+		addControls(urlParams);
+		bindLoadButton();
+		bindPrevPageButton();
+		bindNextPageButton();
+	}
+	getSourceData(urlParams);
 	return;
 }
 
-function getPaginationFromUrlQueryString() {
-// Returns object {"pageNumber":int, "merchantsCount":int}
-//  by getting params from url query.
-//  If url doesn't specify, return default with both values = 1
-	var params = $.deparam.querystring( true );
-	var pagination = {"pageNumber":1, "merchantsCount":1};
-	if (params.pageNumber) {
-		pagination['pageNumber'] = params.pageNumber;
-	}
-	if (params.merchantsCount) {
-		pagination['merchantsCount'] = params.merchantsCount;
-	}
-	return(pagination);
+function setDefaultUrlParams(urlParams) {
+	urlParams.pageNumber = urlParams.pageNumber ? urlParams.pageNumber : 1;
+	urlParams.merchantsCount = urlParams.merchantsCount ? urlParams.merchantsCount : 1;
+	return(urlParams);
+	
 }
 
-function addControls(pagination) {
+function getRmnUrlFromUrlQueryString() {
+	var params = $.deparam.querystring( true );
+	var rmnUrl = "";
+	if (params.url) {
+		rmnUrl = params.url;
+	}
+	return rmnUrl;
+}
+
+function addControls(urlParams) {
 // Add form controls to set page number and merchants per page
 	var controls = '<form class="form-horizontal" role="form">'
 		+'	<div class="row">'
@@ -52,21 +57,25 @@ function addControls(pagination) {
 		+'  <button type="button" class="btn btn-default" id="next-page-button">Next Page</button>'
 		+'</form>';
 	$('#controls').html(controls);
-
-	$('#page-number').val( pagination.pageNumber ? pagination.pageNumber: "" );
-	$('#merchants-count').val( pagination.merchantsCount ? pagination.merchantsCount: "" );
+	setInputVals(urlParams.pageNumber, urlParams.merchantsCount);
 	
 	$('#controls').parent('.row').addClass('well');
 	return;
 }
 
+function setInputVals(pageNumber, merchantsCount) {
+	$('#page-number').val( pageNumber ? pageNumber: "" );
+	$('#merchants-count').val( merchantsCount ? merchantsCount: "" );
+
+}
+
 function bindLoadButton() {
 // Load the page requested in the form.
 	$('#load-button').on('click', function () {
-		var pagination = {};
-		pagination.pageNumber = $('#page-number').val();
-		pagination.merchantsCount = $('#merchants-count').val();
-		getSourceData(pagination);
+		var urlParams = {};
+		urlParams.pageNumber = $('#page-number').val();
+		urlParams.merchantsCount = $('#merchants-count').val();
+		getSourceData(urlParams);
 	});
 	return;
 }
@@ -77,10 +86,10 @@ function bindNextPageButton() {
 		var currentPage = parseInt($('#page-number').val());
 		var nextPage = currentPage + 1;
 		$('#page-number').val(nextPage);
-		var pagination = {};
-		pagination.pageNumber = $('#page-number').val();
-		pagination.merchantsCount = $('#merchants-count').val();		
-		getSourceData(pagination);
+		var urlParams = {};
+		urlParams.pageNumber = $('#page-number').val();
+		urlParams.merchantsCount = $('#merchants-count').val();		
+		getSourceData(urlParams);
 	});
 	return;
 }
@@ -92,44 +101,45 @@ function bindPrevPageButton() {
 		var prevPage = currentPage - 1;
 		if ( prevPage >= 1 ) {
 			$('#page-number').val(prevPage);
-			var pagination = {};
-			pagination.pageNumber = $('#page-number').val();
-			pagination.merchantsCount = $('#merchants-count').val();		
-			getSourceData(pagination);			
+			var urlParams = {};
+			urlParams.pageNumber = prevPage; //$('#page-number').val();
+			urlParams.merchantsCount = $('#merchants-count').val();
+			getSourceData(urlParams);			
 		}
 	});
 	return;
 }
 
 
-function updateUrl(pagination) {
+function updateUrl(urlParams) {
 // Update the url with the new page number & merchants / page parameters.
 //  (This allows the user to rely on the browser back button).
 	var url = window.location.protocol + "//" + window.location.host + window.location.pathname;
-	if ( pagination.pageNumber && pagination.merchantsCount ) {
-		url += "?pageNumber=" + pagination.pageNumber + "&merchantsCount=" + pagination.merchantsCount
+	if ( urlParams.pageNumber && urlParams.merchantsCount ) {
+		url += "?pageNumber=" + urlParams.pageNumber + "&merchantsCount=" + urlParams.merchantsCount
+	} else if (urlParams.url) {
+		url += "?url=" + urlParams.url;
 	}
 	history.pushState(null, null, url);
 }
 
-function getSourceData(pagination) {
-	updateUrl(pagination);
+function getSourceData(urlParams) {
+
+console.log("urlParams: ");
+console.log(urlParams);
+	updateUrl(urlParams);
 	$('.btn').button('loading');
 	$('#data').html("");
 	var query = "";
-	if (pagination.pageNumber && pagination.merchantsCount) {
-		query = "?offset=" + (parseInt(pagination.pageNumber) - 1) + "&maxRecords=" + parseInt(pagination.merchantsCount);
+	if (urlParams.pageNumber && urlParams.merchantsCount) {
+		query = "?offset=" + (parseInt(urlParams.pageNumber) - 1) + "&maxRecords=" + parseInt(urlParams.merchantsCount);
+	} else if (urlParams.url) {
+		query = "?url=" + urlParams.url;
 	}
-/*
-	ajaxUrl = "ajax/OLDclient-select-parsed-content-class.php" + query;
-	$.get( ajaxUrl, function( data ) {
-		makeSourceTable(data);
-		bindDraftToWpButtons();
-		$('.btn').button('reset');
-	});
-*/
 
 	ajaxUrl = "ajax/ajax.php" + query;
+	console.log("ajaxUrl: " + ajaxUrl);
+
 	$.post(
 		ajaxUrl,
 		{action:	"listCoupons"},

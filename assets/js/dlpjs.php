@@ -22,6 +22,7 @@ function listAllUrls() {
 		bindRefreshRecordButtons();		// button refreshes current record
 		bindRefreshCheckbox();			// checkbox to select record for refresh
 		bindGetCommandButton();
+		bindViewCouponsButtons();
 	});
 	request.fail(function( jqXHR, textStatus ) {
 		console.log(jqXHR);
@@ -41,12 +42,13 @@ function addGetCommandButton() {
 
 function makeSourceTable(data) {
 	console.log("called makeSourceTable");
-	
+
 	var refreshSelectedButton = "<button type='button' data-loading-text='Loading...'  class='btn btn-default' id='refresh-selected'><span class='glyphicon glyphicon-cloud-download'></span></button>";
 	var thead = "<thead><tr><th>" + refreshSelectedButton + "</th><th>Date Retrieved</th><th>Set</th><th>Url</th><th> </th></tr></thead>";
 	var dataTable = "<table class='table table-hover table-condensed' id='data-table'>" + thead + "<tbody>";
 	var dataRows = "";
 	$.each(data, function(rowNumber, item) {
+		var viewCouponsButton = "<button type='button' data-loading-text='Loading...'  class='btn btn-default view-coupons' id='button-view-coupons-" + rowNumber + "'><span class='glyphicon glyphicon glyphicon-th-list'></span></button>";
 		var refreshRecordButton = "<button type='button' data-loading-text='Loading...'  class='btn btn-default refresh-record' id='button-refresh-" + rowNumber + "'><span class='glyphicon glyphicon-cloud-download'></span></button>";
 		var refreshCheckBox = "<label class='block'><input type='checkbox' class='select-refresh' id='select-refresh-" + rowNumber +"'></label>";
 		var linkToUrl = "<a href='" + item.url + "' target='_blank'>" + item.url + " <span class='glyphicon glyphicon-new-window'></span></a>";
@@ -57,6 +59,7 @@ function makeSourceTable(data) {
 		row += makeTableCell(item.set_number, "", "cell-set-number");
 		row += makeTableCell(linkToUrl, "cell-url-" + rowNumber, "cell-url");
 		row += makeTableCell(refreshRecordButton, "", "cell-button-refresh");
+		row += makeTableCell(viewCouponsButton, "", "cell-button-view-coupons");
 
 		row += "</tr>";
 		dataRows += row;
@@ -89,7 +92,6 @@ function bindRefreshCheckbox() {
 		}
 	});
 }
-
 
 function bindRefreshSelectedButton() {
 	$('#refresh-selected').on('click', function() {
@@ -129,6 +131,36 @@ function bindRefreshSelectedButton() {
 			}
 		);
 		return;
+	});
+}
+
+
+// This is goofy; skip the binding. Just make this a link when the row is created.
+function bindViewCouponsButtons() {
+	$('.view-coupons').each(function( index ) {
+		var buttonId = $(this).attr('id');
+		var rowNumber = buttonId.replace("button-view-coupons-", "");
+		var rmnUrl = $( 'tr#row-' + rowNumber + ' > td.cell-url > a' ).attr('href');
+		var urlParam = encodeURIComponent(rmnUrl);
+		var href = "index.php?url=" + urlParam;
+		
+/*
+		console.log("buttonId: " + buttonId);
+		console.log("rowNumber: " + rowNumber);
+		console.log("rmnUrl: " + rmnUrl);
+		console.log("urlParam: " + urlParam);
+*/
+		
+		$(this).replaceWith("<a href='" + href + "'>link</a>");
+	});
+
+
+	$('.view-coupons').on('click', function () {
+		var clickedButtonId = $(this).attr('id');
+		var clickedRowNumber = clickedButtonId.replace("view-coupons", "");
+		var rmnUrl = $( 'tr#row-' + clickedRowNumber + ' > td.cell-url > a' ).attr('href');
+		var urlParam = encodeURIComponent(rmnUrl);
+		var href = "index.php?url=" + urlParam;		
 	});
 }
 

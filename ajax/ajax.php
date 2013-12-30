@@ -4,9 +4,21 @@ require_once("client-download-and-process-class.php");
 require_once("xmlrpc-client-class.php");
 require_once("client-select-parsed-content-class.php");
 
-$usageMessage = "Usage: post 'action' (and arguments as required for that action).";
-if (!isset($_POST['action'])) die(json_encode($usageMessage));
-switch ($_POST['action']) {
+$usageMessage = "Usage: post (or get) 'action' (and arguments as required for that action).";
+if (!isset($_POST['action']) && !isset($_GET['action'])) {
+	die(json_encode($usageMessage));
+}
+/*
+
+if (isset($_GET['action'])) {
+	$action = $_GET['action'];
+}
+*/
+if (isset($_POST['action'])) {
+	$action = $_POST['action'];
+}
+
+switch ($action) {
 	case 'downloadAndProcess':
 		downloadAndProcess();
 		break;
