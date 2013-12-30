@@ -26,8 +26,9 @@ switch ($_POST['action']) {
 function listCoupons() {
 	$offset = isset($_GET['offset']) ? $_GET['offset'] : NULL;
 	$maxRecords = isset($_GET['maxRecords']) ? $_GET['maxRecords'] : NULL;
+	$url = isset($_GET['url']) ? $_GET['url'] : NULL;
 
-	$client = new ClientSelectParsedContent($offset, $maxRecords);
+	$client = new ClientSelectParsedContent($offset, $maxRecords, $url);
 	$client->createQuery();
 	$client->bindParameters();
 	$client->executeQuery();
