@@ -5,6 +5,12 @@ require_once(__DIR__ . "/pdo-manager-class.php");
 require_once(__DIR__ . "/file-parser-class.php");
 
 
+
+// Check command line arguments for --set
+//  syntax: php rmn-agent.php --set=10
+$options = getopt("", ["set::"]);
+//var_dump($options);
+$set = isset($options['set']) ? intval($options['set']) : NULL;
 $message = PHP_EOL;
 
 // Parameters for semaphore file. If it exists, this process exits.
@@ -22,8 +28,13 @@ if ( $sm->semaphoreExists() ) {
 	exit();
 }
 
-// Choose the oldest record. 
-$url = selectStalestUrl();
+if (isset($set)) {
+	$message .= "#SELECT url from set " . $set . PHP_EOL;
+	$url = selectStalestUrl($set);
+} else {
+	// Choose the oldest record. 
+	$url = selectStalestUrl();
+}
 
 // Curl it
 $message .= "#UPDATING MERCHANT Curling $url..." . PHP_EOL;
@@ -32,13 +43,25 @@ $cc->executeCurl();
 $ch = $cc->getCurlHandle();
 $html = $cc->getCurlResult();
 
+// Bail if curl failed
+if (strlen($html) == 0) {
+	$message .= "#UPDATE FAILED Curl failed. strlen(\$html) = " . strlen($html) . PHP_EOL;
+	logMessage($message);
+	exit($message);
+}
+
 // Process it
 if (handleHumanCheck($ch, $sm)) {
 	exit("We got found out: $effectiveUrl" . PHP_EOL);
 }
 $url = handleNewUrl($url, $ch);
 $parsedContent = parseContent($html);
-updateRecord($url, $html, $parsedContent);
+
+if (strlen($parsedContent) > 5) {
+	updateRecord($url, $html, $parsedContent);	
+} else {
+	$message .= "#UPDATE FAILED Parse failed. strlen(\$parsedContent) = " . strlen($parsedContent) . PHP_EOL;
+}
 
 logMessage($message);
 
@@ -123,11 +146,18 @@ function updateRecord($url, $html, $parsedContent) {
 	}
 }
 
-function selectStalestUrl() {
+function selectStalestUrl($set=NULL) {
 	global $message;
+	
+	$whereSet = $set ? "WHERE set_number = :set" : "";
+	$select = "SELECT url FROM files " . $whereSet . " ORDER BY date_retrieved asc LIMIT 1";
+	
 	$dbh = PdoManager::getInstance();
 	try {
-		$stmt = $dbh->prepare("SELECT url FROM files ORDER BY date_retrieved asc LIMIT 1");
+		$stmt = $dbh->prepare($select);
+		if (isset($set)) {
+			$stmt->bindValue(':set', (int) $set, PDO::PARAM_INT);	
+		}
 		$stmt->execute();
 		$row = $stmt->fetch();
 		return $row['url'];
