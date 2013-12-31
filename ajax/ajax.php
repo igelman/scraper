@@ -8,12 +8,9 @@ $usageMessage = "Usage: post (or get) 'action' (and arguments as required for th
 if (!isset($_POST['action']) && !isset($_GET['action'])) {
 	die(json_encode($usageMessage));
 }
-/*
-
 if (isset($_GET['action'])) {
 	$action = $_GET['action'];
 }
-*/
 if (isset($_POST['action'])) {
 	$action = $_POST['action'];
 }
@@ -31,8 +28,27 @@ switch ($action) {
 	case 'postCouponToTjd':
 		postCouponToTjd();
 		break;
+	case 'fetchAllUrls':
+		fetchAllUrls();
+		break;
 	default:
 		echo json_encode ($usageMessage);
+}
+
+function fetchAllUrls() {
+	$pm = PdoManager::getInstance();
+	try {
+		$stmt = $pm->prepare("SELECT url FROM files WHERE LENGTH(parsed_content) > 0");
+		$stmt->setFetchMode(PDO::FETCH_ASSOC);
+		$stmt->execute();
+	} catch(PDOException $e) {
+		echo $e->getMessage();
+	}
+	$result = array();
+	foreach($stmt as $row) {
+		$result[] = $row;
+	}
+	echo json_encode($result);
 }
 
 function listCoupons() {

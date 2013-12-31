@@ -53,8 +53,29 @@ function addMerchantControls(urlParams) {
 //		+'  <button type="button" class="btn btn-default" id="next-page-button">Next Page</button>'
 		+'</form>';
 	$('#controls').html(controls);
+	
+	addTypeAhead();
 	setInputVals(urlParams);
 	return;
+}
+
+function addTypeAhead() {
+	$.get(
+		'ajax/ajax.php?action=fetchAllUrls',
+		function(data, textStatus, jqXHR) {
+			var result = [];
+			for(var i in data) {
+				result.push(data[i].url);
+			}
+			$('#merchant-url').typeahead([
+				{
+					name: 'urls',
+					local: result,
+				}
+			]);			
+		},
+		"json" 
+	);
 }
 
 function addPageControls(urlParams) {

@@ -75,6 +75,7 @@
     <script src="assets/bootstrap/js/bootstrap.js"></script>
     <script src="assets/js/rmn.js"></script>
     <script src="assets/js/jquery.ba-bbq.js"></script>
+    <script src="assets/js/typeahead.js"></script>
     <script>
 		console.log("About to call init");
 		$( init );
