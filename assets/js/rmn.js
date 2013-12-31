@@ -10,11 +10,14 @@ function init() {
 	
 	if (!urlParams.url) {
 		urlParams = setDefaultUrlParams(urlParams);
-		addControls(urlParams);
-		bindLoadButton();
+		addPageControls(urlParams);
+		//bindLoadButton();
 		bindPrevPageButton();
 		bindNextPageButton();
+	} else if (urlParams.url) {
+		addMerchantControls(urlParams);
 	}
+	bindLoadButton();
 	getSourceData(urlParams);
 	return;
 }
@@ -35,7 +38,26 @@ function getRmnUrlFromUrlQueryString() {
 	return rmnUrl;
 }
 
-function addControls(urlParams) {
+function addMerchantControls(urlParams) {
+	var controls = '<form class="form-horizontal" role="form">'
+		+'	<div class="row">'
+		+'		<div class="col-sm-5">'
+		+'			<div class="form-group">'
+		+'				<label class="control-label" for="merchant-url">RMN Merchant Url</label>'
+		+'				<input class="form-control" id="merchant-url" type="url" placeholder="RMN Merchant Url">'
+		+'			</div>'
+		+'		</div>'
+		+'	</div> <!-- .row -->'
+		+'  <button type="button" class="btn btn-default" id="load-button">Load</button>'
+//		+'  <button type="button" class="btn btn-default" id="prev-page-button">Prev Page</button>'
+//		+'  <button type="button" class="btn btn-default" id="next-page-button">Next Page</button>'
+		+'</form>';
+	$('#controls').html(controls);
+	setInputVals(urlParams);
+	return;
+}
+
+function addPageControls(urlParams) {
 // Add form controls to set page number and merchants per page
 	var controls = '<form class="form-horizontal" role="form">'
 		+'	<div class="row">'
@@ -57,15 +79,16 @@ function addControls(urlParams) {
 		+'  <button type="button" class="btn btn-default" id="next-page-button">Next Page</button>'
 		+'</form>';
 	$('#controls').html(controls);
-	setInputVals(urlParams.pageNumber, urlParams.merchantsCount);
+	setInputVals(urlParams/* urlParams.pageNumber, urlParams.merchantsCount */);
 	
 	$('#controls').parent('.row').addClass('well');
 	return;
 }
 
-function setInputVals(pageNumber, merchantsCount) {
-	$('#page-number').val( pageNumber ? pageNumber: "" );
-	$('#merchants-count').val( merchantsCount ? merchantsCount: "" );
+function setInputVals(urlParams/* pageNumber, merchantsCount */) {
+	$('#page-number').val( urlParams.pageNumber ? urlParams.pageNumber : "" );
+	$('#merchants-count').val( urlParams.merchantsCount ? urlParams.merchantsCount : "" );
+	$('#merchant-url').val( urlParams.url ? urlParams.url : "");
 
 }
 
@@ -75,6 +98,9 @@ function bindLoadButton() {
 		var urlParams = {};
 		urlParams.pageNumber = $('#page-number').val();
 		urlParams.merchantsCount = $('#merchants-count').val();
+		urlParams.url = $('#merchant-url').val();
+console.log("bindLoadButton urlParams: ...");
+console.log(urlParams);
 		getSourceData(urlParams);
 	});
 	return;
@@ -124,22 +150,16 @@ function updateUrl(urlParams) {
 }
 
 function getSourceData(urlParams) {
-
-console.log("urlParams: ");
-console.log(urlParams);
 	updateUrl(urlParams);
 	$('.btn').button('loading');
 	$('#data').html("");
 	var query = "";
 	if (urlParams.pageNumber && urlParams.merchantsCount) {
-		query = "?offset=" + (parseInt(urlParams.pageNumber) - 1) + "&maxRecords=" + parseInt(urlParams.merchantsCount);
+		query = "?offset=" + parseInt(urlParams.merchantsCount)*(parseInt(urlParams.pageNumber) - 1) + "&maxRecords=" + parseInt(urlParams.merchantsCount);
 	} else if (urlParams.url) {
 		query = "?url=" + urlParams.url;
 	}
-
 	ajaxUrl = "ajax/ajax.php" + query;
-	console.log("ajaxUrl: " + ajaxUrl);
-
 	$.post(
 		ajaxUrl,
 		{action:	"listCoupons"},
@@ -212,8 +232,6 @@ function makeTableCell(cellContent, cellId, cellClass) {
 
 function bindDraftToWpButtons() {
 	$('.draft-to-wp').on('click', function () {
-		console.log("Clicked draft");
-
 		var clickedButtonId = $(this).attr('id');
 		var clickedRowNumber = clickedButtonId.replace("button-draft-", "");
 		
@@ -260,39 +278,4 @@ function getPostInfoFromXmlResponse(xmlResponse) {
 	xmlDoc = $.parseXML( xmlResponse ),
 	$xml = $( xmlDoc );
 	return $xml.find( "value" ).text();
-}
-
-function OLDmakeSourceTable() {
-console.log("in makeSourceTable()");
-	// Create a new YUI instance and populate it with the required modules.
-	YUI().use('datatable-sort', function (Y) {
-		// DataTable is available and ready for use. Add implementation
-		// code here.
-		// Columns must match data object property names
-
-		$.get( "ajax/client-select-parsed-content-class.php", function( data ) {
-			//console.log( data);
-			data = $.parseJSON(data);
-			
-			var columns = new Array();
-			$.each(data[0], function(key){
-				columns.push(
-					{'key': key, 'allowHTML': true, resizeable: true}
-				);
-			});
-
-			
-			var table = new Y.DataTable({
-			    columns: columns,
-			    data: data,
-				sortable: true,
-			    caption: "Caption",
-			    summary: "Summary"
-			});
-			
-			$('body').addClass('yui3-skin-sam');
-			table.render("#data");
-		});
-		
-	});
 }
