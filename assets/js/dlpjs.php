@@ -5,6 +5,47 @@ function init() {
 	listAllUrls();
 }
 
+function bindAddToSetButtons() {
+	$('.add-to-set').on('click', function () {
+		var clickedButtonId = $(this).attr('id');
+		var clickedRowNumber = clickedButtonId.replace("button-add-to-set-", "");
+		var elementId = "set-input-" + clickedRowNumber;
+		var url = $( 'tr#row-' + clickedRowNumber + ' > td.cell-url > a' ).attr('href');
+		var set = $('#' + elementId).val();
+
+		$(this).button('loading');
+		$('tr#row-' + clickedRowNumber).addClass('active');
+
+		addToSet(elementId, url, set);
+	});
+}
+
+
+function addToSet(elementId, url, set) {
+	var ajaxUrl = "ajax/ajax.php?action=addToSet&url=" + encodeURIComponent(url) + "&set=" + parseInt(set) + "&elementId=" + elementId;
+	
+	console.log("addToSet " + ajaxUrl);
+	$.get(
+		ajaxUrl,
+		function(data, textStatus, jqXHR) {
+			var updateElementId = data.get.elementId;
+			var newSet = data.get.set;
+			var rowCount = data.rowCount;
+			var updateRowNumber = updateElementId.replace("set-input-", "");
+			var buttonId = "button-add-to-set-" + updateRowNumber;
+console.log("updateElementId: " + updateElementId);
+console.log("updateRowNumber: " + updateRowNumber);
+console.log("buttonId: " + buttonId);
+			if (rowCount==1) {
+				$('#' + updateElementId).val(newSet);
+				$('tr#row-' + updateRowNumber).removeClass('active').addClass('success');
+				$('#' + buttonId).button('reset');				
+			}
+		},
+		"json" 
+	);
+}
+
 function listAllUrls() {
 	var request = $.ajax({
 		type:	"POST",
@@ -23,6 +64,7 @@ function listAllUrls() {
 		bindRefreshCheckbox();			// checkbox to select record for refresh
 		bindGetCommandButton();
 		bindViewCouponsButtons();
+		bindAddToSetButtons();
 	});
 	request.fail(function( jqXHR, textStatus ) {
 		console.log(jqXHR);
@@ -52,11 +94,12 @@ function makeSourceTable(data) {
 		var refreshRecordButton = "<button type='button' data-loading-text='Loading...'  class='btn btn-default refresh-record' id='button-refresh-" + rowNumber + "'><span class='glyphicon glyphicon-cloud-download'></span></button>";
 		var refreshCheckBox = "<label class='block'><input type='checkbox' class='select-refresh' id='select-refresh-" + rowNumber +"'></label>";
 		var linkToUrl = "<a href='" + item.url + "' target='_blank'>" + item.url + " <span class='glyphicon glyphicon-new-window'></span></a>";
+		var addToSetForm = "<input type='number' id='set-input-" + rowNumber + "' value='" + item.set_number + "'><button type='button' data-loading-text='Loading...'  class='btn btn-default add-to-set' id='button-add-to-set-" + rowNumber + "'><span class='glyphicon glyphicon glyphicon-plus'></span></button>";
 		var row = "<tr class='item' id='row-" + rowNumber + "'>";
 
 		row += makeTableCell(refreshCheckBox, "", "cell-checkbox-refresh");
 		row += makeTableCell(item.date_retrieved, "cell-date-retrieved-" + rowNumber, "cell-date-retrieved");
-		row += makeTableCell(item.set_number, "", "cell-set-number");
+		row += makeTableCell(addToSetForm, "cell-set-number-" + rowNumber, "cell-set-number");
 		row += makeTableCell(linkToUrl, "cell-url-" + rowNumber, "cell-url");
 		row += makeTableCell(refreshRecordButton, "", "cell-button-refresh");
 		row += makeTableCell(viewCouponsButton, "", "cell-button-view-coupons");
@@ -67,6 +110,14 @@ function makeSourceTable(data) {
 	dataTable += dataRows;
 	dataTable += "</tbody></table>";
 	$('#data').html(dataTable);
+/*
+	$('#data-table').dataTable({
+        "bPaginate": false,
+        "bLengthChange": false,
+        "bAutoWidth": false
+    });
+*/
+
 	$('.block').css({
 		"display"	:	"block",
 		"text-align":	"center",

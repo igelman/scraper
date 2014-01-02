@@ -31,8 +31,29 @@ switch ($action) {
 	case 'fetchAllUrls':
 		fetchAllUrls();
 		break;
+	case 'addToSet':
+		addToSet();
+		break;
 	default:
 		echo json_encode ($usageMessage);
+}
+
+function addToSet() {
+	$pm = PdoManager::getInstance();
+	$set = $_GET['set'];
+	$url = $_GET['url'];
+	try {
+		$stmt = $pm->prepare("UPDATE files SET set_number = :set WHERE url = :url");
+		$stmt->bindValue(':set', $set, PDO::PARAM_INT);
+		$stmt->bindValue(':url', $url, PDO::PARAM_STR);
+		$stmt->execute();
+	} catch(PDOException $e) {
+		echo $e->getMessage();
+	}
+	
+	$return['rowCount'] = $stmt->rowCount();
+	$return['get'] = $_GET;
+	echo json_encode($return);
 }
 
 function fetchAllUrls() {
