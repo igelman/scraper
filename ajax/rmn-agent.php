@@ -12,6 +12,7 @@ $options = getopt("", ["set::"]);
 //var_dump($options);
 $set = isset($options['set']) ? intval($options['set']) : NULL;
 $message = PHP_EOL;
+$message .= date("Y-m-d H:i:s") . PHP_EOL;
 
 // Parameters for semaphore file. If it exists, this process exits.
 // If this process fails because of a humanCheck, it creates the file.
@@ -52,7 +53,7 @@ if (strlen($html) == 0) {
 
 // Process it
 if (handleHumanCheck($ch, $sm)) {
-	exit("We got found out: $effectiveUrl" . PHP_EOL);
+	exit("We got found out: $url" . PHP_EOL);
 }
 $url = handleNewUrl($url, $ch);
 $parsedContent = parseContent($html);
