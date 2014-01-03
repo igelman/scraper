@@ -5,26 +5,25 @@ function init() {
 	listAllUrls();
 }
 
-function bindAddToSetButtons() {
-	$('.add-to-set').on('click', function () {
-		var clickedButtonId = $(this).attr('id');
-		var clickedRowNumber = clickedButtonId.replace("button-add-to-set-", "");
-		var elementId = "set-input-" + clickedRowNumber;
+function bindSpanSetNumber() {
+	$('.span-set-number').on('click', function() {
+		var clickedId = $(this).attr('id');
+		var clickedRowNumber = clickedId.replace("span-set-number-", "");
 		var url = $( 'tr#row-' + clickedRowNumber + ' > td.cell-url > a' ).attr('href');
-		var set = $('#' + elementId).val();
-
-		$(this).button('loading');
-		$('tr#row-' + clickedRowNumber).addClass('active');
-
-		addToSet(elementId, url, set);
+		var set = $('#' + clickedId).html();
+		
+		// replace with input
+		$(this).replaceWith("<input type='text' id='set-input-" + clickedRowNumber + "' value='" + set + "'>");
+		// call addToSet
+		$('#set-input-' + clickedRowNumber).change(function() {
+			var newSet = $(this).val();
+			addToSet('set-input-' + clickedRowNumber, url, newSet);
+		});
 	});
 }
 
-
 function addToSet(elementId, url, set) {
 	var ajaxUrl = "ajax/ajax.php?action=addToSet&url=" + encodeURIComponent(url) + "&set=" + parseInt(set) + "&elementId=" + elementId;
-	
-	console.log("addToSet " + ajaxUrl);
 	$.get(
 		ajaxUrl,
 		function(data, textStatus, jqXHR) {
@@ -32,14 +31,10 @@ function addToSet(elementId, url, set) {
 			var newSet = data.get.set;
 			var rowCount = data.rowCount;
 			var updateRowNumber = updateElementId.replace("set-input-", "");
-			var buttonId = "button-add-to-set-" + updateRowNumber;
-console.log("updateElementId: " + updateElementId);
-console.log("updateRowNumber: " + updateRowNumber);
-console.log("buttonId: " + buttonId);
 			if (rowCount==1) {
-				$('#' + updateElementId).val(newSet);
+				$('#' + updateElementId).replaceWith("<span id='span-set-number-" + updateRowNumber + "' class='span-set-number'>" + newSet + "</span>");
+				bindSpanSetNumber(); // this is a little heavy-handed, since we just need to rebind this one element
 				$('tr#row-' + updateRowNumber).removeClass('active').addClass('success');
-				$('#' + buttonId).button('reset');				
 			}
 		},
 		"json" 
@@ -56,7 +51,6 @@ function listAllUrls() {
 		dataType:	"json",
 	});
 	request.done(function(data){
-		console.log("listAllUrls success function running...");
 		makeSourceTable(data);
 		addGetCommandButton();
 		bindRefreshSelectedButton();	// button refreshes all selected records
@@ -64,7 +58,7 @@ function listAllUrls() {
 		bindRefreshCheckbox();			// checkbox to select record for refresh
 		bindGetCommandButton();
 		bindViewCouponsButtons();
-		bindAddToSetButtons();
+		bindSpanSetNumber(); //bindAddToSetButtons();
 	});
 	request.fail(function( jqXHR, textStatus ) {
 		console.log(jqXHR);
@@ -83,8 +77,6 @@ function addGetCommandButton() {
 }
 
 function makeSourceTable(data) {
-	console.log("called makeSourceTable");
-
 	var refreshSelectedButton = "<button type='button' data-loading-text='Loading...'  class='btn btn-default' id='refresh-selected'><span class='glyphicon glyphicon-cloud-download'></span></button>";
 	var thead = "<thead><tr><th>" + refreshSelectedButton + "</th><th>Date Retrieved</th><th>Set</th><th>Url</th><th> </th></tr></thead>";
 	var dataTable = "<table class='table table-hover table-condensed' id='data-table'>" + thead + "<tbody>";
@@ -94,7 +86,7 @@ function makeSourceTable(data) {
 		var refreshRecordButton = "<button type='button' data-loading-text='Loading...'  class='btn btn-default refresh-record' id='button-refresh-" + rowNumber + "'><span class='glyphicon glyphicon-cloud-download'></span></button>";
 		var refreshCheckBox = "<label class='block'><input type='checkbox' class='select-refresh' id='select-refresh-" + rowNumber +"'></label>";
 		var linkToUrl = "<a href='" + item.url + "' target='_blank'>" + item.url + " <span class='glyphicon glyphicon-new-window'></span></a>";
-		var addToSetForm = "<input type='number' id='set-input-" + rowNumber + "' value='" + item.set_number + "'><button type='button' data-loading-text='Loading...'  class='btn btn-default add-to-set' id='button-add-to-set-" + rowNumber + "'><span class='glyphicon glyphicon glyphicon-plus'></span></button>";
+		var addToSetForm = "<span id='span-set-number-" + rowNumber + "' class='span-set-number'>" + item.set_number + "</span>";
 		var row = "<tr class='item' id='row-" + rowNumber + "'>";
 
 		row += makeTableCell(refreshCheckBox, "", "cell-checkbox-refresh");
@@ -194,13 +186,6 @@ function bindViewCouponsButtons() {
 		var rmnUrl = $( 'tr#row-' + rowNumber + ' > td.cell-url > a' ).attr('href');
 		var urlParam = encodeURIComponent(rmnUrl);
 		var href = "index.php?url=" + urlParam;
-		
-/*
-		console.log("buttonId: " + buttonId);
-		console.log("rowNumber: " + rowNumber);
-		console.log("rmnUrl: " + rmnUrl);
-		console.log("urlParam: " + urlParam);
-*/
 		
 		$(this).replaceWith("<a href='" + href + "'>link</a>");
 	});
