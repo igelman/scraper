@@ -150,7 +150,7 @@ function updateRecord($url, $html, $parsedContent) {
 function selectStalestUrl($set=NULL) {
 	global $message;
 	
-	$whereSet = $set ? "WHERE set_number = :set" : "";
+	$whereSet = $set ? "WHERE set_number = :set AND date_retrieved < NOW() - INTERVAL 1 DAY" : "";
 	$select = "SELECT url FROM files " . $whereSet . " ORDER BY date_retrieved asc LIMIT 1";
 	
 	$dbh = PdoManager::getInstance();
