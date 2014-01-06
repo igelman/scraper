@@ -123,7 +123,7 @@ function postCouponToTjd() {
 		),
 		array(
 			"key"	=> "expires",
-			"value"	=> $_POST['couponExpires'] // YYYYMMDD
+			"value"	=> strtotime($_POST['couponExpires']) ? date("Ymd", strtotime($_POST['couponExpires'])) : ""  // YYYYMMDD
 		),
 		array(
 			"key"	=>	"url",
