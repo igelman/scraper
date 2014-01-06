@@ -1,7 +1,7 @@
 /**
 * TO-DOS
-*  Link DLP items to page
-*  Debug the xmlrpc parameters. Some items don't make it to post ... maybe because of markup
+*  Check xmlrpc connection on page load & suppress buttons if it breaks
+*  Send arbitrary content to WP (e.g., -- just send the whole row and park it in a html field
 */
 
 
