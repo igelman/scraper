@@ -21,6 +21,10 @@ class SemaphoreManager {
 		return $this->content;
 	}
 	
+	public function setContent($content) {
+		$this->content = $content;
+	}
+	
 	public function createSemaphore() {
 		return file_put_contents($this->path, $this->content);
 	}

@@ -42,9 +42,15 @@ class TestSemaphoreManager extends PHPUnit_Framework_TestCase {
 		$this->assertEquals($this->content, $this->sm->readSemaphore());
 	}
 	
-	public function testSendSemahpreContents() {
+	public function testSendSemaphoreContents() {
 		$this->assertFalse($this->sm->sendSemaphoreContents("alan@igelman.com", "alert"));
 		$this->sm->createSemaphore();
 		$this->assertTrue($this->sm->sendSemaphoreContents("alan@igelman.com", "alert"));
+	}
+	
+	public function testSetContent() {
+		$newContent = "This is new content";
+		$this->sm->setContent($newContent);
+		$this->assertEquals($newContent, $this->sm->getContent());
 	}
 }
