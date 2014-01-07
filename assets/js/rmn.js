@@ -260,27 +260,32 @@ function bindDraftToWpButtons() {
 		$('tr#row-' + clickedRowNumber).addClass('active');
 		$.post(
 			"ajax/ajax.php",
-			{	'action'		: "postCouponToTjd",
+			{	'action'		: "postToTjd",
 				'element-id'	: clickedButtonId,
+				'postType'		: "tmt-coupon-posts",
 				'postTitle'		: $('#cell-title-' + clickedRowNumber).html(),
 				'postContent'	: $('#cell-details-' + clickedRowNumber).html(),
 				'couponCode'	: $('#cell-coupon-' + clickedRowNumber).html(),
 				'couponExpires'	: $('#cell-expires-' + clickedRowNumber).html(),
 				'couponUrl'		: "",
 				'postOfferId'	: $('#cell-offer_id-' + clickedRowNumber).html(),
-				'productTypes'	: [],
+				'productTypes'	: "", //JSON.stringify(["product1", "product2"]),
 				'merchant'		: $('#cell-merchant_domain-' + clickedRowNumber).html(),
 			},
 			function(result, status){
 				result = $.parseJSON(result);
 				//console.log(result);
-				var postId = getPostInfoFromXmlResponse(result.response);
 				var resetButtonId = result.post['element-id'];
-				var updateRowNumber = resetButtonId.replace("button-refresh-", "");
+				var updateRowNumber = resetButtonId.replace("button-refresh-", "");				
 				
-				$('#' + resetButtonId).html("post " + postId);
-				replaceButtonWithLinkToWp(resetButtonId, postId); // $('#' + resetButtonId).button('reset');
-				$('tr#row-' + updateRowNumber).removeClass('active').addClass('success');
+				if ( getPostInfoFromXmlResponse(result.response) ) {
+					var postId = getPostInfoFromXmlResponse(result.response);
+					$('#' + resetButtonId).html("post " + postId);
+					replaceButtonWithLinkToWp(resetButtonId, postId); // $('#' + resetButtonId).button('reset');
+					$('tr#row-' + updateRowNumber).removeClass('active').addClass('success');					
+				} else {
+					$('#' + resetButtonId).replaceWith("fail");
+				}
 			}
 		);
 	});

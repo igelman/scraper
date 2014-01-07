@@ -25,8 +25,8 @@ switch ($action) {
 	case 'listCoupons':
 		listCoupons();
 		break;
-	case 'postCouponToTjd':
-		postCouponToTjd();
+	case 'postToTjd':
+		postToTjd();
 		break;
 	case 'fetchAllUrls':
 		fetchAllUrls();
@@ -105,7 +105,7 @@ function listAllUrls() {
 	}
 }
 
-function postCouponToTjd() {
+function postToTjd() {
 	$username = "rpcxml";
 	$password = "oT5VcsoF";
 	$blogId = 0;
@@ -115,7 +115,7 @@ function postCouponToTjd() {
 	$encoding='UTF-8';
 	$postTitle = htmlentities($_POST['postTitle'],ENT_NOQUOTES,$encoding);
 	$postContent = $_POST['postContent'];
-	$postType = "tmt-coupon-posts";
+	$postType = $_POST['postType']; //"tmt-coupon-posts";
 	$customFields = array(
 		array(
 			"key" 	=> "code",
@@ -138,7 +138,7 @@ function postCouponToTjd() {
 	$productTypes = isset($_POST['productTypes']) ? $_POST['productTypes'] : NULL;
 	$merchant = isset($_POST['merchant']) ? $_POST['merchant'] : NULL;
 	$taxonomies = array(
-		"product_type"	=> $productTypes,
+		"product_type"	=> json_decode($productTypes),
 		"merchant"	=> array($merchant),
 	);
 

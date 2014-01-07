@@ -22,7 +22,7 @@ $semaphoreContent = "Agent encountered a human check at RMN. Clear the captcha, 
 $semaphoreContent .= "Agent will stall until the file $semaphoreBase is removed." . PHP_EOL;
 
 // If the semaphore already exists, halt execution.
-$sm = new SemaphoreManager($semaphoreDir, $semaphoreBase, $semaphoreContent);
+$sm = new SemaphoreManager($semaphoreDir, $semaphoreBase);
 if ( $sm->semaphoreExists() ) {
 	$message .= $sm->readSemaphore();
 	logMessage($message);
@@ -105,9 +105,14 @@ function handleNewUrl($url, $ch) {
 function handleHumanCheck($ch, $sm) {
 	// if presented with humanCheck, log, notify, and exit
 	global $message;
+
 	$effectiveUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
 	if (strstr($effectiveUrl, "humanCheck") ) {
-		$message .= "#HUMANCHECK Presented with human check" . PHP_EOL;
+		$path = $sm->getPath();
+		$message .= "#HUMANCHECK Presented with human check at $effectiveUrl." . PHP_EOL;
+		$message .= "#HUMANCHECK Agent encountered a human check at RMN. Clear the captcha, and delete the file at $path." PHP_EOL;
+		$message .= "#HUMANCHECK Agent will stall until the file $semaphoreBase is removed." . PHP_EOL;
+
 		$sm->createSemaphore();
 		$sm->setContent($message);
 		$sm->sendSemaphoreContents("alan@igelman.com", "alert from rmn-agent");
