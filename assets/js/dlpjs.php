@@ -78,7 +78,14 @@ function addGetCommandButton() {
 
 function makeSourceTable(data) {
 	var refreshSelectedButton = "<button type='button' data-loading-text='Loading...'  class='btn btn-default' id='refresh-selected'><span class='glyphicon glyphicon-cloud-download'></span></button>";
-	var thead = "<thead><tr><th>" + refreshSelectedButton + "</th><th>Date Retrieved</th><th>Set</th><th>Url</th><th> </th></tr></thead>";
+	var thead = "<thead><tr>";
+	thead += "<th>" + refreshSelectedButton + "</th>";
+	thead += "<th>Date Retrieved</th>";
+	thead += "<th>Set</th>";
+	thead += "<th>Url</th>";
+	thead += "<th>&nbsp;</th>";
+	thead += "<th>&nbsp;</th>";
+	thead += "</tr></thead>";
 	var dataTable = "<table class='table table-hover table-condensed' id='data-table'>" + thead + "<tbody>";
 	var dataRows = "";
 	$.each(data, function(rowNumber, item) {
@@ -101,14 +108,13 @@ function makeSourceTable(data) {
 	})
 	dataTable += dataRows;
 	dataTable += "</tbody></table>";
+	
 	$('#data').html(dataTable);
-/*
 	$('#data-table').dataTable({
         "bPaginate": false,
         "bLengthChange": false,
         "bAutoWidth": false
     });
-*/
 
 	$('.block').css({
 		"display"	:	"block",
