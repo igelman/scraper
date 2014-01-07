@@ -109,8 +109,8 @@ function handleHumanCheck($ch, $sm) {
 	$effectiveUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
 	if (strstr($effectiveUrl, "humanCheck") ) {
 		$path = $sm->getPath();
-		$message .= "#HUMANCHECK Presented with human check at $effectiveUrl." . PHP_EOL;
-		$message .= "#HUMANCHECK Agent encountered a human check at RMN. Clear the captcha, and delete the file at $path." PHP_EOL;
+		$message .= "#HUMANCHECK Presented with human check at $effectiveUrl ." . PHP_EOL;
+		$message .= "#HUMANCHECK Agent encountered a human check at RMN. Clear the captcha, and delete the file at $path ." . PHP_EOL;
 		$message .= "#HUMANCHECK Agent will stall until the file $semaphoreBase is removed." . PHP_EOL;
 
 		$sm->createSemaphore();
