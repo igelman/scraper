@@ -76,14 +76,6 @@ function addGetCommandButton() {
 	$( '#controls' ).parent( '.row' ).addClass('well');
 }
 
-function makeTheads(columns) {
-	var row = "";
-	$.each(columns, function( index, column ) {
-		row += "<th>" + column + "</th>";
-	});
-	return row;
-}
-
 function makeSourceTable(data) {
 	var refreshSelectedButton = "<button type='button' data-loading-text='Loading...'  class='btn btn-default' id='refresh-selected'><span class='glyphicon glyphicon-cloud-download'></span></button>";
 	
@@ -127,13 +119,32 @@ function makeSourceTable(data) {
 	dataTable += dataRows;
 	dataTable += tfoot;
 	dataTable += "</tbody></table>";
-	
+
+// Insert table in div #data	
 	$('#data').html(dataTable);
+	
+// Add jQuery dataTable functionality, including column filtering plug-in
+
+	aoColumnsArray = [];
+	$.each(columns, function( index, column ) {
+		if (column == "Set") {
+			aoColumnsArray.push({type:"text"});
+		} else {
+			aoColumnsArray.push(null);	
+		}
+	});
+	console.log("aoColumnsArray...");
+	console.log(aoColumnsArray);
+
+	
 	$('#data-table').dataTable({
         "bPaginate": false,
         "bLengthChange": false,
         "bAutoWidth": false
-    }).columnFilter();
+    }).columnFilter({
+    	"sPlaceHolder": "head:after", 
+    	"aoColumns": aoColumnsArray,
+    });
 
 	$('.block').css({
 		"display"	:	"block",
@@ -144,6 +155,26 @@ function makeSourceTable(data) {
 	
 }
 
+/*
+
+	columns = [
+		refreshSelectedButton,
+		"Date Retrieved",
+		"Set",
+		"Url",
+		"&nbsp;",
+		"&nbsp;"
+	];
+
+*/
+
+function makeTheads(columns) {
+	var row = "";
+	$.each(columns, function( index, column ) {
+		row += "<th>" + column + "</th>";
+	});
+	return row;
+}
 
 function makeTableCell(cellContent, cellId, cellClass) {
 	return "<td class='" + cellClass + "' id='" + cellId + "'>" + cellContent + "</td>";
