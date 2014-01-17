@@ -75,6 +75,7 @@
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <script type="text/javascript" charset="utf8" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="assets/js/jquery.dataTables.columnFilter.js"></script>
     <script src="http://yui.yahooapis.com/3.12.0/build/yui/yui-min.js"></script>
     <script src="assets/bootstrap/js/bootstrap.js"></script>
     <script src="assets/js/dlpjs.php?version=<?php echo(rand())?>"></script>

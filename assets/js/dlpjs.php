@@ -76,16 +76,34 @@ function addGetCommandButton() {
 	$( '#controls' ).parent( '.row' ).addClass('well');
 }
 
+function makeTheads(columns) {
+	var row = "";
+	$.each(columns, function( index, column ) {
+		row += "<th>" + column + "</th>";
+	});
+	return row;
+}
+
 function makeSourceTable(data) {
 	var refreshSelectedButton = "<button type='button' data-loading-text='Loading...'  class='btn btn-default' id='refresh-selected'><span class='glyphicon glyphicon-cloud-download'></span></button>";
+	
+	columns = [
+		refreshSelectedButton,
+		"Date Retrieved",
+		"Set",
+		"Url",
+		"&nbsp;",
+		"&nbsp;"
+	];
+	
 	var thead = "<thead><tr>";
-	thead += "<th>" + refreshSelectedButton + "</th>";
-	thead += "<th>Date Retrieved</th>";
-	thead += "<th>Set</th>";
-	thead += "<th>Url</th>";
-	thead += "<th>&nbsp;</th>";
-	thead += "<th>&nbsp;</th>";
+	thead += makeTheads(columns);
 	thead += "</tr></thead>";
+	
+	var tfoot = "<tfoot><tr>";
+	tfoot += makeTheads(columns);
+	tfoot += "</tr></tfoot>";
+	
 	var dataTable = "<table class='table table-hover table-condensed' id='data-table'>" + thead + "<tbody>";
 	var dataRows = "";
 	$.each(data, function(rowNumber, item) {
@@ -107,6 +125,7 @@ function makeSourceTable(data) {
 		dataRows += row;
 	})
 	dataTable += dataRows;
+	dataTable += tfoot;
 	dataTable += "</tbody></table>";
 	
 	$('#data').html(dataTable);
@@ -114,7 +133,7 @@ function makeSourceTable(data) {
         "bPaginate": false,
         "bLengthChange": false,
         "bAutoWidth": false
-    });
+    }).columnFilter();
 
 	$('.block').css({
 		"display"	:	"block",
