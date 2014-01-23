@@ -526,6 +526,34 @@ function skimify(id) {
 	});
 }
 
+function replaceLinks(id){
+	// replace the original link in content with the skimified link
+	// for each .item- id -old-link,
+	// replace with item- id - new-link- i .html
+	
+	ckId = 'content-' + id; // the CKEditor's id
+	var sourcehtml = CKEDITOR.instances[ckId].getData(); // This doesn't work. I need the text from the CKEditor control.
+	console.log("sourcehtml: " + sourcehtml);
+
+	var resulthtml = sourcehtml;
+	
+	$(".item-" + id + "-old-link").each(function(index, value){
+		var oldLink = $("#item-" + id + "-old-link-" + index).html();
+		var shortLink = $("#item-" + id + "-short-link-" + index).html();
+		console.log("#item-" + id + "-old-link: " + oldLink);
+		console.log("#item-" + id + "-short-link-" + index + ": " + shortLink);
+		resulthtml = resulthtml.replace(oldLink, shortLink); // Replace the original links with the new  (skimified) links. We should also handle the case where there is no skimLink and degrade to newLink or no relacement (but don't leave it blank!!)
+	})
+	
+	resulthtml = resulthtml.replace(/font-size: \d\d[\s]*px/g, "font-size: 11px");  // Replace the original links with the new  (skimified) links
+	resulthtml = resulthtml.replace(/style[\s]*=[\s]*"[^"]*"/g, "");  // Strip "style" element from html tags
+
+	console.log("resulthtml: " + resulthtml);
+	CKEDITOR.instances[ckId].setData(resulthtml);
+	
+	return;
+} // replaceLinks(id)
+
 function endEditItem(id) {
 	console.log("Called endEditItem id "+ id);
 
