@@ -201,6 +201,7 @@ function parseButton(source) {
 				console.log("success parseButton(" + source + ") " + " Status: " + data.status + " Data: " + data.output );
 				console.log(data);
 				insertContent(deal_source, data);
+				bindDraftToWpButtons();
 				//exportContent(deal_source, data.items);
 			},
 			error: function(data){
@@ -346,10 +347,14 @@ function showDeals(items) {
 			comment_count = item.comment_count;
 		}
 		
+		var editButton = "<button id='button-item-" + i + "' class='btn btn-mini' onclick='editItem(" + i + ")' type='button'>" + i + "</button>";
+		var draftToWpButton = "<button type='button' data-loading-text='Loading...'  class='btn btn-default draft-to-wp' id='button-draft-" + i + "'><span class='glyphicon glyphicon-share'></span></button>";
+		
 		content += "<tr id='item-" + i + "' class='" + hotness_class + "'>";
-		content += "<td><button id='button-item-" + i + "' class='btn btn-mini' onclick='editItem(" + i + ")' type='button'>" + i + "</button></td>";
+		content += "<td>" + editButton + "<br>" + draftToWpButton + "</td>";
+		//content += "<td><button id='button-item-" + i + "' class='btn btn-mini' onclick='editItem(" + i + ")' type='button'>" + i + "</button></td>";
 		content += "<td><div>" + hotness + "</div><div><a><img id='primary-image-" + i + "' src='" + item.primary_image + "'></a></div></td>";
-		content += "<td><div id='content-" + i + "'><div>" + item.title + "</div><div>" + item.details + "</div></div><div id='links-" + i + "'>" + link_list + "</div></td>";
+		content += "<td><div id='content-" + i + "'><div id='item-title-'" + i + ">" + item.title + "</div><div id='item-details-'" + i + ">" + item.details + "</div></div><div id='links-" + i + "'>" + link_list + "</div></td>";
 		content += "<td><ul>";
 		content += "<li>Deal Type: " + deal_type + "</li>";
 		content += "<li>Merchant: " + item.merchant + "</li>";
@@ -370,6 +375,49 @@ function showDeals(items) {
 //	$('#output').html(content); //.append(content);
 	return content;
 } // showDeals(items)
+
+
+function bindDraftToWpButtons() {
+	$('.draft-to-wp').on('click', function () {
+		var clickedButtonId = $(this).attr('id');
+		var clickedRowNumber = clickedButtonId.replace("button-draft-", "");
+		
+		$(this).button('loading');
+		$('tr#item-' + clickedRowNumber).addClass('active');
+		$.post(
+			"ajax/ajax.php",
+			{	'action'		: "postToTjd",
+				'element-id'	: clickedButtonId,
+				'postType'		: "tmt-deal-posts",
+				'postTitle'		: $('#item-title-' + clickedRowNumber).html(),
+				'postContent'	: $('#item-details-' + clickedRowNumber).html(),
+/*				'couponCode'	: $('#cell-coupon-' + clickedRowNumber).html(),
+				'couponExpires'	: $('#cell-expires-' + clickedRowNumber).html(),
+				'couponUrl'		: "",
+				'postOfferId'	: $('#cell-offer_id-' + clickedRowNumber).html(),
+				'productTypes'	: "", //JSON.stringify(["product1", "product2"]),
+				'merchant'		: $('#cell-merchant_domain-' + clickedRowNumber).html(),
+*/
+			},
+			function(result, status){
+				result = $.parseJSON(result);
+				//console.log(result);
+				var resetButtonId = result.post['element-id'];
+				var updateRowNumber = resetButtonId.replace("button-refresh-", "");				
+				
+				if ( getPostInfoFromXmlResponse(result.response) ) {
+					var postId = getPostInfoFromXmlResponse(result.response);
+					$('#' + resetButtonId).html("post " + postId);
+					replaceButtonWithLinkToWp(resetButtonId, postId); // $('#' + resetButtonId).button('reset');
+					$('tr#row-' + updateRowNumber).removeClass('active').addClass('success');					
+				} else {
+					$('#' + resetButtonId).replaceWith("fail");
+				}
+			}
+		);
+	});//
+}
+	
 
 function editItem(id) {
 	console.log("Called editItem id "+ id);
