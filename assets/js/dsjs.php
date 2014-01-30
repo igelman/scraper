@@ -354,7 +354,7 @@ function showDeals(items) {
 		content += "<td>" + editButton + "<br>" + draftToWpButton + "</td>";
 		//content += "<td><button id='button-item-" + i + "' class='btn btn-mini' onclick='editItem(" + i + ")' type='button'>" + i + "</button></td>";
 		content += "<td><div>" + hotness + "</div><div><a><img id='primary-image-" + i + "' src='" + item.primary_image + "'></a></div></td>";
-		content += "<td><div id='content-" + i + "'><div id='item-title-'" + i + ">" + item.title + "</div><div id='item-details-'" + i + ">" + item.details + "</div></div><div id='links-" + i + "'>" + link_list + "</div></td>";
+		content += "<td><div id='content-" + i + "'><div id='item-title-" + i + "'>" + item.title + "</div><div id='item-details-" + i + "'>" + item.details + "</div></div><div id='links-" + i + "'>" + link_list + "</div></td>";
 		content += "<td><ul>";
 		content += "<li>Deal Type: " + deal_type + "</li>";
 		content += "<li>Merchant: " + item.merchant + "</li>";
@@ -381,7 +381,8 @@ function bindDraftToWpButtons() {
 	$('.draft-to-wp').on('click', function () {
 		var clickedButtonId = $(this).attr('id');
 		var clickedRowNumber = clickedButtonId.replace("button-draft-", "");
-		
+		console.log("clickedButtonId: " + clickedButtonId);
+		console.log("clickedRowNumber: " + clickedRowNumber);
 		$(this).button('loading');
 		$('tr#item-' + clickedRowNumber).addClass('active');
 		$.post(
@@ -417,7 +418,12 @@ function bindDraftToWpButtons() {
 		);
 	});//
 }
-	
+
+function getPostInfoFromXmlResponse(xmlResponse) {
+	xmlDoc = $.parseXML( xmlResponse ),
+	$xml = $( xmlDoc );
+	return $xml.find( "value" ).text();
+}
 
 function editItem(id) {
 	console.log("Called editItem id "+ id);

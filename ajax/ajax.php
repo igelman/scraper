@@ -116,22 +116,28 @@ function postToTjd() {
 	$postTitle = htmlentities($_POST['postTitle'],ENT_NOQUOTES,$encoding);
 	$postContent = $_POST['postContent'];
 	$postType = $_POST['postType']; //"tmt-coupon-posts";
+	
+	
+	$couponCode = isset($_POST['couponCode']) ? $_POST['couponCode'] : NULL;
+	$couponExpires = isset($_POST['couponExpires']) ? $_POST['couponExpires'] : NULL;
+	$couponUrl = isset($_POST['couponUrl']) ? $_POST['couponUrl'] : NULL;
+	$postOfferId = isset($_POST['postOfferId']) ? $_POST['postOfferId'] : NULL;
 	$customFields = array(
 		array(
 			"key" 	=> "code",
-			"value"	=> $_POST['couponCode'],
+			"value"	=> $couponCode,
 		),
 		array(
 			"key"	=> "expires",
-			"value"	=> strtotime($_POST['couponExpires']) ? date("Ymd", strtotime($_POST['couponExpires'])) : ""  // YYYYMMDD
+			"value"	=> strtotime($couponExpires) ? date("Ymd", strtotime($couponExpires)) : ""  // YYYYMMDD
 		),
 		array(
 			"key"	=>	"url",
-			"value"	=> $_POST['couponUrl'],
+			"value"	=> $couponUrl,
 		),
 		array(
 			"key"	=> "offer_id",
-			"value"	=> $_POST['postOfferId'],
+			"value"	=> $postOfferId,
 		),
 	);
 	
