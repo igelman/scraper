@@ -38,6 +38,7 @@
 					<ul class="nav navbar-nav">
 						<li><a href="download-and-process.php">Download & Process</a></li>
 						<li class="active"><a href="#">Data</a></li>
+						<li><a href="doublestuff.php">DoubleStuff</a></li>
 					</ul>
 			</nav>
 			<div class='row'>

@@ -1,11 +1,9 @@
 <?php
 
-/*
 	define('LOCAL', 'localhost');
 	define('DEVELOPMENT', 'dev.tipjardaily.com');
 	define('PRODUCTION', 'tipjardaily.com');
 	define('DIR', dirname(__FILE__)); // e.g., /home/tipjardaily/tipjardaily.com/tools-dev
-*/
 	
 	$debug = "";
 ?>
@@ -14,7 +12,7 @@
 <html lang="en" ng-app>
 <head>
 	<meta charset="utf-8">
-	<title>Download and Process</title>
+	<title>DN</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta name="description" content="scrapings">
 	<meta name="author" content="Me">
@@ -29,21 +27,19 @@
     <style>
     	body { padding-top: 70px; };
 	</style>
-   
+	
 </head>
-
 <body>
 	<div id='wrap'>
 		<div class='container'>
-			<nav id='navbar' class="navbar navbar-default navbar-fixed-top" role="navigation">
+			<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
 				<div class="collapse navbar-collapse navbar-ex1-collapse">
 					<ul class="nav navbar-nav">
-						<li class="active"><a href="#">Download & Process</a></li>
+						<li><a href="download-and-process.php">Download & Process</a></li>
 						<li><a href="index.php">Data</a></li>
-						<li><a href="doublestuff.php">DoubleStuff</a></li>
+						<li class="active"><a href="#">DoubleStuff</a></li>
 					</ul>
 			</nav>
-			<div id='fixed-message-window' class='row'></div>
 			<div class='row'>
 				<div id='alerts' class='col-md-11 col-md-offset-1'>
 				</div>
@@ -67,22 +63,23 @@
 		    		<?php echo $debug; ?>
 		    	</div>
 		    </div>
-		    <div id='push'>
-		    </div>
 	    </div> <!-- .container -->
 	</div> <!-- #wrap -->
+
     <!-- Le javascript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    <script type="text/javascript" charset="utf8" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>
-    <script type="text/javascript" charset="utf8" src="assets/js/jquery.dataTables.columnFilter.js"></script>
-    <script src="http://yui.yahooapis.com/3.12.0/build/yui/yui-min.js"></script>
+    <script src="assets/third-party/purl-master/purl.js"></script>
+    <script src="assets/third-party/ckeditor/ckeditor.js"></script>
     <script src="assets/bootstrap/js/bootstrap.js"></script>
-    <script src="assets/js/dlpjs.php?version=<?php echo(rand())?>"></script>
+    <script src="assets/js/dsjs.php"></script>
     <script>
 		console.log("About to call init");
 		$( init );
+
+
+
     </script>
 
 
