@@ -270,7 +270,8 @@ function bindDraftToWpButtons() {
 				'couponUrl'		: "",
 				'postOfferId'	: $('#cell-offer_id-' + clickedRowNumber).html(),
 				'productTypes'	: "", //JSON.stringify(["product1", "product2"]),
-				'merchant'		: $('#cell-merchant_domain-' + clickedRowNumber).html(),
+				'merchant'		: JSON.stringify([$('#cell-merchant_domain-' + clickedRowNumber).html()]),
+//				'merchant'		: $('#cell-merchant_domain-' + clickedRowNumber).html(),
 			},
 			function(result, status){
 				result = $.parseJSON(result);

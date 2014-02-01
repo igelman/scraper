@@ -105,6 +105,38 @@ function listAllUrls() {
 	}
 }
 
+/**
+ * Checks whether a string is valid json.
+ *
+ * @param string $string
+ * @return boolean
+ */
+function isJson($string) {
+    try {
+        // try to decode string
+        json_decode($string);
+    }
+    catch (ErrorException $e) {
+        // exception has been caught which means argument wasn't a string and thus is definitely no json.
+        return FALSE;
+    }
+
+    // check if error occured
+    return (json_last_error() == JSON_ERROR_NONE);
+}
+
+function pushToArrayIfPosted($customFieldsArray, $customFieldName, $postKey, $date = FALSE) {
+	if (isset($_POST[$postKey])) {
+		// If the post value is a date, format it Ymd
+		$value = $date && strtotime($_POST[$postKey]) ? date("Ymd", strtotime($_POST[$postKey])) : $_POST[$postKey];
+		array_push($customFieldsArray, [
+			"key" 	=> $customFieldName,
+			"value"	=> json_decode($value),
+		]);
+	}
+	return $customFieldsArray;
+}
+
 function postToTjd() {
 	$username = "rpcxml";
 	$password = "oT5VcsoF";
@@ -117,35 +149,24 @@ function postToTjd() {
 	$postContent = $_POST['postContent'];
 	$postType = $_POST['postType']; //"tmt-coupon-posts";
 	
+	$customFields = [];
+	$customFields = pushToArrayIfPosted($customFields, "code", "couponCode");
+	$customFields = pushToArrayIfPosted($customFields, "expires", "couponExpires", TRUE); // This also needs a strtotime($couponExpires) ? date("Ymd", strtotime($couponExpires))
+	$customFields = pushToArrayIfPosted($customFields, "url", "couponUrl");
+	$customFields = pushToArrayIfPosted($customFields, "offer_id", "postOfferId");
 	
-	$couponCode = isset($_POST['couponCode']) ? $_POST['couponCode'] : NULL;
-	$couponExpires = isset($_POST['couponExpires']) ? $_POST['couponExpires'] : NULL;
-	$couponUrl = isset($_POST['couponUrl']) ? $_POST['couponUrl'] : NULL;
-	$postOfferId = isset($_POST['postOfferId']) ? $_POST['postOfferId'] : NULL;
-	$customFields = array(
-		array(
-			"key" 	=> "code",
-			"value"	=> $couponCode,
-		),
-		array(
-			"key"	=> "expires",
-			"value"	=> strtotime($couponExpires) ? date("Ymd", strtotime($couponExpires)) : ""  // YYYYMMDD
-		),
-		array(
-			"key"	=>	"url",
-			"value"	=> $couponUrl,
-		),
-		array(
-			"key"	=> "offer_id",
-			"value"	=> $postOfferId,
-		),
-	);
+	
+/*
+	$taxonomies = [];
+	$taxonomies = pushToArrayIfPosted($taxonomies, "product_type", "productTypes");
+	$taxonomies = pushToArrayIfPosted($taxonomies, "merchant", "merchant");
+*/
 	
 	$productTypes = isset($_POST['productTypes']) ? $_POST['productTypes'] : NULL;
 	$merchant = isset($_POST['merchant']) ? $_POST['merchant'] : NULL;
 	$taxonomies = array(
 		"product_type"	=> json_decode($productTypes),
-		"merchant"	=> array($merchant),
+		"merchant"	=> json_decode($merchant),
 	);
 
     $postParams = $xmlrpcClient->createPostParams($postTitle, $postContent, $postType, $customFields, $taxonomies);
