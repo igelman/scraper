@@ -251,13 +251,72 @@ function makeTableCell(cellContent, cellId, cellClass) {
 	return "<td class='" + cellClass + "' id='" + cellId + "'>" + cellContent + "</td>";
 }
 
+function getFormattedDate(date) {
+	var year = date.getFullYear();
+	var month = (1 + date.getMonth()).toString();
+	month = month.length > 1 ? month : '0' + month;
+	var day = date.getDate().toString();
+	day = day.length > 1 ? day : '0' + day;
+	return year + month + day;
+}
+
 function bindDraftToWpButtons() {
 	$('.draft-to-wp').on('click', function () {
 		var clickedButtonId = $(this).attr('id');
 		var clickedRowNumber = clickedButtonId.replace("button-draft-", "");
 		
+		var expiresDate = new Date($('#cell-expires-' + clickedRowNumber).html());
+		
+		var customFields = {};
+		customFields['code'] = $('#cell-coupon-' + clickedRowNumber).html();
+		customFields['expires'] = getFormattedDate(expiresDate);
+		customFields['url'] = "";
+		customFields['offer_id'] = $('#cell-offer_id-' + clickedRowNumber).html();
+
+
+// JSON.stringify([$('#cell-merchant_domain-' + clickedRowNumber).html()])
+				
+		var taxonomies = {};
+		//taxonomies['productTypes'] = "";
+		taxonomies['merchant'] = [$('#cell-merchant_domain-' + clickedRowNumber).html()];
+		
+		console.log("taxonomies:")
+		console.log(taxonomies);
+		console.log(JSON.stringify(taxonomies));
+
+		
 		$(this).button('loading');
 		$('tr#row-' + clickedRowNumber).addClass('active');
+		
+		$.post(
+			"ajax/ajax.php",
+			{
+				'action'		: "NEWpostToTjd",
+				'element-id'	: clickedButtonId,
+				'postType'		: "tmt-coupon-posts",
+				'postTitle'		: $('#cell-title-' + clickedRowNumber).html(),
+				'postContent'	: $('#cell-details-' + clickedRowNumber).html(),
+				'customFields'	: (customFields),
+				'taxonomies'	: taxonomies,
+			},
+			function(result, status){
+				result = $.parseJSON(result);
+				//console.log(result);
+				var resetButtonId = result.post['element-id'];
+				var updateRowNumber = resetButtonId.replace("button-refresh-", "");				
+				
+				if ( getPostInfoFromXmlResponse(result.response) ) {
+					var postId = getPostInfoFromXmlResponse(result.response);
+					$('#' + resetButtonId).html("post " + postId);
+					replaceButtonWithLinkToWp(resetButtonId, postId); // $('#' + resetButtonId).button('reset');
+					$('tr#row-' + updateRowNumber).removeClass('active').addClass('success');					
+				} else {
+					$('#' + resetButtonId).replaceWith("fail");
+				}
+			}
+		);
+/*
+		console.log("stringifying: " + JSON.stringify([$('#cell-merchant_domain-' + clickedRowNumber).html()]) );
 		$.post(
 			"ajax/ajax.php",
 			{	'action'		: "postToTjd",
@@ -289,6 +348,7 @@ function bindDraftToWpButtons() {
 				}
 			}
 		);
+*/
 	});
 }
 

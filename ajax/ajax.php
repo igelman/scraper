@@ -28,6 +28,10 @@ switch ($action) {
 	case 'postToTjd':
 		postToTjd();
 		break;
+	
+	case 'NEWpostToTjd':
+		NEWpostToTjd();
+		break;
 	case 'fetchAllUrls':
 		fetchAllUrls();
 		break;
@@ -155,13 +159,6 @@ function postToTjd() {
 	$customFields = pushToArrayIfPosted($customFields, "url", "couponUrl");
 	$customFields = pushToArrayIfPosted($customFields, "offer_id", "postOfferId");
 	
-	
-/*
-	$taxonomies = [];
-	$taxonomies = pushToArrayIfPosted($taxonomies, "product_type", "productTypes");
-	$taxonomies = pushToArrayIfPosted($taxonomies, "merchant", "merchant");
-*/
-	
 	$productTypes = isset($_POST['productTypes']) ? $_POST['productTypes'] : NULL;
 	$merchant = isset($_POST['merchant']) ? $_POST['merchant'] : NULL;
 	$taxonomies = array(
@@ -178,7 +175,59 @@ function postToTjd() {
     $return['post'] = $_POST;
     $return['element-id'] = $_POST['element-id'];
     
+    $return['postParams'] = $postParams;
+    
     echo json_encode($return);
+}
+
+function wordpressConfig() {
+	return [
+		"username"	=> "rpcxml",
+		"password"	=> "oT5VcsoF",
+		"blogId"	=> 0,
+		"endpoint"	=> "http://localhost/development/wordpress/xmlrpc.php",
+	];
+}
+
+function NEWpostToTjd() {
+	$wordpressConfig = wordpressConfig();
+	$xmlrpcClient = new XmlrpcClient($wordpressConfig['username'], $wordpressConfig['password'], $wordpressConfig['blogId'], $wordpressConfig['endpoint']);
+	$encoding='UTF-8';
+
+	$postTitle = htmlentities($_POST['postTitle'],ENT_NOQUOTES,$encoding);
+	$postContent = $_POST['postContent'];
+	$postType = $_POST['postType']; //"tmt-coupon-posts";
+
+	$customFieldsArray = [];
+	foreach ( ($_POST['customFields']) as $customFieldName => $customFieldValue ) {
+		array_push($customFieldsArray, [
+			"key" 	=> $customFieldName,
+			"value"	=> json_decode($customFieldValue),
+		]);
+	}
+	
+	$taxonomiesArray = ($_POST['taxonomies']);
+/*
+	$taxonomiesArray = [];
+	foreach ($taxonomies as $taxonomyName => $taxonomyTerms) {
+		array_push($taxonomiesArray, [
+			$taxonomyName	=> ($taxonomyTerms),
+		]);
+	}
+*/
+
+    $postParams = $xmlrpcClient->createPostParams($postTitle, $postContent, $postType, $customFieldsArray, $taxonomiesArray);
+    $xmlrpcRequest = $xmlrpcClient->createRequest("wp.newPost", $postParams);
+    $response = $xmlrpcClient->sendRequest();
+    
+    $return['request'] = $xmlrpcRequest;
+    $return['response'] = $response;
+    $return['element-id'] = $_POST['element-id'];
+    $return['post'] = $_POST;
+    
+    $return['postParams'] = $postParams;
+
+	echo json_encode($return);
 }
 
 function downloadAndProcess(){
@@ -198,5 +247,14 @@ else (isset($_POST['setNumber'])) {
 	}	
 	echo json_encode($return);	
 }
+
+
+
+
+
+
+
+
+
 
 ?>
