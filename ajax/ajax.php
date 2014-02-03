@@ -141,7 +141,7 @@ function pushToArrayIfPosted($customFieldsArray, $customFieldName, $postKey, $da
 	return $customFieldsArray;
 }
 
-function postToTjd() {
+function OLDpostToTjd() {
 	$username = "rpcxml";
 	$password = "oT5VcsoF";
 	$blogId = 0;
@@ -189,7 +189,7 @@ function wordpressConfig() {
 	];
 }
 
-function NEWpostToTjd() {
+function postToTjd() {
 	$wordpressConfig = wordpressConfig();
 	$xmlrpcClient = new XmlrpcClient($wordpressConfig['username'], $wordpressConfig['password'], $wordpressConfig['blogId'], $wordpressConfig['endpoint']);
 	$encoding='UTF-8';
@@ -199,14 +199,17 @@ function NEWpostToTjd() {
 	$postType = $_POST['postType']; //"tmt-coupon-posts";
 
 	$customFieldsArray = [];
-	foreach ( ($_POST['customFields']) as $customFieldName => $customFieldValue ) {
-		array_push($customFieldsArray, [
-			"key" 	=> $customFieldName,
-			"value"	=> json_decode($customFieldValue),
-		]);
+	
+	if (isset($_POST['customFields']) && count($_POST['customFields']) > 0) {
+		foreach ( ($_POST['customFields']) as $customFieldName => $customFieldValue ) {
+			array_push($customFieldsArray, [
+				"key" 	=> $customFieldName,
+				"value"	=> json_decode($customFieldValue),
+			]);
+		}		
 	}
 	
-	$taxonomiesArray = ($_POST['taxonomies']);
+	$taxonomiesArray = isset($_POST['taxonomies']) ? $_POST['taxonomies'] : NULL ;
 /*
 	$taxonomiesArray = [];
 	foreach ($taxonomies as $taxonomyName => $taxonomyTerms) {

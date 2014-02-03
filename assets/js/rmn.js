@@ -277,13 +277,7 @@ function bindDraftToWpButtons() {
 // JSON.stringify([$('#cell-merchant_domain-' + clickedRowNumber).html()])
 				
 		var taxonomies = {};
-		//taxonomies['productTypes'] = "";
 		taxonomies['merchant'] = [$('#cell-merchant_domain-' + clickedRowNumber).html()];
-		
-		console.log("taxonomies:")
-		console.log(taxonomies);
-		console.log(JSON.stringify(taxonomies));
-
 		
 		$(this).button('loading');
 		$('tr#row-' + clickedRowNumber).addClass('active');
@@ -291,7 +285,7 @@ function bindDraftToWpButtons() {
 		$.post(
 			"ajax/ajax.php",
 			{
-				'action'		: "NEWpostToTjd",
+				'action'		: "postToTjd",
 				'element-id'	: clickedButtonId,
 				'postType'		: "tmt-coupon-posts",
 				'postTitle'		: $('#cell-title-' + clickedRowNumber).html(),
@@ -315,40 +309,6 @@ function bindDraftToWpButtons() {
 				}
 			}
 		);
-/*
-		console.log("stringifying: " + JSON.stringify([$('#cell-merchant_domain-' + clickedRowNumber).html()]) );
-		$.post(
-			"ajax/ajax.php",
-			{	'action'		: "postToTjd",
-				'element-id'	: clickedButtonId,
-				'postType'		: "tmt-coupon-posts",
-				'postTitle'		: $('#cell-title-' + clickedRowNumber).html(),
-				'postContent'	: $('#cell-details-' + clickedRowNumber).html(),
-				'couponCode'	: $('#cell-coupon-' + clickedRowNumber).html(),
-				'couponExpires'	: $('#cell-expires-' + clickedRowNumber).html(),
-				'couponUrl'		: "",
-				'postOfferId'	: $('#cell-offer_id-' + clickedRowNumber).html(),
-				'productTypes'	: "", //JSON.stringify(["product1", "product2"]),
-				'merchant'		: JSON.stringify([$('#cell-merchant_domain-' + clickedRowNumber).html()]),
-//				'merchant'		: $('#cell-merchant_domain-' + clickedRowNumber).html(),
-			},
-			function(result, status){
-				result = $.parseJSON(result);
-				//console.log(result);
-				var resetButtonId = result.post['element-id'];
-				var updateRowNumber = resetButtonId.replace("button-refresh-", "");				
-				
-				if ( getPostInfoFromXmlResponse(result.response) ) {
-					var postId = getPostInfoFromXmlResponse(result.response);
-					$('#' + resetButtonId).html("post " + postId);
-					replaceButtonWithLinkToWp(resetButtonId, postId); // $('#' + resetButtonId).button('reset');
-					$('tr#row-' + updateRowNumber).removeClass('active').addClass('success');					
-				} else {
-					$('#' + resetButtonId).replaceWith("fail");
-				}
-			}
-		);
-*/
 	});
 }
 

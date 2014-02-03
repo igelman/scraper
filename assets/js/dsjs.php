@@ -385,6 +385,10 @@ function bindDraftToWpButtons() {
 		console.log("clickedRowNumber: " + clickedRowNumber);
 		$(this).button('loading');
 		$('tr#item-' + clickedRowNumber).addClass('active');
+
+		var customFields = {};
+		var taxonomies = {};
+
 		$.post(
 			"ajax/ajax.php",
 			{	'action'		: "postToTjd",
@@ -392,6 +396,10 @@ function bindDraftToWpButtons() {
 				'postType'		: "tmt-deal-posts",
 				'postTitle'		: $('#item-title-' + clickedRowNumber).html(),
 				'postContent'	: $('#item-details-' + clickedRowNumber).html(),
+				'customFields'	: (customFields),
+				'taxonomies'	: taxonomies,
+
+				
 /*				'couponCode'	: $('#cell-coupon-' + clickedRowNumber).html(),
 				'couponExpires'	: $('#cell-expires-' + clickedRowNumber).html(),
 				'couponUrl'		: "",
@@ -416,6 +424,39 @@ function bindDraftToWpButtons() {
 				}
 			}
 		);
+
+/*
+		$.post(
+			"ajax/ajax.php",
+			{	'action'		: "postToTjd",
+				'element-id'	: clickedButtonId,
+				'postType'		: "tmt-deal-posts",
+				'postTitle'		: $('#item-title-' + clickedRowNumber).html(),
+				'postContent'	: $('#item-details-' + clickedRowNumber).html(),
+//				'couponCode'	: $('#cell-coupon-' + clickedRowNumber).html(),
+//				'couponExpires'	: $('#cell-expires-' + clickedRowNumber).html(),
+//				'couponUrl'		: "",
+//				'postOfferId'	: $('#cell-offer_id-' + clickedRowNumber).html(),
+//				'productTypes'	: "", //JSON.stringify(["product1", "product2"]),
+//				'merchant'		: $('#cell-merchant_domain-' + clickedRowNumber).html(),
+			},
+			function(result, status){
+				result = $.parseJSON(result);
+				//console.log(result);
+				var resetButtonId = result.post['element-id'];
+				var updateRowNumber = resetButtonId.replace("button-refresh-", "");				
+				
+				if ( getPostInfoFromXmlResponse(result.response) ) {
+					var postId = getPostInfoFromXmlResponse(result.response);
+					$('#' + resetButtonId).html("post " + postId);
+					replaceButtonWithLinkToWp(resetButtonId, postId); // $('#' + resetButtonId).button('reset');
+					$('tr#row-' + updateRowNumber).removeClass('active').addClass('success');					
+				} else {
+					$('#' + resetButtonId).replaceWith("fail");
+				}
+			}
+		);
+*/
 	});//
 }
 
