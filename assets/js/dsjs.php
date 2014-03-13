@@ -506,38 +506,41 @@ function copyImage(id) {
 // And replace the image in the scrape tool
 // Uses ajax call to ajax.php?function=CopyImage&url=[remote img source]&filename=[path/to/hosted/image]
 	console.log("Called copyImage id "+ id );
-	url = $("#" + id).attr('src');
-	var purl = $.url(url); // use URL-Parser plugin to parse url
-	// basename = purl.attr('file'); // user URL-Parser plugin to get basename (e.g., image.png)
-	basename = purl.segment(-1); // attr('file') breaks if the file doesn't have an extension (e.g., ".jpg")
-	//imagesDirname = "/Volumes/Macintosh HD/Library/Server/Web/Data/Sites/Default/development/scraper/doublestuff/assets/stored-content/images/";
-	imagesDirname = "assets/stored-content/images/";
-	imagesUrlDirname = "assets/stored-content/images/";
 	
-	path = imagesDirname + basename;
-
-	console.log("purl object: " + JSON.stringify(purl));
-	console.log("basename (purl.attr('file'): " + basename);
-	console.log("imagespath: " + imagesDirname);
-	console.log("path (imagespath + basename): " + path);
-
-		url = "ajax/ajax-doublestuff.php?function=CopyImage&url=" + encodeURIComponent(url) + "&path=" + encodeURIComponent(path);
-	$.ajax({
-		url: url,
-		type: "GET",
-		dataType: "json",
-		contentType: 'application/json',
-		success: function(data){
-			console.log("success copyImage(" + id + ") " + " " + data.status + " filename: " + data.path );
-			console.log(data);
-			$('#' + id).attr('src', imagesUrlDirname + data.basename);
-			$('#' + id).after("<div>" + imagesUrlDirname + data.basename + "</div>");
-			//<div id=src-primary-image-" + i + "'></div>
-		},
-		error: function(data){
-			console.log("fail copyImage(" + id + ") " + " " + data.status );
-		}
-	});
+	if(typeof $("#" + id).attr('src') != 'undefined') { // check to see if the src attribute exits
+		url = $("#" + id).attr('src');
+		var purl = $.url(url); // use URL-Parser plugin to parse url
+		// basename = purl.attr('file'); // user URL-Parser plugin to get basename (e.g., image.png)
+		basename = purl.segment(-1); // attr('file') breaks if the file doesn't have an extension (e.g., ".jpg")
+		//imagesDirname = "/Volumes/Macintosh HD/Library/Server/Web/Data/Sites/Default/development/scraper/doublestuff/assets/stored-content/images/";
+		imagesDirname = "assets/stored-content/images/";
+		imagesUrlDirname = "assets/stored-content/images/";
+		
+		path = imagesDirname + basename;
+	
+		console.log("purl object: " + JSON.stringify(purl));
+		console.log("basename (purl.attr('file'): " + basename);
+		console.log("imagespath: " + imagesDirname);
+		console.log("path (imagespath + basename): " + path);
+	
+		ajaxUrl = "ajax/ajax-doublestuff.php?function=CopyImage&url=" + encodeURIComponent(url) + "&path=" + encodeURIComponent(path);
+		$.ajax({
+			url: ajaxUrl,
+			type: "GET",
+			dataType: "json",
+			contentType: 'application/json',
+			success: function(data){
+				console.log("success copyImage(" + id + ") " + " " + data.status + " filename: " + data.path );
+				console.log(data);
+				$('#' + id).attr('src', imagesUrlDirname + data.basename);
+				$('#' + id).after("<div>" + imagesUrlDirname + data.basename + "</div>");
+				//<div id=src-primary-image-" + i + "'></div>
+			},
+			error: function(data){
+				console.log("fail copyImage(" + id + ") " + " " + data.status );
+			}
+		});
+	}
 	return;
 } // copyImage(id)
 
