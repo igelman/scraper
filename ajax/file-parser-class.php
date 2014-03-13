@@ -202,7 +202,7 @@ class DealnewsParser extends FileParser {
 	}
 
 	public function assignElementClass() {
-		return ".article-block";
+		return ".article"; // ".article-block";
 	}
 
 	public function parseItem(simple_html_dom_node $node) {
@@ -210,8 +210,10 @@ class DealnewsParser extends FileParser {
 		
 		$article_outer = $node->outertext;
 
-		$item['title'] = $this->checkNestedElements($node, array('h3.article-heading', 'a.std-headline'));
-		$item['details'] = $this->checkNestedElements($node, array('.article-detail'));
+		$item['article-outer'] = $article_outer; // for debugging only
+		$item['title'] = $this->checkNestedElements($node, array('h3.headline-xlarge', 'a')); //$this->checkNestedElements($node, array('h3.article-heading', 'a.std-headline'));
+		$item['details'] = $this->checkNestedElements($node, array('.article-body')); //$this->checkNestedElements($node, array('.article-detail'));
+
 
 		//$item['links'][] = $title->find('a',0)->href;
 		if ( is_array($node->find('a')) ) {
@@ -222,7 +224,7 @@ class DealnewsParser extends FileParser {
 
 
 		$tags = "";
-		$category_path = $this->checkNestedElements($node, array('a[data-iref=fp-category-3col]'), "href");
+		$category_path = $this->checkNestedElements($node, array('a[data-iref]'), "href"); //$this->checkNestedElements($node, array('a[data-iref=fp-category-3col]'), "href");
 		if ($category_path) {
 			$temp =  explode ( "/" , $category_path );
 			foreach ($temp as $tag) {
@@ -233,15 +235,14 @@ class DealnewsParser extends FileParser {
 		}
 		
 		$item['tags'] = $tags;
-		
-		$item['primary_image'] = $this->checkNestedElements($node,array(".article-specs", ".body", ".leftCol", "a", "img"),"src");
+	
+		$item['primary_image'] = $this->checkNestedElements($node,array(".media", ".art-image-large", "a", "img"),"src"); //$this->checkNestedElements($node,array(".article-specs", ".body", ".leftCol", "a", "img"),"src");
 		if ($item['primary_image'] == "") {
 			$comment = $this->checkNestedElements($node,array("comment"));
 			$comment_inner = str_replace ( array("<!--", "-->"), "", $comment );
 			$comment_object = str_get_html ($comment_inner);
-			$item['primary_image'] = $this->checkNestedElements($comment_object,array("img"),"src");
+//			$item['primary_image'] = $this->checkNestedElements($comment_object,array("img"),"src");
 		}
-
 
 		// Get "hotness" from the img title=hotness-level
 		foreach ($node->find('img[title]') as $img) {
