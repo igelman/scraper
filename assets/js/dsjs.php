@@ -253,8 +253,8 @@ function insertContent(deal_source, data){
 
 	console.log("Called insertConent");
 	if (deal_source == "dealnews") {
-	$('#filters').html( constructHotnessMenu(data.hotness_menu_items) );
-		hotnessMenu(); // bind action to hotness menu
+		$('#filters').html( constructHotnessMenu(data.hotness_menu_items) );
+		bindHotnessMenu(); // bind action to hotness menu
 		$('#output').html( showDeals(data.items) );
 	} else if (deal_source == "rmn") {
 		console.log("deal_source==rmn . About to showDeals...");
@@ -265,6 +265,7 @@ function insertContent(deal_source, data){
 } // insertContent(deal_source, data)
 
 function constructHotnessMenu(hotness_menu_items) {
+	console.log("called constructHotnessMenu");
 	var hotness_menu = "";
 	$.each(hotness_menu_items, function(key, value) {
 		hotness_menu += "<label class='checkbox'><input id='" + key + "' class='hotness-check' checked='checked' type='checkbox' value='" + key + "'>" + value + "</label>";
@@ -272,8 +273,8 @@ function constructHotnessMenu(hotness_menu_items) {
 	return hotness_menu;
 } // constructHotnessMenu(hotness_menu_items)
 
-function hotnessMenu(){
-	console.log("called hotnessMenu");
+function bindHotnessMenu(){
+	console.log("called bindHotnessMenu");
 
 	$('.hotness-check').on('click', function () {
 		console.log( $(this).val() + " is clicked" );

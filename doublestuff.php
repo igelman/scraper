@@ -51,6 +51,10 @@
 				</div>
 			</div>
 		    <div class='row'>
+		    	<div id='filters' class='col-md-12'>
+		    	</div>
+		    </div>
+		    <div class='row'>
 		    	<div id='output' class='col-md-12'>
 		    	</div>
 		    </div>
