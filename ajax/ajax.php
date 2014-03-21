@@ -38,8 +38,51 @@ switch ($action) {
 	case 'addToSet':
 		addToSet();
 		break;
+	case 'addUrlToQueue':
+		addUrlToQueue();
+		break;
+	case 'addSetToQueue':
+		addSetToQueue();
+		break;
 	default:
 		echo json_encode ($usageMessage);
+}
+
+function addSetToQueue() {
+	$pm = PdoManager::getInstance();
+	$url = $_GET['set'];
+	try {
+		$stmt = $pm->prepare("SELECT url FROM files WHERE set = :set");
+		$stmt->bindValue(':set', $set, PDO::PARAM_INT);
+		$stmt->setFetchMode(PDO::FETCH_ASSOC);
+		$stmt->execute();
+
+	} catch(PDOException $e) {
+		echo $e->getMessage();
+	}
+
+	$result = array();
+	foreach($stmt as $row) {
+		$result[] = $row;
+	}
+
+	echo json_encode($result);
+}
+
+
+function addUrlToQueue() {
+	$pm = PdoManager::getInstance();
+	$url = $_GET['url'];
+	try {
+		$stmt = $pm->prepare("UPDATE files SET queued = TRUE WHERE url = :url");
+		$stmt->bindValue(':url', $url, PDO::PARAM_STR);
+		$stmt->execute();
+	} catch(PDOException $e) {
+		echo $e->getMessage();
+	}	
+	$return['rowCount'] = $stmt->rowCount();
+	$return['get'] = $_GET;
+	echo json_encode($return);
 }
 
 function addToSet() {
