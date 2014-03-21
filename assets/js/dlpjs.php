@@ -53,10 +53,12 @@ function listAllUrls() {
 	request.done(function(data){
 		makeSourceTable(data);
 		addGetCommandButton();
+		addQueueSetControls();
 		bindRefreshSelectedButton();	// button refreshes all selected records
 		bindRefreshRecordButtons();		// button refreshes current record
 		bindRefreshCheckbox();			// checkbox to select record for refresh
 		bindGetCommandButton();
+		bindQueueSetButton();
 		bindViewCouponsButtons();
 		bindSpanSetNumber(); //bindAddToSetButtons();
 	});
@@ -64,6 +66,16 @@ function listAllUrls() {
 		console.log(jqXHR);
 		console.log( "Request failed: " + textStatus );
 	});
+}
+
+function addQueueSetControls() {
+	var queueSetButton = "<button type='button' class='btn btn-default' id='queue-set'><span class='glyphicon glyphicon-heart'></span></button>";
+	var queueSetInput = "<label for='queueSet'>Queue set</label><input type='number' class='form-control' id='queue-set-input' placeholder='queue set'>";
+	var form = "<form class='form-inline' role='form'><div class='form-group'>" + queueSetInput + "</div>" + queueSetButton + "</form>";
+	$('#queueSetControls').html(form);
+	$('#queueSetInput').css({"width":"200px",});
+	$('#queueSetControls').parent('.row').addClass('well');
+	
 }
 
 function addGetCommandButton() {
@@ -281,6 +293,24 @@ function bindRefreshRecordButtons() {
 				var updateRowNumber = resetButtonId.replace("button-refresh-", "");
 				updateAffectedRow(updateRowNumber, result.package[0]);				
 				
+			}
+		);
+	});
+}
+
+function bindQueueSetButton() {
+	$('#queue-set').on('click', function () {
+		var queueSet = $('#queue-set-input').val();
+		$.post(
+			"ajax/ajax.php",
+			{
+				'action'	: "addSetToQueue",
+				'set'		: queueSet,
+			},
+			function(result, status) {
+				console.log("queueSet result:");
+				console.log(result);
+				$('#queueMessage').html(result);
 			}
 		);
 	});

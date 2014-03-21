@@ -54,6 +54,12 @@
 				<div id='finder' class='col-md-11 col-md-offset-1'>
 				</div>
 			</div>
+			<div class='row'>
+				<div id='queueSetControls' class='col-md-11 col-md-offset-1'>
+				</div>
+				<div id='queueMessage' class='col-md-11 col-md-offset-1'>
+				</div>
+			</div>
 		    <div class='row'>
 		    	<div id='output' class='col-md-12'>
 		    	</div>

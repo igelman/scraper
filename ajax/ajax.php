@@ -50,9 +50,9 @@ switch ($action) {
 
 function addSetToQueue() {
 	$pm = PdoManager::getInstance();
-	$url = $_GET['set'];
+	$set = intval($_POST['set']);
 	try {
-		$stmt = $pm->prepare("SELECT url FROM files WHERE set = :set");
+		$stmt = $pm->prepare("UPDATE files SET queued = TRUE WHERE set_number = :set");
 		$stmt->bindValue(':set', $set, PDO::PARAM_INT);
 		$stmt->setFetchMode(PDO::FETCH_ASSOC);
 		$stmt->execute();
@@ -60,13 +60,9 @@ function addSetToQueue() {
 	} catch(PDOException $e) {
 		echo $e->getMessage();
 	}
-
-	$result = array();
-	foreach($stmt as $row) {
-		$result[] = $row;
-	}
-
-	echo json_encode($result);
+	$return['rowCount'] = $stmt->rowCount();
+	$return['post'] = $_POST;
+	echo json_encode($return);
 }
 
 
@@ -79,7 +75,7 @@ function addUrlToQueue() {
 		$stmt->execute();
 	} catch(PDOException $e) {
 		echo $e->getMessage();
-	}	
+	}
 	$return['rowCount'] = $stmt->rowCount();
 	$return['get'] = $_GET;
 	echo json_encode($return);
