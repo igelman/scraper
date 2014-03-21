@@ -8,7 +8,7 @@ require_once(__DIR__ . "/file-parser-class.php");
 
 // Check command line arguments for --set
 //  syntax: php rmn-agent.php --set=10
-$options = getopt("", ["set::"]);
+$options = getopt("", ["set::", "queued"]);
 //var_dump($options);
 $set = isset($options['set']) ? intval($options['set']) : NULL;
 $message = PHP_EOL;
@@ -32,9 +32,17 @@ if ( $sm->semaphoreExists() ) {
 if (isset($set)) {
 	$message .= "#SELECT url from set " . $set . PHP_EOL;
 	$url = selectStalestUrl($set);
+} elseif (isset($options['queued'])) {
+	$message .= "#SELECT queued url" . PHP_EOL;
+	$url = selectStalestUrl(NULL, TRUE);
 } else {
 	// Choose the oldest record. 
 	$url = selectStalestUrl();
+}
+
+if (!isset($url)) {
+	$message .= "#Nothing to curl" . PHP_EOL;
+	exit($message);
 }
 
 // Curl it
@@ -133,7 +141,7 @@ function updateRecord($url, $html, $parsedContent) {
 	$dbh = PdoManager::getInstance();
 	$dateRetrieved = date("Y-m-d H:i:s");
 	try {
-		$stmt = $dbh->prepare("UPDATE files SET content=:html, date_retrieved = :dateRetrieved, parsed_content = :parsed_content WHERE url=:url");
+		$stmt = $dbh->prepare("UPDATE files SET content=:html, date_retrieved = :dateRetrieved, parsed_content = :parsed_content, queued = FALSE WHERE url=:url");
 		$stmt->bindParam(':html', $html);
 		$stmt->bindParam(':dateRetrieved', $dateRetrieved);
 		$stmt->bindParam(':url', $url);
@@ -153,17 +161,28 @@ function updateRecord($url, $html, $parsedContent) {
 	}
 }
 
-function selectStalestUrl($set=NULL) {
+function selectStalestUrl($set=NULL, $queued=FALSE) {
 	global $message;
 	
-	$whereSet = $set ? "WHERE set_number = :set AND date_retrieved < NOW() - INTERVAL 1 DAY" : "";
-	$select = "SELECT url FROM files " . $whereSet . " ORDER BY date_retrieved asc LIMIT 1";
+	$where  = "";
+	if ($set || $queued) {
+		$where = "WHERE date_retrieved < NOW() - INTERVAL 1 DAY";
+		$where .= $set ? " AND set_number = :set" : "";
+		$where .= $queued ? " AND queued = :queued" : "";
+		$message .= "#where clause: " . $where . PHP_EOL;
+	}
+	
+//	$whereSet = $set ? "WHERE set_number = :set AND date_retrieved < NOW() - INTERVAL 1 DAY" : "";
+	$select = "SELECT url FROM files " . $where . " ORDER BY date_retrieved asc LIMIT 1";
 	
 	$dbh = PdoManager::getInstance();
 	try {
 		$stmt = $dbh->prepare($select);
 		if (isset($set)) {
 			$stmt->bindValue(':set', (int) $set, PDO::PARAM_INT);	
+		}
+		if (isset($queued)) {
+			$stmt->bindValue(':queued', $queued, PDO::PARAM_STR);	
 		}
 		$stmt->execute();
 		$row = $stmt->fetch();
