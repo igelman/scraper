@@ -153,7 +153,7 @@ function makeSourceTable(data) {
         "bPaginate": false,
         "bLengthChange": false,
         "bAutoWidth": false
-    }).columnFilter({
+    }).columnFilter({ // plugin from jquery-datatables-column-filter.googlecode.com/svn/trunk/index.html
     	"sPlaceHolder": "head:after", 
     	"aoColumns": aoColumnsArray,
     });
