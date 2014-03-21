@@ -37,6 +37,7 @@ if (isset($set)) {
 	$url = selectStalestUrl(NULL, TRUE);
 } else {
 	// Choose the oldest record. 
+	$message .= "#SELECT stalest url" . PHP_EOL;
 	$url = selectStalestUrl();
 }
 
