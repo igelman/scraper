@@ -51,6 +51,7 @@ function listAllUrls() {
 		dataType:	"json",
 	});
 	request.done(function(data){
+	console.log(data);
 		makeSourceTable(data);
 		addGetCommandButton();
 		addQueueSetControls();
@@ -93,6 +94,7 @@ function makeSourceTable(data) {
 	
 	columns = [
 		refreshSelectedButton,
+		"Queued",
 		"Date Retrieved",
 		"Set",
 		"Url",
@@ -119,6 +121,7 @@ function makeSourceTable(data) {
 		var row = "<tr class='item' id='row-" + rowNumber + "'>";
 
 		row += makeTableCell(refreshCheckBox, "", "cell-checkbox-refresh");
+		row += makeTableCell(item.queued, "", "");
 		row += makeTableCell(item.date_retrieved, "cell-date-retrieved-" + rowNumber, "cell-date-retrieved");
 		row += makeTableCell(addToSetForm, "cell-set-number-" + rowNumber, "cell-set-number");
 		row += makeTableCell(linkToUrl, "cell-url-" + rowNumber, "cell-url");
@@ -145,9 +148,6 @@ function makeSourceTable(data) {
 			aoColumnsArray.push(null);	
 		}
 	});
-	console.log("aoColumnsArray...");
-	console.log(aoColumnsArray);
-
 	
 	$('#data-table').dataTable({
         "bPaginate": false,

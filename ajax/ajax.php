@@ -132,7 +132,7 @@ function listCoupons() {
 function listAllUrls() {	
 	$pm = PdoManager::getInstance();
 	try {
-		$stmt = $pm->prepare("SELECT date_retrieved, set_number, url FROM files");
+		$stmt = $pm->prepare("SELECT queued, date_retrieved, set_number, url FROM files");
 	
 		$stmt->setFetchMode(PDO::FETCH_ASSOC);
 		$stmt->execute();
