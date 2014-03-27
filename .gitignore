@@ -15,8 +15,9 @@ stored-content/images/*
 # ignore config file with authentication info
 config/*local.config
 
-# ignore data directory
+# ignore data directory and log files
 data/
+*.log
 
 # ignore scratch
 scratch.php
