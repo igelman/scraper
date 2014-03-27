@@ -1,0 +1,29 @@
+<?php
+
+/******
+*  Proxy settings, if used
+******/
+define("PROXY_IP", "127.0.0.1:9150");
+define("APP_ROOT_PATH", dirname(dirname(__FILE__)));
+define("FILE_STORE_PATH", "/data/html/");
+
+
+/******
+*  MySQL params
+******/
+define("DB_HOST", "127.0.0.1");
+define("DB", "scraper");
+define("DB_USER", "");
+define("DB_PASS", "");
+
+
+/******
+*  Wordpress RPC-XML user credentials
+******/
+define("RPCXML_USER", "");
+define("RPCXML_PASS", "");
+
+
+
+
+?>

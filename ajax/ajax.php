@@ -3,6 +3,7 @@ require_once("pdo-manager-class.php");
 require_once("client-download-and-process-class.php");
 require_once("xmlrpc-client-class.php");
 require_once("client-select-parsed-content-class.php");
+require_once("../config/local.config");
 
 $usageMessage = "Usage: post (or get) 'action' (and arguments as required for that action).";
 if (!isset($_POST['action']) && !isset($_GET['action'])) {
@@ -181,8 +182,8 @@ function pushToArrayIfPosted($customFieldsArray, $customFieldName, $postKey, $da
 }
 
 function OLDpostToTjd() {
-	$username = "rpcxml";
-	$password = "oT5VcsoF";
+	$username = RPCXML_USER;
+	$password = RPCXML_PASS;
 	$blogId = 0;
 	$endpoint = "http://localhost/development/wordpress/xmlrpc.php";
 	$xmlrpcClient = new XmlrpcClient($username, $password, $blogId, $endpoint);
@@ -221,8 +222,8 @@ function OLDpostToTjd() {
 
 function wordpressConfig() {
 	return [
-		"username"	=> "rpcxml",
-		"password"	=> "oT5VcsoF",
+		"username"	=> RPCXML_USER,
+		"password"	=> RPCXML_PASS,
 		"blogId"	=> 0,
 		"endpoint"	=> "http://localhost/development/wordpress/xmlrpc.php",
 	];
