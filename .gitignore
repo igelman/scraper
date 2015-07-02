@@ -2,13 +2,13 @@
 
 # ignore third party libraries
 third-party.tar.gz
-assets/php/simplehtmldom/
-assets/bootstrap/
+#assets/php/simplehtmldom/
+#assets/bootstrap/
 assets/kcfinder/
-ckeditor/
+#ckeditor/
 assets/third-party/
 simplehtmldom/
-purl-master/
+#purl-master/
 third-party/
 stored-content/images/*
 
