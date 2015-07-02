@@ -267,9 +267,11 @@ function insertContent(deal_source, data){
 function constructHotnessMenu(hotness_menu_items) {
 	console.log("called constructHotnessMenu");
 	var hotness_menu = "";
-	$.each(hotness_menu_items, function(key, value) {
-		hotness_menu += "<label class='checkbox'><input id='" + key + "' class='hotness-check' checked='checked' type='checkbox' value='" + key + "'>" + value + "</label>";
-	});
+	if (hotness_menu_items != null) {
+		$.each(hotness_menu_items, function(key, value) {
+			hotness_menu += "<label class='checkbox'><input id='" + key + "' class='hotness-check' checked='checked' type='checkbox' value='" + key + "'>" + value + "</label>";
+		});
+	}
 	return hotness_menu;
 } // constructHotnessMenu(hotness_menu_items)
 
