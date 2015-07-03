@@ -2,3 +2,16 @@
 
 curl html
 parse html
+
+Libraries
+https://github.com/paquettg/php-html-parser replaces simplehtml dom
+
+parse {
+	$htmlDoc = new DOMDocument();
+	$htmlDoc->load($html);
+	
+	$docElement = $htmlDoc->documentElement;
+	foreach ($docElement->childNodes as $node) {
+		doSomething();
+	}
+}
