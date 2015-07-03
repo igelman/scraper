@@ -60,6 +60,7 @@ class TestFileParser extends PHPUnit_Framework_TestCase {
 			
 		$this->dnParser->parseDomObject();
 		$dnItems = $this->dnParser->getParsedContent();
+		echo PHP_EOL . "testParseDomObject about to assertEquals" . PHP_EOL;
 		$this->assertEquals($this->dnContent['title'], $dnItems[0]['title']);
 		var_dump($dnItems);
 	}
