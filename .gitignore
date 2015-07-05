@@ -2,14 +2,14 @@
 
 # ignore third party libraries
 third-party.tar.gz
-assets/php/simplehtmldom/
-assets/bootstrap/
+#assets/php/simplehtmldom/
+#assets/bootstrap/
 assets/kcfinder/
-ckeditor/
-assets/third-party/
-simplehtmldom/
+#ckeditor/
+#assets/third-party/
+#simplehtmldom/
 #purl-master/
-third-party/
+#third-party/
 stored-content/images/*
 
 # ignore config file with authentication info
