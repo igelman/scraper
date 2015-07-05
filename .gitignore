@@ -1,7 +1,7 @@
 .DS_Store
 
 # ignore third party libraries
-vendor
+ajax/vendor/*
 third-party.tar.gz
 #assets/php/simplehtmldom/
 #assets/bootstrap/
