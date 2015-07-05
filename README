@@ -7,3 +7,5 @@ sudo chmod -R +a '_www allow read,write,delete,add_file,add_subdirectory,file_in
 Install composer globally:
 	curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer
 More info at https://getcomposer.org/doc/00-intro.md
+
+And then run from ajax/ "composer install"
