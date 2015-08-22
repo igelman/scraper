@@ -184,7 +184,7 @@ function parseButton(source) {
 			file_source =  source_root + file_path ;
 			deal_source = "dealnews";
 		} else if (source_option == "dealnews_remote") {
-			file_source = "http://dealnews.com";
+			file_source = "http://localhost:8888/dealnews.html"; //"http://dealnews.com";
 			deal_source = "dealnews";
 		}
 		console.log("file_source: " + file_source + " deal_source: " + deal_source);
