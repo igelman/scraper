@@ -205,7 +205,7 @@ class DealnewsParser extends FileParser {
 	}
 
 	public function assignElementClass() {
-		return ".article"; // ".article-block";
+		return "div[data-type=article]";//".article"; // ".article-block";
 	}
 
 	public function parseItem(simple_html_dom_node $node) {
@@ -215,7 +215,7 @@ class DealnewsParser extends FileParser {
 
 		$item['article-outer'] = $article_outer; // for debugging only
 		$item['title'] = $this->checkNestedElements($node, array('h3.headline-xlarge', 'a'));
-		$item['details'] = $this->checkNestedElements($node, array('.article-body'));
+		$item['details'] = $this->checkNestedElements($node, array('.content-body')); //$this->checkNestedElements($node, array('.article-body'));
 
 
 		if ( is_array($node->find('a')) ) {
@@ -224,6 +224,7 @@ class DealnewsParser extends FileParser {
 			}			
 		}
 
+        //TO-DO all the anchors use data-iref. Maybe filtering on innertext starting with "SEE ALL"
 		$tags = "";
 		$category_path = $this->checkNestedElements($node, array('a[data-iref]'), "href"); //$this->checkNestedElements($node, array('a[data-iref=fp-category-3col]'), "href");
 		if ($category_path) {
@@ -236,7 +237,7 @@ class DealnewsParser extends FileParser {
 		}
 		$item['tags'] = $tags;
 	
-		$item['primary_image'] = $this->checkNestedElements($node,array(".art-image-xlarge", "a", "img"),"src");
+		$item['primary_image'] = $this->checkNestedElements($node,array("div[class=unit size1of4]",".content-image", "a[data-iref=fp-content-wide-image]", "img"),"src");
 		if ($item['primary_image'] == "") {
 			$comment = $this->checkNestedElements($node,array("comment"));
 			$comment_inner = str_replace ( array("<!--", "-->"), "", $comment );
