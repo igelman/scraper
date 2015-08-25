@@ -237,7 +237,7 @@ class DealnewsParser extends FileParser {
 		}
 		$item['tags'] = $tags;
 	
-		$item['primary_image'] = $this->checkNestedElements($node,array("div[class=unit size1of4]",".content-image", "a[data-iref=fp-content-wide-image]", "img"),"src");
+		$item['primary_image'] = $this->checkNestedElements($node,array("div[class=unit size1of4]",".content-image", "a[data-iref=fp-content-wide-image]", "img"),"data-src");
 		if ($item['primary_image'] == "") {
 			$comment = $this->checkNestedElements($node,array("comment"));
 			$comment_inner = str_replace ( array("<!--", "-->"), "", $comment );

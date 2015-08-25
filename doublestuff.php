@@ -12,7 +12,7 @@
 <html lang="en" ng-app>
 <head>
 	<meta charset="utf-8">
-	<title>DN</title>
+	<title>d-n</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta name="description" content="scrapings">
 	<meta name="author" content="Me">

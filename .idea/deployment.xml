@@ -12,7 +12,7 @@
       <paths name="igelman.com">
         <serverdata>
           <mappings>
-            <mapping deploy="tjd/scraper" local="$PROJECT_DIR$" web="/tjd/scraper/" />
+            <mapping deploy="igelman.com/tjd/scraper" local="$PROJECT_DIR$" web="/tjd/scraper/" />
           </mappings>
         </serverdata>
       </paths>
