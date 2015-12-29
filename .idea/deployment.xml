@@ -9,13 +9,6 @@
           </mappings>
         </serverdata>
       </paths>
-      <paths name="igelman.com">
-        <serverdata>
-          <mappings>
-            <mapping deploy="igelman.com/tjd/scraper" local="$PROJECT_DIR$" web="/tjd/scraper/" />
-          </mappings>
-        </serverdata>
-      </paths>
     </serverData>
     <option name="myAutoUpload" value="ALWAYS" />
   </component>

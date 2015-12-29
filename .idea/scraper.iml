@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="WEB_MODULE" version="4">
+  <component name="NewModuleRootManager">
+    <content url="file://$MODULE_DIR$">
+      <excludeFolder url="file://$MODULE_DIR$/ajax/vendor/composer" />
+      <excludeFolder url="file://$MODULE_DIR$/ajax/vendor/jakoch/phantomjs" />
+      <excludeFolder url="file://$MODULE_DIR$/ajax/vendor/jakoch/phantomjs-installer" />
+      <excludeFolder url="file://$MODULE_DIR$/ajax/vendor/jonnyw/php-phantomjs" />
+      <excludeFolder url="file://$MODULE_DIR$/ajax/vendor/symfony/config" />
+      <excludeFolder url="file://$MODULE_DIR$/ajax/vendor/symfony/dependency-injection" />
+      <excludeFolder url="file://$MODULE_DIR$/ajax/vendor/symfony/filesystem" />
+      <excludeFolder url="file://$MODULE_DIR$/ajax/vendor/symfony/yaml" />
+      <excludeFolder url="file://$MODULE_DIR$/ajax/vendor/twig/twig" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module-library">
+      <library name="PHARS">
+        <CLASSES>
+          <root url="phar://$MODULE_DIR$/ajax/vendor/symfony/dependency-injection/Tests/Fixtures/includes/ProjectWithXsdExtensionInPhar.phar" />
+          <root url="phar://$MODULE_DIR$/ajax/composer.phar" />
+        </CLASSES>
+        <SOURCES>
+          <root url="phar://$MODULE_DIR$/ajax/vendor/symfony/dependency-injection/Tests/Fixtures/includes/ProjectWithXsdExtensionInPhar.phar" />
+          <root url="phar://$MODULE_DIR$/ajax/composer.phar" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="PHP">
+        <CLASSES>
+          <root url="file://$MODULE_DIR$/ajax/vendor/twig/twig" />
+          <root url="file://$MODULE_DIR$/ajax/vendor/symfony/filesystem" />
+          <root url="file://$MODULE_DIR$/ajax/vendor/jonnyw/php-phantomjs" />
+          <root url="file://$MODULE_DIR$/ajax/vendor/composer" />
+          <root url="file://$MODULE_DIR$/ajax/vendor/symfony/dependency-injection" />
+          <root url="file://$MODULE_DIR$/ajax/vendor/jakoch/phantomjs" />
+          <root url="file://$MODULE_DIR$/ajax/vendor/symfony/yaml" />
+          <root url="file://$MODULE_DIR$/ajax/vendor/jakoch/phantomjs-installer" />
+          <root url="file://$MODULE_DIR$/ajax/vendor/symfony/config" />
+        </CLASSES>
+        <SOURCES>
+          <root url="file://$MODULE_DIR$/ajax/vendor/twig/twig" />
+          <root url="file://$MODULE_DIR$/ajax/vendor/symfony/filesystem" />
+          <root url="file://$MODULE_DIR$/ajax/vendor/jonnyw/php-phantomjs" />
+          <root url="file://$MODULE_DIR$/ajax/vendor/composer" />
+          <root url="file://$MODULE_DIR$/ajax/vendor/symfony/dependency-injection" />
+          <root url="file://$MODULE_DIR$/ajax/vendor/jakoch/phantomjs" />
+          <root url="file://$MODULE_DIR$/ajax/vendor/symfony/yaml" />
+          <root url="file://$MODULE_DIR$/ajax/vendor/jakoch/phantomjs-installer" />
+          <root url="file://$MODULE_DIR$/ajax/vendor/symfony/config" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+  </component>
+</module>

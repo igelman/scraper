@@ -9,3 +9,49 @@ Install composer globally:
 More info at https://getcomposer.org/doc/00-intro.md
 
 And then run from ajax/ "composer install"
+
+***
+-- phpMyAdmin SQL Dump
+-- version 4.4.10
+-- http://www.phpmyadmin.net
+--
+-- Host: localhost:8889
+-- Generation Time: Dec 30, 2015 at 12:22 AM
+-- Server version: 5.5.42
+-- PHP Version: 7.0.0
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET time_zone = "+00:00";
+
+--
+-- Database: `scraper`
+--
+CREATE DATABASE IF NOT EXISTS `scraper` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
+USE `scraper`;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `files`
+--
+
+CREATE TABLE `files` (
+  `url` varchar(500) NOT NULL,
+  `html` text NOT NULL,
+  `date_retrieved` datetime NOT NULL,
+  `parsed_content` text NOT NULL,
+  `set_number` int(11) NOT NULL,
+  `queued` tinyint(1) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `files`
+--
+ALTER TABLE `files`
+  ADD PRIMARY KEY (`url`);
+
+***

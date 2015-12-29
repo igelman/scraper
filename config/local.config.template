@@ -3,7 +3,7 @@
 /******
 *  Proxy settings, if used
 ******/
-define("PROXY_IP", "127.0.0.1:9150");
+define("PROXY_IP", "127.0.0.1:8899");
 define("APP_ROOT_PATH", dirname(dirname(__FILE__)));
 define("FILE_STORE_PATH", "/data/html/");
 
