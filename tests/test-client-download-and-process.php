@@ -4,14 +4,20 @@ require_once("../ajax/client-download-and-process-class.php");
 class TestClientDownloadAndProcess extends PHPUnit_Framework_TestCase {
 
 	protected function setUp() {
+        date_default_timezone_set('America/New_York');
 	
-		$this->urlsArray = array("http://www.retailmenot.com/view/fossil.com","http://www.retailmenot.com/view/fragrancenet.com ");
+		$this->urlsArray = [
+            "http://www.retailmenot.com/view/fossil.com",
+            "http://www.retailmenot.com/view/fragrancenet.com "
+        ];
+		//array("http://www.retailmenot.com/view/fossil.com","http://www.retailmenot.com/view/fragrancenet.com ");
+
+		$set = 2;
+		$sleep = 15;
 
 		$this->urlsClient = new ClientDownloadAndProcessUrls($this->urlsArray, 20);
-		$this->setClient = new ClientDownloadAndProcessSet(41);
+		$this->setClient = new ClientDownloadAndProcessSet(/*41*/$set);
 		
-		$set = 42;
-		$sleep = 15;
 		$this->setClientWithSleep = new ClientDownloadAndProcessSet($set,$sleep);
 
 		//$this->badUrlsClient = new ClientDownloadAndProcessUrls();
