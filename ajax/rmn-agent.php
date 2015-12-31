@@ -67,7 +67,7 @@ if (handleHumanCheck($ch, $sm)) {
 $url = handleNewUrl($url, $ch);
 $parsedContent = parseContent($html);
 
-if (strlen($parsedContent) > 5) {
+if (strlen($parsedContent) > 0 /*5*/) {
 	updateRecord($url, $html, $parsedContent);	
 } else {
 	$message .= "#UPDATE FAILED Parse failed. strlen(\$parsedContent) = " . strlen($parsedContent) . PHP_EOL;
@@ -171,6 +171,7 @@ function selectStalestUrl($set=NULL, $queued=FALSE) {
 		$where .= $set ? " AND set_number = :set" : "";
 		$where .= $queued ? " AND queued = :queued" : "";
 		$message .= "#where clause: " . $where . PHP_EOL;
+        $message .= "\$set: $set" . PHP_EOL . "\$queued: $queued" . PHP_EOL;
 	}
 	
 //	$whereSet = $set ? "WHERE set_number = :set AND date_retrieved < NOW() - INTERVAL 1 DAY" : "";
@@ -180,16 +181,18 @@ function selectStalestUrl($set=NULL, $queued=FALSE) {
 	try {
 		$stmt = $dbh->prepare($select);
 		if (isset($set)) {
-			$stmt->bindValue(':set', (int) $set, PDO::PARAM_INT);	
+			$stmt->bindValue(':set', (int) $set, PDO::PARAM_INT);
+            $message .= "bindValue(':set', (int) $set, PDO::PARAM_INT)" . PHP_EOL;
 		}
-		if (isset($queued)) {
-			$stmt->bindValue(':queued', $queued, PDO::PARAM_STR);	
+		if ( ($queued) ) {
+			$stmt->bindValue(':queued', $queued, PDO::PARAM_STR);
+            $message .= "bindValue(':queued', $queued, PDO::PARAM_STR)" . PHP_EOL;
 		}
 		$stmt->execute();
 		$row = $stmt->fetch();
 		return $row['url'];
 	} catch(PDOException $e){
-		$message .= "#SELECT MERCHANT selectStalestUrl failed ... " . $e->getMessage() . PHP_EOL;
+		$message .= "#SELECT MERCHANT selectStalestUrl failed ... " . PHP_EOL . $select . PHP_EOL . $e->getMessage() . PHP_EOL;
 		logMessage("", "", $message);
 		exit($message);
 	}

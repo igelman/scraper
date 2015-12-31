@@ -3,7 +3,7 @@ require_once("../ajax/client-select-parsed-content-class.php");
 
 class TestClientSelectParsedContent extends PHPUnit_Framework_TestCase {
 
-	private $offset = 5;
+	private $offset = 1;
 	private $maxRecords = 1;
 	private $url = "http://www.retailmenot.com/view/worldmarket.com";
 	private $parserItems = 17;  // A little fragile: "17" is the count of data items. So if the parser ever changes, that number will change.
